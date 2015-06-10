@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]
+    then
+        echo "Run with 'activate' argument!"
+        exit
+    fi
+
+SVNVERSION=`svnversion -n`
+DATE=`date +"%Y-%m-%d %H:%M"`
+
+sed -e "s/SVNVERSION/$SVNVERSION/g" -e "s/DATE/$DATE/g" \
+    src/lib/cats/CATsMainHeader.hpp > src/lib/cats/CATsMainHeader_.h
+
+mv -f src/lib/cats/CATsMainHeader_.h src/lib/cats/CATsMainHeader.hpp
+
