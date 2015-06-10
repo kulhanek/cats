@@ -20,41 +20,6 @@ SET(CATS_LIB_SRC
 
     # map support --------------------------------
         maps/ResidueMaps.cpp
-
-    # pmflib support -----------------------------
-        pmflib/PMFLibCV.cpp
-        pmflib/PMFLibCVs.cpp
-
-        pmflib/cvs/cv_acn.cpp
-        pmflib/cvs/cv_acyl.cpp
-        pmflib/cvs/cv_ang.cpp
-        pmflib/cvs/cv_asph.cpp
-        pmflib/cvs/cv_axang.cpp
-        pmflib/cvs/cv_cang.cpp
-        pmflib/cvs/cv_dd.cpp
-        pmflib/cvs/cv_dds.cpp
-        pmflib/cvs/cv_dih.cpp
-        pmflib/cvs/cv_dis.cpp
-        pmflib/cvs/cv_ds.cpp
-        pmflib/cvs/cv_egap.cpp
-        pmflib/cvs/cv_epot.cpp
-        pmflib/cvs/cv_mdis.cpp
-        pmflib/cvs/cv_mdisc.cpp
-        pmflib/cvs/cv_mdisg.cpp
-        pmflib/cvs/cv_odis.cpp
-        pmflib/cvs/cv_ods.cpp
-        pmflib/cvs/cv_pang.cpp
-        pmflib/cvs/cv_pmgtd.cpp
-        pmflib/cvs/cv_pmogt.cpp
-        pmflib/cvs/cv_pos.cpp
-        pmflib/cvs/cv_rgyr.cpp
-        pmflib/cvs/cv_rmsdl.cpp
-        pmflib/cvs/cv_rmsdt.cpp
-        pmflib/cvs/cv_sanis.cpp
-        pmflib/cvs/cv_plane.cpp
-        pmflib/cvs/cv_puck6q.cpp
-        pmflib/cvs/cv_puck6t.cpp
-        pmflib/cvs/cv_puck6p.cpp
         )
 
 # scripting engine -------------------------------------------------------------
@@ -84,7 +49,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QSimpleVector.cpp
         jscript/QTransformation.cpp
         jscript/QGeometry.cpp
-        jscript/QPMFLibCVs.cpp
+#        jscript/QPMFLibCVs.cpp
         jscript/QCovarMatrix.cpp
 
     # data analysis ------------------------------   

@@ -55,7 +55,7 @@
 #include <QSimpleVector.hpp>
 #include <QTransformation.hpp>
 #include <QGeometry.hpp>
-#include <QPMFLibCVs.hpp>
+//#include <QPMFLibCVs.hpp>
 #include <QCovarMatrix.hpp>
 
 // data analysis ------------------------------
@@ -141,7 +141,7 @@ bool CCATs::Run(void)
     QSimpleVector::Register(Engine);
     QTransformation::Register(Engine);
     QGeometry::Register(Engine);
-    QPMFLibCVs::Register(Engine);
+//    QPMFLibCVs::Register(Engine);
     QCovarMatrix::Register(Engine);
 
     // data analysis ------------------------------
