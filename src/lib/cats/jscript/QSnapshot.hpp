@@ -142,6 +142,7 @@ private:
     friend class QCovarMatrix;
     friend class QTransformation;
     friend class QVolumeData;
+    friend class QPMFLib;
 
     /// clear object data if topology is cleaned - only weak objects
     virtual void CleanData(void);

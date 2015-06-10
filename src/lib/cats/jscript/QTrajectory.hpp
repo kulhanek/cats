@@ -47,7 +47,7 @@ public:
     Q_PROPERTY(QScriptValue topology    READ getTopology WRITE setIsNotAllowed)
     Q_PROPERTY(QScriptValue title       READ getTitle WRITE setTitle)
     Q_PROPERTY(QScriptValue format      READ getFormat WRITE setIsNotAllowed)
-    Q_PROPERTY(QScriptValue open        READ isOpened WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue isopen      READ isOpened WRITE setIsNotAllowed)
 
 // methods ---------------------------------------------------------------------
 public slots:    

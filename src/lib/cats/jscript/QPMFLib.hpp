@@ -1,5 +1,5 @@
-#ifndef QPMFLibCVsH
-#define QPMFLibCVsH
+#ifndef QPMFLibH
+#define QPMFLibH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -25,7 +25,6 @@
 #include <QScriptContext>
 #include <QScriptable>
 #include <AmberRestart.hpp>
-#include <PMFLibCVs.hpp>
 #include <QCATsScriptable.hpp>
 
 //------------------------------------------------------------------------------
@@ -35,30 +34,29 @@ class QSnapshot;
 
 //------------------------------------------------------------------------------
 
-class QPMFLibCVs : public QObject, protected QScriptable, protected QCATsScriptable {
+/// PMFLib bridge - only one instance
+
+class QPMFLib : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
-    QPMFLibCVs(QTopology* p_qtop);
-    static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
+    QPMFLib(void);
     static void Register(QScriptEngine& engine);
-
-// properties ------------------------------------------------------------------
+    static void SetScriptArgument(const QString& arg);
 
 // methods ---------------------------------------------------------------------
 public slots:
-    /// load PMFLib CV file
-    bool load(const QString& name);
+    /// load PMFLib control file
+    /// bool init(snapshot,ctrlname)
+    QScriptValue init(void);
 
     /// get CV value
-    double getValue(QObject* p_snapshot,const QString& name);
-
-// access methods --------------------------------------------------------------
-public:
+    /// double getCVValue(snapshot,cvname);
+    QScriptValue getCVValue(void);
 
 // section of private data -----------------------------------------------------
 private:
-    CPMFLibCVs  PMFLibCVs;
+    bool    Initialized;
 };
 
 //------------------------------------------------------------------------------

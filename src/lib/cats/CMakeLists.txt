@@ -49,7 +49,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QSimpleVector.cpp
         jscript/QTransformation.cpp
         jscript/QGeometry.cpp
-#        jscript/QPMFLibCVs.cpp
+        jscript/QPMFLib.cpp
         jscript/QCovarMatrix.cpp
 
     # data analysis ------------------------------   

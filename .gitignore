@@ -11,3 +11,5 @@ bin/*
 lib/*
 include/*
 Testing/
+CATs.*
+test/*

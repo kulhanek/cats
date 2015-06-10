@@ -45,7 +45,7 @@ void QCATs::Register(QScriptEngine& engine)
 {
     QObject* p_obj = new QCATs;
     QScriptValue objectValue = engine.newQObject(p_obj);
-    engine.globalObject().setProperty("cats", objectValue);
+    engine.globalObject().setProperty("CATs", objectValue);
 
     QScriptValue fun;
     fun = engine.newFunction(QCATs::printf);

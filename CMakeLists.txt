@@ -11,7 +11,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8 FATAL_ERROR)
 
 SET(LIBS_SHARED     ON  CACHE BOOL "Should the shared version of cats library be built?")
 SET(LIBS_STATIC     OFF CACHE BOOL "Should the static version of cats library be built?")
-SET(TRY_QT_LIB      ON CACHE BOOL "Should the qt lib be used?")
+SET(TRY_QT_LIB      ON  CACHE BOOL "Should the qt lib be used?")
 SET(CATS_NETWORK    ON  CACHE BOOL "Is network available")
 
 # ==============================================================================
@@ -127,7 +127,16 @@ FIND_PACKAGE(Qt5Script REQUIRED)
 SET(HAVE_QT5 1)
 ADD_DEFINITIONS(-DHAVE_QT5)
 
+# PMFLib =========================
+SET(PMFLIB_ROOT ${DEVELOPMENT_ROOT}/projects/pmflib/5.0)
+INCLUDE_DIRECTORIES(${PMFLIB_ROOT}/src/lib/cpmf SYSTEM)
+INCLUDE_DIRECTORIES(${PMFLIB_ROOT}/src/lib/fdrivers/cats/ SYSTEM)
+LINK_DIRECTORIES(${PMFLIB_ROOT}/lib)
+LINK_DIRECTORIES(${PMFLIB_ROOT}/lib/drivers)
+SET(PMF_LIB_NAME fpmfdrv_cats fpmf cpmf)
+
 SET(CATS_LIBS cats
+        ${PMF_LIB_NAME}
         ${NETCDF_CLIB_NAME}
         ${NETLIB_LIB_NAME}
         ${QT_LIBRARIES}
