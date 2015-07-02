@@ -50,8 +50,16 @@ public slots:
     /// bool init(snapshot,ctrlname)
     QScriptValue init(void);
 
+    /// set coordinates
+    /// void setCoordinates(snapshot)
+    QScriptValue setCoordinates(void);
+
+    /// get number of CVs
+    /// int getNumOfCVs();
+    QScriptValue getNumOfCVs(void);
+
     /// get CV value
-    /// double getCVValue(snapshot,cvname);
+    /// double getCVValue(cvname);
     QScriptValue getCVValue(void);
 
 // section of private data -----------------------------------------------------

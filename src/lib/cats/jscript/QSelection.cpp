@@ -209,7 +209,7 @@ QScriptValue QSelection::printInfo(void)
         if( value.isError() ) return(value);
 
         if( Mask.GetTopology() != p_qsnap->Restart.GetTopology() ){
-            ThrowError("snapshot","snapshot and selection do not have the same topology");
+            return( ThrowError("snapshot","snapshot and selection do not have the same topology") );
         }
     }
 

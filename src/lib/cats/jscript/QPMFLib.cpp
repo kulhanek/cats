@@ -133,6 +133,61 @@ QScriptValue QPMFLib::init(void)
 
 //------------------------------------------------------------------------------
 
+QScriptValue QPMFLib::setCoordinates(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: setCoordinates(snapshot)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("snapshot",1);
+    if( value.isError() ) return(value);
+
+    QSnapshot* p_snap;
+    value = GetArgAsObject<QSnapshot*>("snapshot","snapshot","Snapshot",1,p_snap);
+    if( value.isError() ) return(value);
+
+    if( Initialized == false ){
+        return( ThrowError("snapshot","PMFLIb is not initialized") );
+    }
+
+// execute ---------------------------------------
+    CPoint box = p_snap->Restart.GetBox();
+    CPoint angles = p_snap->Restart.GetAngles();
+    CPMFCATsDriver::SetCoordinates(p_snap->Restart.GetNumberOfAtoms(),p_snap->Restart.GetCoordinatesBuffer(),
+                                   box.x,box.y,box.z,angles.x,angles.y,angles.z);
+    return( value );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPMFLib::getNumOfCVs(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int getNumOfCVs()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    value = CPMFCATsDriver::GetNumberOfCVs();
+    return( value );
+}
+
+//------------------------------------------------------------------------------
+
 QScriptValue QPMFLib::getCVValue(void)
 {
     QScriptValue value;
@@ -140,25 +195,39 @@ QScriptValue QPMFLib::getCVValue(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: double getCVValue(snapshot,name)" << endl;
+        sout << "usage: double getCVValue(name/index)" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("snapshot,name",2);
+    value = CheckNumberOfArguments("name/index",1);
     if( value.isError() ) return(value);
 
-    QSnapshot* p_snap;
-    value = GetArgAsObject<QSnapshot*>("snapshot,name","snapshot","Snapshot",1,p_snap);
-    if( value.isError() ) return(value);
+    if( IsArgumentInt(1) ){
+        int indx = 0;
+        value = GetArgAsInt("index","name/index",1,indx);
+        if( value.isError() ) return(value);
 
-    QString cvname;
-    value = GetArgAsString("snapshot,name","name",2,cvname);
-    if( value.isError() ) return(value);
+        if( Initialized == false ){
+            return( ThrowError("name/index","PMFLib is not initialized") );
+        }
 
+    // execute ---------------------------------------
+        value = CPMFCATsDriver::GetCVValue(indx);
+        return( value );
+    } else {
+        QString cvname;
+        value = GetArgAsString("name","name/index",1,cvname);
+        if( value.isError() ) return(value);
 
-// execute ---------------------------------------
-    return( value );
+        if( Initialized == false ){
+            return( ThrowError("name/index","PMFLib is not initialized") );
+        }
+
+    // execute ---------------------------------------
+        value = CPMFCATsDriver::GetCVValue(cvname.toStdString().c_str());
+        return( value );
+    }
 }
 
 //==============================================================================
