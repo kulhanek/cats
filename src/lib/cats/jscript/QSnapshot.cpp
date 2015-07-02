@@ -242,68 +242,99 @@ QScriptValue QSnapshot::copyFrom(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool Snapshot::copyFrom(snapshot/selection/averageSnapshot)" << endl;
-        return(false);
+        sout << "usage: Snapshot::copyFrom(snapshot[,selection])" << endl;
+        sout << "       Snapshot::copyFrom(averageSnapshot[,selection])" << endl;
+        return(value);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("snapshot/selection/averageSnapshot",1);
+    value = CheckNumberOfArguments("snapshot/averageSnapshot[,selection]",1,2);
     if( value.isError() ) return(value);
 
     if( IsArgumentObject<QSnapshot*>(1) ){
         QSnapshot* p_snap;
-        GetArgAsObject("snapshot/selection/averageSnapshot","snapshot","Snapshot",1,p_snap);
-        if( GetNumOfAtoms() != p_snap->GetNumOfAtoms() ){
-            CSmallString error;
-            error << "inconsistent number of atoms, source (" << p_snap->GetNumOfAtoms() << "), target (" << GetNumOfAtoms() << ")";
-            return( ThrowError("snapshot/selection/averageSnapshot",error) );
+        GetArgAsObject("snapshot/averageSnapshot[,selection]","snapshot","Snapshot",1,p_snap);
+
+        if( GetArgumentCount() == 1 ){
+            if( GetNumOfAtoms() != p_snap->GetNumOfAtoms() ){
+                CSmallString error;
+                error << "inconsistent number of atoms, source (" << p_snap->GetNumOfAtoms() << "), target (" << GetNumOfAtoms() << ")";
+                return( ThrowError("snapshot/averageSnapshot[,selection]",error) );
+            }
+            Restart = p_snap->Restart;
+            return(value);
+        } else {
+
+            QSelection* p_sel;
+            GetArgAsObject("snapshot/averageSnapshot,selection","selection","Selection",2,p_sel);
+
+            if( GetNumOfAtoms() != p_sel->Mask.GetNumberOfSelectedAtoms() ){
+                CSmallString error;
+                error << "inconsistent number of atoms, selection (" << p_sel->Mask.GetNumberOfSelectedAtoms() << "), target (" << GetNumOfAtoms() << ")";
+                return(ThrowError("snapshot/averageSnapshot,selection",error));
+            }
+
+            CAmberRestart* p_src = &p_snap->Restart;
+            for(int i=0; i < GetNumOfAtoms(); i++ ){
+                int j = p_sel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex();
+                CPoint pos = p_src->GetPosition(j);
+                Restart.SetPosition(i,pos);
+                if( p_src->AreVelocitiesLoaded() ){
+                    CPoint vel = p_src->GetVelocity(j);
+                    Restart.SetVelocity(i,vel);
+                }
+            }
+            if( p_src->IsBoxPresent() ){
+                Restart.SetBox(p_src->GetBox());
+                Restart.SetAngles(p_src->GetAngles());
+            }
         }
-        Restart = p_snap->Restart;
-        return(true);
     }
 
     if( IsArgumentObject<QAverageSnapshot*>(1) ){
+
         QAverageSnapshot* p_asnap;
-        GetArgAsObject("snapshot/selection/averageSnapshot","averageSnapshot","AverageSnapshot",1,p_asnap);
-        if( GetNumOfAtoms() != p_asnap->Restart.GetNumberOfAtoms() ){
-            CSmallString error;
-            error << "inconsistent number of atoms, source (" << p_asnap->Restart.GetNumberOfAtoms() << "), target (" << GetNumOfAtoms() << ")";
-            return( ThrowError("snapshot/selection/averageSnapshot",error) );
-        }
-        if( p_asnap->SamplingMode == true ){
-            return( ThrowError("snapshot/selection/averageSnapshot","averageSnapshot is still in sampling mode") );
-        }
-        Restart = p_asnap->Restart;
-        return(true);
-    }
+        GetArgAsObject("snapshot/averageSnapshot[,selection]","averageSnapshot","AverageSnapshot",1,p_asnap);
 
-    if( IsArgumentObject<QSelection*>(1) ){
-        QSelection* p_sel;
-        GetArgAsObject("snapshot/selection/averageSnapshot","selection","Selection",1,p_sel);
+        if( GetArgumentCount() == 1 ){
+            if( GetNumOfAtoms() != p_asnap->Restart.GetNumberOfAtoms() ){
+                CSmallString error;
+                error << "inconsistent number of atoms, source (" << p_asnap->Restart.GetNumberOfAtoms() << "), target (" << GetNumOfAtoms() << ")";
+                return( ThrowError("snapshot/averageSnapshot[,selection]",error) );
+            }
+            if( p_asnap->SamplingMode == true ){
+                return( ThrowError("snapshot/averageSnapshot[,selection]","averageSnapshot is still in sampling mode") );
+            }
+            Restart = p_asnap->Restart;
+            return(value);
+        } else {
+            QSelection* p_sel;
+            GetArgAsObject("snapshot/averageSnapshot,selection","selection","Selection",2,p_sel);
 
-        if( GetNumOfAtoms() != p_sel->Mask.GetNumberOfSelectedAtoms() ){
-            CSmallString error;
-            error << "Snapshot::copyFrom(selection) - inconsistent number of atoms, selection (" << p_sel->Mask.GetNumberOfSelectedAtoms() << "), target (" << GetNumOfAtoms() << ")";
-            context()->throwError(QString(error));
-            return(false);
-        }
-        CAmberRestart* p_src = p_sel->Mask.GetCoordinates();
-        for(int i=0; i < GetNumOfAtoms(); i++ ){
-            int j = p_sel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex();
-            CPoint pos = p_src->GetPosition(j);
-            Restart.SetPosition(i,pos);
-            if( p_src->AreVelocitiesLoaded() ){
-                CPoint vel = p_src->GetVelocity(j);
-                Restart.SetVelocity(i,vel);
+            if( GetNumOfAtoms() != p_sel->Mask.GetNumberOfSelectedAtoms() ){
+                CSmallString error;
+                error << "inconsistent number of atoms, selection (" << p_sel->Mask.GetNumberOfSelectedAtoms() << "), target (" << GetNumOfAtoms() << ")";
+                return(ThrowError("snapshot/averageSnapshot,selection",error));
+            }
+
+            CAmberRestart* p_src = &p_asnap->Restart;
+            for(int i=0; i < GetNumOfAtoms(); i++ ){
+                int j = p_sel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex();
+                CPoint pos = p_src->GetPosition(j);
+                Restart.SetPosition(i,pos);
+                if( p_src->AreVelocitiesLoaded() ){
+                    CPoint vel = p_src->GetVelocity(j);
+                    Restart.SetVelocity(i,vel);
+                }
+            }
+            if( p_src->IsBoxPresent() ){
+                Restart.SetBox(p_src->GetBox());
+                Restart.SetAngles(p_src->GetAngles());
             }
         }
-        if( p_src->IsBoxPresent() ){
-            Restart.SetBox(p_src->GetBox());
-            Restart.SetAngles(p_src->GetAngles());
-        }
-        return(true);
     }
-    return( value );
+
+    return( ThrowError("snapshot/averageSnapshot[,selection]","first argument must be either snapshot or averageSnapshot") );
 }
 
 //------------------------------------------------------------------------------

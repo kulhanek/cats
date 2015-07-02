@@ -57,8 +57,8 @@ public slots:
     QScriptValue save(void);
 
     /// copy from selection, snapshot, or average snapshot
-    /// bool copyFrom(snapshot)
-    /// bool copyFrom(averageSnapshot)
+    /// copyFrom(snapshot[,selection])
+    /// copyFrom(averageSnapshot[,selection])
     QScriptValue copyFrom(void);
 
     /// clear all data
