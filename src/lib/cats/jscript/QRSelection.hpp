@@ -72,7 +72,7 @@ public slots:
 
     /// get selected atom
     /// residue getResidue(index)
-    /// residue getResidue(index,atom)
+    /// residue getResidue(index,residue)
     QScriptValue getResidue(void);
 
 // section of private data -----------------------------------------------------

@@ -41,10 +41,10 @@ public:
     static void Register(QScriptEngine& engine);
 
 // properties ------------------------------------------------------------------
-    Q_PROPERTY(QScriptValue name            READ getName WRITE setName)
-    Q_PROPERTY(QScriptValue minValue        READ getMinValue WRITE setMinValue)
-    Q_PROPERTY(QScriptValue getMaxValue     READ getNumOfSamples WRITE setMaxValue)
-    Q_PROPERTY(QScriptValue numOfBins       READ getNumOfBins WRITE setNumOfBins)
+    Q_PROPERTY(QScriptValue name        READ getName WRITE setName)
+    Q_PROPERTY(QScriptValue minValue    READ getMinValue WRITE setMinValue)
+    Q_PROPERTY(QScriptValue maxValue    READ getMaxValue WRITE setMaxValue)
+    Q_PROPERTY(QScriptValue numOfBins   READ getNumOfBins WRITE setNumOfBins)
 
 // methods ---------------------------------------------------------------------
 public slots:

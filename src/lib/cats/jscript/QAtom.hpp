@@ -51,21 +51,27 @@ public:
 // methods ---------------------------------------------------------------------
 public slots:
     /// get topology
+    /// topology getTopology()
     QScriptValue getTopology(void);
 
     /// get atom index counting from zero
+    /// int getIndex()
     QScriptValue getIndex(void);
 
     /// get atom name
+    /// string getName()
     QScriptValue getName(void);
 
     /// get residue
+    /// residue getResidue()
     QScriptValue getResidue(void);
 
     /// get residue index
+    /// int getResIndex()
     QScriptValue getResIndex(void);
 
     /// get residue name
+    /// string getResName()
     QScriptValue getResName(void);
 
     /// get number of neighbour atoms

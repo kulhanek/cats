@@ -195,7 +195,7 @@ QScriptValue QHistogram::setMaxValue(const QScriptValue& dummy)
 
     if( num <= MinValue ){
         CSmallString error;
-        error << "min value (" << CSmallString().DoubleToStr(num) << ") must be higher than min value (" << CSmallString().DoubleToStr(MinValue) <<")";
+        error << "max value (" << CSmallString().DoubleToStr(num) << ") must be higher than min value (" << CSmallString().DoubleToStr(MinValue) <<")";
         return( ThrowError("value",error));
     }
 
