@@ -621,6 +621,57 @@ QScriptValue QHistogram::transformToRadial(void)
     return(true);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram::getIntegral(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::getIntegral(from,to)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("from,to",2);
+    if( value.isError() ) return(value);
+
+    double from,to;
+    value = GetArgAsRNumber("from,to","from",1,from);
+    if( value.isError() ) return(value);
+    value = GetArgAsRNumber("from,to","to",2,to);
+    if( value.isError() ) return(value);
+
+    if( from >= to ){
+        CSmallString error;
+        error << "'from' value (" << CSmallString().DoubleToStr(from) << ") must be smaller than 'to' value (" << CSmallString().DoubleToStr(to) <<")";
+        return( ThrowError("value",error));
+    }
+
+    // calculate index
+    double dch = (MaxValue - MinValue)/NBins;
+    if( dch <= 0 ){
+        return( ThrowError("from,to","bin width is zero or negative value"));
+    }
+    int index1 = (from - MinValue)/dch;
+    if( index1 < 0 ) index1 = 0;
+    if( index1 >= static_cast<int>(Histogram.size()) ) index1 = static_cast<int>(Histogram.size()) - 1;
+
+    int index2 = (to - MinValue)/dch;
+    if( index2 < 0 ) index2 = 0;
+    if( index2 >= static_cast<int>(Histogram.size()) ) index2 = static_cast<int>(Histogram.size()) - 1;
+
+// execute ---------------------------------------
+    double intval = 0;
+    for(int i=index1;i<=index2; i++){
+        intval += Histogram[i]*dch;
+    }
+
+    return(intval);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

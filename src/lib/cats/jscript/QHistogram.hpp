@@ -79,25 +79,36 @@ public slots:
 
 // data manipulation methods ---------------------------------------------------
     /// add sample
+    /// addSample(sample)
     QScriptValue addSample(void);
 
-    /// resturn number of samples
+    /// return number of samples loaded via addSample
+    /// double getNumOfSamples()
     QScriptValue getNumOfSamples(void);
 
-    /// resturn number of samples within min,max interval
+    /// return number of samples within min,max interval
+    /// double getNumOfSamplesWithin()
     QScriptValue getNumOfSamplesWithin(void);
 
     /// clear all values
+    /// reset()
     QScriptValue reset(void);
 
     /// mult by factor
+    /// multBy(factor)
     QScriptValue multBy(void);
 
     /// normalize histogram
+    /// normalize()
     QScriptValue normalize(void);
 
     /// transform to radial
+    /// transformToRadial()
     QScriptValue transformToRadial(void);
+
+    /// calculate integral within interval from;to rounded to given bins
+    /// double getIntegral(from,to)
+    QScriptValue getIntegral(void);
 
 // i/o methods -----------------------------------------------------------------
     /// save histogram
