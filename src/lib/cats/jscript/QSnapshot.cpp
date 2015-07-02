@@ -288,6 +288,7 @@ QScriptValue QSnapshot::copyFrom(void)
                 Restart.SetBox(p_src->GetBox());
                 Restart.SetAngles(p_src->GetAngles());
             }
+            return(value);
         }
     }
 
@@ -331,6 +332,7 @@ QScriptValue QSnapshot::copyFrom(void)
                 Restart.SetBox(p_src->GetBox());
                 Restart.SetAngles(p_src->GetAngles());
             }
+            return(value);
         }
     }
 
