@@ -275,7 +275,7 @@ QScriptValue QTrajPool::addTrajListFrom(void)
 
     QString tmpname = DefaultTmpName;
     QString tformat = "unknown";
-    if( GetArgumentCount() > 2 ){
+    if( GetArgumentCount() > 3 ){
         value = GetArgAsString("first,last,path[,tmpname,format]","tmpname",4,tmpname);
         if( value.isError() ) return(value);
 
