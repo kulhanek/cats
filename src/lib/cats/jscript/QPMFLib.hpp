@@ -59,8 +59,16 @@ public slots:
     QScriptValue getNumOfCVs(void);
 
     /// get CV value
-    /// double getCVValue(cvname);
+    /// double getCVValue(name/index);
     QScriptValue getCVValue(void);
+
+    /// get CV name
+    /// double getCVName(index);
+    QScriptValue getCVName(void);
+
+    /// get CV type
+    /// double getCVType(name/index);
+    QScriptValue getCVType(void);
 
 // section of private data -----------------------------------------------------
 private:

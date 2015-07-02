@@ -230,6 +230,80 @@ QScriptValue QPMFLib::getCVValue(void)
     }
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QPMFLib::getCVName(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: string getCVName(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int indx = 0;
+    value = GetArgAsInt("index","index",1,indx);
+    if( value.isError() ) return(value);
+
+    if( Initialized == false ){
+        return( ThrowError("index","PMFLib is not initialized") );
+    }
+
+// execute ---------------------------------------
+    value = QString(CPMFCATsDriver::GetCVName(indx));
+    return( value );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPMFLib::getCVType(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: string getCVType(name/index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("name/index",1);
+    if( value.isError() ) return(value);
+
+    if( IsArgumentInt(1) ){
+        int indx = 0;
+        value = GetArgAsInt("index","name/index",1,indx);
+        if( value.isError() ) return(value);
+
+        if( Initialized == false ){
+            return( ThrowError("name/index","PMFLib is not initialized") );
+        }
+
+    // execute ---------------------------------------
+        value = QString(CPMFCATsDriver::GetCVType(indx));
+        return( value );
+    } else {
+        QString cvname;
+        value = GetArgAsString("name","name/index",1,cvname);
+        if( value.isError() ) return(value);
+
+        if( Initialized == false ){
+            return( ThrowError("name/index","PMFLib is not initialized") );
+        }
+
+    // execute ---------------------------------------
+        value = QString(CPMFCATsDriver::GetCVType(cvname.toStdString().c_str()));
+        return( value );
+    }
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
