@@ -601,7 +601,7 @@ QScriptValue QSnapshot::center(void)
     bool origin = IsArgumentKeySelected("origin");
     bool nomass = IsArgumentKeySelected("nomass");
     QSelection* p_qsel = NULL;
-    FindArgAsObject<QSelection*>("[selection,key1,key2,...]","Selection",p_qsel);
+    FindArgAsObject<QSelection*>("[selection,key1,key2,...]","Selection",p_qsel,false);
 
     value = CheckArgumentsUsage("[selection,key1,key2,...]");
     if( value.isError() ) return(value);
