@@ -87,7 +87,7 @@ public:
 
     /// find argument as object - find first occurence
     template <class object>
-    QScriptValue FindArgAsObject(const QString& args,const QString& type,object& value);
+    QScriptValue FindArgAsObject(const QString& args,const QString& type,object& value,bool error=true);
 
     /// is key present
     bool IsArgumentKeySelected(const QString& key);
@@ -181,7 +181,7 @@ QScriptValue QCATsScriptable::GetArgAsObject(const QString& args,const QString& 
 //------------------------------------------------------------------------------
 
 template <class object>
-QScriptValue QCATsScriptable::FindArgAsObject(const QString& args,const QString& type,object& value)
+QScriptValue QCATsScriptable::FindArgAsObject(const QString& args,const QString& type,object& value,bool error)
 {
     for(int idx = 1; idx <= GetArgumentCount(); idx++){
         value = NULL;
@@ -197,15 +197,17 @@ QScriptValue QCATsScriptable::FindArgAsObject(const QString& args,const QString&
         }
     }
 
+    if( ! error ) return(true); // do not report error
+
     // construct error string
     if( Context() == NULL ){
         return(QScriptValue(false));
     }
-    QString error;
-    error = GetMethodName(args) + " - ";
-    error += " one argument must be of " + type + " type";
+    QString serror;
+    serror = GetMethodName(args) + " - ";
+    serror += " one argument must be of " + type + " type";
 
-    return( Context()->throwError(error) );
+    return( Context()->throwError(serror) );
 }
 
 //------------------------------------------------------------------------------

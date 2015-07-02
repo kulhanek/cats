@@ -780,7 +780,7 @@ QScriptValue QSnapshot::rmsdFit(void)
     bool nomass = IsArgumentKeySelected("nomass");
 
     QSelection* p_qsel = NULL;
-    FindArgAsObject<QSelection*>("snapshot[selection,key1,key2,...]","Selection",p_qsel);
+    FindArgAsObject<QSelection*>("snapshot[selection,key1,key2,...]","Selection",p_qsel,false);
 
     value = CheckArgumentsUsage("[key1,key2,...]");
     if( value.isError() ) return(value);
