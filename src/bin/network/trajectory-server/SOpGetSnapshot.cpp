@@ -73,7 +73,7 @@ bool CTSProcessor::GetSnapshot(void)
     // lock access to trajectory
     TSServer.TrajectoryMutex.Lock();
 
-    if( TSServer.Trajectory.ReadSnapshot() ) {
+    if( TSServer.ReadSnapshot() ) {
         TSServer.SnapshotIndex++;
 
         // write data

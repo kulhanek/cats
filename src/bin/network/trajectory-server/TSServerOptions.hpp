@@ -49,7 +49,7 @@ public:
     CSO_ARG(CSmallString,ControlFile)
     // options ------------------------------
     CSO_OPT(bool,DoNotShutdown)
-    CSO_OPT(bool,TrajInfo)
+    CSO_OPT(bool,NoTrajInfo)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -74,13 +74,13 @@ public:
                 "do not shutdown automatically when all clients are unregistered")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
-                TrajInfo,                        /* option name */
+                NoTrajInfo,                        /* option name */
                 false,                          /* default value */
                 false,                          /* is option mandatory */
                 '\0',                           /* short option name */
-                "trajinfo",                      /* long option name */
+                "notrajinfo",                      /* long option name */
                 NULL,                           /* parametr name */
-                "print info about trajectory")   /* option description */
+                "do not print info about trajectory")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

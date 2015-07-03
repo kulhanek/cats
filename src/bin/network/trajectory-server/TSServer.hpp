@@ -29,6 +29,7 @@
 #include <AmberTrajectory.hpp>
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
+#include <vector>
 
 #include "TSServerOptions.hpp"
 
@@ -62,9 +63,18 @@ private:
     CTerminalStr        Console;
     CVerboseStr         vout;
 
-    CPrmFile            Controls;       // controls
+    CPrmFile            Controls;           // controls
     CSmallString        TopologyName;       // topology name
-    CSmallString        TrajectoryName;     // trajectory name
+
+    class CTrajPoolItem {
+    public:
+        CTrajPoolItem(void);
+        CSmallString    Name;
+        CSmallString    Format;
+        int             NumOfSnapshots;
+    };
+    std::vector<CTrajPoolItem>  TrajectoryPool;
+    int                         CurrentItem;
 
     // global data -------------------------------
     CAmberTopology      Topology;
@@ -78,6 +88,13 @@ private:
 
     /// process control file
     bool ProcessFileControl(CPrmFile& confile);
+
+    /// trajectory helper methods
+    bool AddTrajFile(const CSmallString& name,const CSmallString& fmt);
+    ETrajectoryFormat DecodeFormat(const CSmallString& format);
+    const CSmallString EncodeFormat(ETrajectoryFormat format);
+    bool PrintTrajectoryInfo(void);
+    bool ReadSnapshot(void);
 
     friend class CTSProcessor;
 };
