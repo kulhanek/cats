@@ -603,6 +603,7 @@ QScriptValue QSnapshot::getLargestSphereRadius(void)
     if( Restart.IsBoxPresent() == false ) return(0.0);
     Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
     Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
     return( Restart.GetTopology()->BoxInfo.GetLargestSphereRadius());
 }
 
