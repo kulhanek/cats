@@ -501,7 +501,7 @@ QScriptValue QSnapshot::isBoxPresent(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Snapshot::isBoxPresent()" << endl;
+        sout << "usage: bool Snapshot::isBoxPresent()" << endl;
         return(false);
     }
 
@@ -522,7 +522,7 @@ QScriptValue QSnapshot::getBoxASize(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Snapshot::getBoxASize()" << endl;
+        sout << "usage: double Snapshot::getBoxASize()" << endl;
         return(false);
     }
 
@@ -545,7 +545,7 @@ QScriptValue QSnapshot::getBoxBSize(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Snapshot::getBoxBSize()" << endl;
+        sout << "usage: double Snapshot::getBoxBSize()" << endl;
         return(false);
     }
 
@@ -568,7 +568,7 @@ QScriptValue QSnapshot::getBoxCSize(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Snapshot::getBoxCSize()" << endl;
+        sout << "usage: double Snapshot::getBoxCSize()" << endl;
         return(false);
     }
 
@@ -580,6 +580,30 @@ QScriptValue QSnapshot::getBoxCSize(void)
     if( Restart.IsBoxPresent() == false ) return(0.0);
     CPoint box = Restart.GetBox();
     return(box.z);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getLargestSphereRadius(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getLargestSphereRadius()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    return( Restart.GetTopology()->BoxInfo.GetLargestSphereRadius());
 }
 
 //==============================================================================

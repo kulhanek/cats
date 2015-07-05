@@ -87,16 +87,24 @@ public slots:
 
 // box methods -----------------------------------------------------------------
     /// is box available
+    /// bool isBoxPresent()
     QScriptValue isBoxPresent(void);
 
     /// get box A vector size
+    /// double getBoxASize()
     QScriptValue getBoxASize(void);
 
     /// get box B vector size
+    /// double getBoxBSize()
     QScriptValue getBoxBSize(void);
 
     /// get box C vector size
+    /// double getBoxCSize()
     QScriptValue getBoxCSize(void);
+
+    /// get radius of largest inscribed sphere
+    /// double getLargestSphereRadius()
+    QScriptValue getLargestSphereRadius(void);
 
 // manipulation methods --------------------------------------------------------
     /// center snapshot
