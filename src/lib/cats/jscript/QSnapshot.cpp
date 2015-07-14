@@ -1223,6 +1223,7 @@ QScriptValue QSnapshot::getCOM(void)
             com += p1*mass;
             totmass += mass;
         }
+        if( totmass > 0.0 ) com /= totmass;
     } else {
         CAmberTopology* p_top = Restart.GetTopology();
         double totmass = 0.0;
