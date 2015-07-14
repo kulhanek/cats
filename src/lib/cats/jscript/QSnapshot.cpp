@@ -1179,6 +1179,83 @@ QScriptValue QSnapshot::getRMSD(void)
     return(rms);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getCOM(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: point Snapshot::getCOM([selection][,point][,key1,...])" << endl;
+        return(false);
+    }
+
+// arguments -------------------------------------
+    QSelection* p_qsel = NULL;
+    FindArgAsObject<QSelection*>("[selection][,point][,key1,...]","Selection",p_qsel);
+
+    QPoint* p_qpts = NULL;
+    FindArgAsObject<QPoint*>("[selection][,point][,key1,...]","Point",p_qpts);
+
+    bool nomass = IsArgumentKeySelected("nomass");
+
+    value = CheckArgumentsUsage("[key1,key2,...]");
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    CPoint com;
+    if( p_qsel != NULL){
+        CAmberTopology* p_top = Restart.GetTopology();
+        double totmass = 0.0;
+        for(int s=0; s < p_qsel->Mask.GetNumberOfSelectedAtoms(); s++) {
+            int i = p_qsel->Mask.GetSelectedAtomCondensed(s)->GetAtomIndex();
+            CAmberAtom* p_atom = p_top->AtomList.GetAtom(i);
+            // topology and snapshot have the same number of atoms
+            double mass;
+            if( nomass ){
+                mass = 1.0;
+            } else {
+                mass = p_atom->GetMass();
+            }
+            CPoint p1 = Restart.GetPosition(i);
+            com += p1*mass;
+            totmass += mass;
+        }
+    } else {
+        CAmberTopology* p_top = Restart.GetTopology();
+        double totmass = 0.0;
+        for(int i=0; i < GetNumOfAtoms(); i++) {
+            CAmberAtom* p_atom = p_top->AtomList.GetAtom(i);
+            // topology and snapshot have the same number of atoms
+            double mass;
+            if( nomass ){
+                mass = 1.0;
+            } else {
+                mass = p_atom->GetMass();
+            }
+            CPoint p1 = Restart.GetPosition(i);
+            com += p1*mass;
+            totmass += mass;
+        }
+        if( totmass > 0.0 ) com /= totmass;
+    }
+
+    if( p_qpts == NULL ){
+        QPoint* p_obj = new QPoint();
+        p_obj->Point = com;
+        QScriptValue obj = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
+        return(obj);
+    } else {
+        p_qpts->Point = com;
+        for(int i=1;i<=GetArgumentCount();i++){
+            if( IsArgumentObject<QPoint*>(i) ) return(GetArgument(i));
+        }
+        return(false);
+    }
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

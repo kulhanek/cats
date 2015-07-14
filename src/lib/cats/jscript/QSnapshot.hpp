@@ -112,14 +112,19 @@ public slots:
     QScriptValue center(void);
 
     /// image snapshot
-    /// center([key1,...])
+    /// image([key1,...])
     QScriptValue image(void);
 
     /// fit snapshot by rmsd to reference structure
+    /// rmsdFit([key1,...])
     QScriptValue rmsdFit(void);
 
     /// get rmsd to reference structure
     QScriptValue getRMSD(void);
+
+    /// get COM point
+    /// point getCOM([selection][,point][,key1,...])
+    QScriptValue getCOM(void);
 
 // atom access methods ---------------------------------------------------------
     /// get number of atoms
