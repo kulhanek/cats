@@ -1194,10 +1194,10 @@ QScriptValue QSnapshot::getCOM(void)
 
 // arguments -------------------------------------
     QSelection* p_qsel = NULL;
-    FindArgAsObject<QSelection*>("[selection][,point][,key1,...]","Selection",p_qsel);
+    FindArgAsObject<QSelection*>("[selection][,point][,key1,...]","Selection",p_qsel,false);
 
     QPoint* p_qpts = NULL;
-    FindArgAsObject<QPoint*>("[selection][,point][,key1,...]","Point",p_qpts);
+    FindArgAsObject<QPoint*>("[selection][,point][,key1,...]","Point",p_qpts,false);
 
     bool nomass = IsArgumentKeySelected("nomass");
 
