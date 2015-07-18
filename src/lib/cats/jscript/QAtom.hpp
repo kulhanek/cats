@@ -98,6 +98,14 @@ public slots:
     /// bool isSameAs(atom)
     QScriptValue isSameAs(void);
 
+    /// get mass of atom
+    /// double getMass()
+    QScriptValue getMass(void);
+
+    /// get charge of atom
+    /// double getCharge()
+    QScriptValue getCharge(void);
+
 // access methods --------------------------------------------------------------
 public:   
     CAmberAtom*     Atom;

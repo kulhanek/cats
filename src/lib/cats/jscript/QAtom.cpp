@@ -434,6 +434,56 @@ QScriptValue QAtom::isSameAs(void)
     return( p_qatom->Atom == Atom );
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QAtom::getMass(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: string Atom::getMass()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+    if( Atom == NULL ){
+        return( ThrowError("","no atom is associated with the object") );
+    }
+
+// execute ---------------------------------------
+    return(Atom->GetMass());
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QAtom::getCharge(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: string Atom::getCharge()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+    if( Atom == NULL ){
+        return( ThrowError("","no atom is associated with the object") );
+    }
+
+// execute ---------------------------------------
+    return(Atom->GetStandardCharge());
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

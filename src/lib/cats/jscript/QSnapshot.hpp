@@ -128,10 +128,16 @@ public slots:
 
 // atom access methods ---------------------------------------------------------
     /// get number of atoms
+    /// int getNumOfAtoms()
     QScriptValue getNumOfAtoms(void);
 
     /// get position of atom
+    /// point getPosition(index[,point])
     QScriptValue getPosition(void);
+
+    /// get atom mass
+    /// double getMass(index)
+    QScriptValue getMass(void);
 
 // access methods --------------------------------------------------------------
 public:
