@@ -272,6 +272,58 @@ QScriptValue QPoint::set(void)
     return(value);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::add(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  Point::add(point)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("point",1);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point = NULL;
+    value = GetArgAsObject<QPoint*>("point","point","Point",1,p_point);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    Point += p_point->Point;
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::multBy(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  Point::multBy(fact)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("fact",1);
+    if( value.isError() ) return(value);
+
+    double fac = 0;
+    value = GetArgAsRNumber("fact","fact",1,fac);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    Point *= fac;
+    return(value);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

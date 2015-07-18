@@ -61,6 +61,14 @@ public slots:
     /// set all
     QScriptValue set(void);
 
+    /// add point
+    /// add(point)
+    QScriptValue add(void);
+
+    /// mult by constant
+    /// multBy(fact)
+    QScriptValue multBy(void);
+
 // access methods --------------------------------------------------------------
 public:   
     CPoint  Point;

@@ -139,6 +139,10 @@ public slots:
     /// double getMass(index)
     QScriptValue getMass(void);
 
+    /// set position of atom
+    /// setPosition(index,point)
+    QScriptValue setPosition(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// return number of atoms

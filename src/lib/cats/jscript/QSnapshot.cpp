@@ -1360,6 +1360,41 @@ QScriptValue QSnapshot::getMass(void)
     return(Restart.GetMass(index));
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::setPosition(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Snapshot::setPosition(index,point)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index,point",2);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    int index;
+
+    value = GetArgAsInt("index,point","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= Restart.GetNumberOfAtoms()) ){
+        return( ThrowError("index", "index is out-of-range") );
+    }
+
+    QPoint* p_obj = NULL;
+    value = GetArgAsObject<QPoint*>("index,point","point","Point",2,p_obj);
+    if( value.isError() ) return(value);
+
+    Restart.SetPosition(index,p_obj->Point);
+    return( value );
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
