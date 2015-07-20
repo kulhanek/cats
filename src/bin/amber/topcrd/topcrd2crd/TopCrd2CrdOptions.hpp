@@ -60,6 +60,7 @@ public:
     CSO_OPT(bool,Reindex)
     CSO_OPT(bool,CopyBox)
     CSO_OPT(bool,NoVelocities)
+    CSO_OPT(bool,NoChains)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -176,6 +177,16 @@ public:
                 "novelocities",                      /* long option name */
                 NULL,                           /* parametr name */
                 "do not transfer velocities")   /* option description */
+
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(bool,                           /* option type */
+                NoChains,                        /* option name */
+                false,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "nochains",                      /* long option name */
+                NULL,                           /* parametr name */
+                "do not print chain IDs into pdb files")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

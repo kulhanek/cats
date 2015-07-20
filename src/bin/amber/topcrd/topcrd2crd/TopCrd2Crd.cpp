@@ -457,6 +457,9 @@ bool CTopCrd2Crd::WritePDB(FILE* p_fout)
             if( resid > 9999 ){
                 resid = 1;
             }
+            if( Options.GetOptNoChains() ) {
+                chain_id = ' ';
+            }
             fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
                     atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
                     chain_id,
