@@ -62,16 +62,20 @@ public slots:
     QScriptValue set(void);
 
     /// add point
-    /// add(point)
+    /// point add(point)
     QScriptValue add(void);
 
     /// sub point
-    /// sub(point)
+    /// point sub(point)
     QScriptValue sub(void);
 
     /// mult by constant
-    /// multBy(fact)
+    /// point multBy(fact)
     QScriptValue multBy(void);
+
+    /// getNormalVector
+    /// point getNormalVector()
+    QScriptValue getNormalVector(void);
 
     /// normalize
     /// normalize()

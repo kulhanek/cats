@@ -281,7 +281,7 @@ QScriptValue QPoint::add(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage:  Point::add(point)" << endl;
+        sout << "usage: point Point::add(point)" << endl;
         return(value);
     }
 
@@ -294,7 +294,9 @@ QScriptValue QPoint::add(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    Point += p_point->Point;
+    QPoint* p_res = new QPoint();
+    p_res->Point = Point + p_point->Point;
+    value = engine()->newQObject(p_res, QScriptEngine::ScriptOwnership);
     return(value);
 }
 
@@ -307,7 +309,7 @@ QScriptValue QPoint::sub(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage:  Point::sub(point)" << endl;
+        sout << "usage: point Point::sub(point)" << endl;
         return(value);
     }
 
@@ -320,7 +322,9 @@ QScriptValue QPoint::sub(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    Point -= p_point->Point;
+    QPoint* p_res = new QPoint();
+    p_res->Point = Point - p_point->Point;
+    value = engine()->newQObject(p_res, QScriptEngine::ScriptOwnership);
     return(value);
 }
 
@@ -333,7 +337,7 @@ QScriptValue QPoint::multBy(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage:  Point::multBy(fact)" << endl;
+        sout << "usage: point Point::multBy(fact)" << endl;
         return(value);
     }
 
@@ -346,7 +350,9 @@ QScriptValue QPoint::multBy(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    Point *= fac;
+    QPoint* p_res = new QPoint();
+    p_res->Point = Point*fac;
+    value = engine()->newQObject(p_res, QScriptEngine::ScriptOwnership);
     return(value);
 }
 
@@ -369,6 +375,31 @@ QScriptValue QPoint::normalize(void)
 
 // execute ---------------------------------------
     Point.Normalize();
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::getNormalVector(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  point Point::getNormalVector()" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    QPoint* p_res = new QPoint();
+    p_res->Point = Point;
+    p_res->Point.Normalize();
+    value = engine()->newQObject(p_res, QScriptEngine::ScriptOwnership);
     return(value);
 }
 
@@ -440,9 +471,9 @@ QScriptValue QPoint::cross(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    QPoint* p_obj = new QPoint();
-    p_obj->Point = CrossDot(Point,p_point->Point);
-    value = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
+    QPoint* p_res = new QPoint();
+    p_res->Point = CrossDot(Point,p_point->Point);
+    value = engine()->newQObject(p_res, QScriptEngine::ScriptOwnership);
     return(value);
 }
 
