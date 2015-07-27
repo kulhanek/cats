@@ -300,6 +300,32 @@ QScriptValue QPoint::add(void)
 
 //------------------------------------------------------------------------------
 
+QScriptValue QPoint::sub(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  Point::sub(point)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("point",1);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point = NULL;
+    value = GetArgAsObject<QPoint*>("point","point","Point",1,p_point);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    Point -= p_point->Point;
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
 QScriptValue QPoint::multBy(void)
 {
     QScriptValue value;
@@ -321,6 +347,102 @@ QScriptValue QPoint::multBy(void)
 
 // execute ---------------------------------------
     Point *= fac;
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::normalize(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  Point::normalize()" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    Point.Normalize();
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::size(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  double Point::size()" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(Size(Point));
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::dot(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  double Point::dot(point)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("point",1);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point = NULL;
+    value = GetArgAsObject<QPoint*>("point","point","Point",1,p_point);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(VectDot(Point,p_point->Point));
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::cross(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage:  point Point::cross(point)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("point",1);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point = NULL;
+    value = GetArgAsObject<QPoint*>("point","point","Point",1,p_point);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    QPoint* p_obj = new QPoint();
+    p_obj->Point = CrossDot(Point,p_point->Point);
+    value = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
     return(value);
 }
 

@@ -65,9 +65,29 @@ public slots:
     /// add(point)
     QScriptValue add(void);
 
+    /// sub point
+    /// sub(point)
+    QScriptValue sub(void);
+
     /// mult by constant
     /// multBy(fact)
     QScriptValue multBy(void);
+
+    /// normalize
+    /// normalize()
+    QScriptValue normalize(void);
+
+    /// size of vector
+    /// double size()
+    QScriptValue size(void);
+
+    /// dot product
+    /// double dot(point)
+    QScriptValue dot(void);
+
+    /// cross product
+    /// point cross(point)
+    QScriptValue cross(void);
 
 // access methods --------------------------------------------------------------
 public:   

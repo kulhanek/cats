@@ -61,6 +61,10 @@ public slots:
     /// rotate(angle,point)
     QScriptValue rotate(void);
 
+    /// change direction from one vector to another
+    /// changeDirection(pointFrom,pointTo)
+    QScriptValue changeDirection(void);
+
     /// fit two snapshots by rmsd
     /// rmsdFit(snapshot1,snapshot2,selection1,selection2)
     QScriptValue rmsdFit(void);

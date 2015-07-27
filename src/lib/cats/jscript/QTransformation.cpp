@@ -259,6 +259,36 @@ QScriptValue QTransformation::rotate(void)
 
 //------------------------------------------------------------------------------
 
+QScriptValue QTransformation::changeDirection(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Transformation::changeDirection(pointFrom,pointTo)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("pointFrom,pointTo",2);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point1;
+    value = GetArgAsObject<QPoint*>("pointFrom,pointTo","pointFrom","Point",1,p_point1);
+    if( value.isError() ) return(value);
+
+    QPoint* p_point2;
+    value = GetArgAsObject<QPoint*>("pointFrom,pointTo","pointTo","Point",2,p_point2);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    Trans.ChangeDirection(p_point1->Point,p_point2->Point);
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
 QScriptValue QTransformation::rmsdFit(void)
 {
     QScriptValue value;
