@@ -64,6 +64,7 @@
 #include <QMinMax.hpp>
 #include <QHistogram.hpp>
 #include <QVolumeData.hpp>
+#include <QThermoIG.hpp>
 
 // i/o suuport --------------------------------
 #include <QOFile.hpp>
@@ -150,6 +151,7 @@ bool CCATs::Run(void)
     QMinMax::Register(Engine);
     QHistogram::Register(Engine);
     QVolumeData::Register(Engine);
+    QThermoIG::Register(Engine);
 
     // i/o suuport --------------------------------
     QOFile::Register(Engine);

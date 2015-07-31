@@ -133,6 +133,7 @@ private:
     friend class QCovarMatrix;
     friend class QResidue;
     friend class QAtom;
+    friend class QThermoIG;
 
     /// helper methods
     void DestroyChildObjects(void);

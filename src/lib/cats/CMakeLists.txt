@@ -58,6 +58,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QMinMax.cpp
         jscript/QHistogram.cpp
         jscript/QVolumeData.cpp
+        jscript/QThermoIG.cpp
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp

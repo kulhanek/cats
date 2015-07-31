@@ -631,6 +631,15 @@ QScriptValue QSnapshot::center(void)
     value = CheckArgumentsUsage("[selection,key1,key2,...]");
     if( value.isError() ) return(value);
 
+    if( p_qsel ){
+        if( p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() != Restart.GetNumberOfAtoms() ){
+        CSmallString error;
+        error << "number of atoms does not match, topology associated with selection ("
+              << p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
+        return( ThrowError("[selection,key1,key2,...]",error) );
+        }
+    }
+
 // execute code ----------------------------------
     // update topology box info
     Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
@@ -641,7 +650,25 @@ QScriptValue QSnapshot::center(void)
     CPoint mov;
 
     if( p_qsel ){
-  // FIXME      mov = - p_qsel->GetCOMPoint(nomass);
+        CPoint com;
+        CAmberTopology* p_top = Restart.GetTopology();
+        double totmass = 0.0;
+        for(int s=0; s < p_qsel->Mask.GetNumberOfSelectedAtoms(); s++) {
+            int i = p_qsel->Mask.GetSelectedAtomCondensed(s)->GetAtomIndex();
+            CAmberAtom* p_atom = p_top->AtomList.GetAtom(i);
+            // topology and snapshot have the same number of atoms
+            double mass;
+            if( nomass ){
+                mass = 1.0;
+            } else {
+                mass = p_atom->GetMass();
+            }
+            CPoint p1 = Restart.GetPosition(i);
+            com += p1*mass;
+            totmass += mass;
+        }
+        if( totmass > 0.0 ) com /= totmass;
+        mov = - com;
     } else {
         mov = - GetCOMPoint(nomass);
     }
@@ -825,8 +852,8 @@ QScriptValue QSnapshot::rmsdFit(void)
     if( p_qsel ){
         if( p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() != Restart.GetNumberOfAtoms() ){
         CSmallString error;
-        error << "number of atoms does not match, snapshot associated with selection ("
-              << p_qref->Restart.GetNumberOfAtoms() << "), target (" << Restart.GetNumberOfAtoms() << ")";
+        error << "number of atoms does not match, topology associated with selection ("
+              << p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
         return( ThrowError("snapshot[selection,key1,key2,...]",error) );
         }
     }
@@ -1110,8 +1137,8 @@ QScriptValue QSnapshot::getRMSD(void)
     if( p_qsel ){
         if( p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() != Restart.GetNumberOfAtoms() ){
         CSmallString error;
-        error << "number of atoms does not match, snapshot associated with selection ("
-              << p_qref->Restart.GetNumberOfAtoms() << "), target (" << Restart.GetNumberOfAtoms() << ")";
+        error << "number of atoms does not match, topology associated with selection ("
+              << p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
         return( ThrowError("snapshot[selection,key1,key2,...]",error) );
         }
     }
@@ -1203,6 +1230,15 @@ QScriptValue QSnapshot::getCOM(void)
 
     value = CheckArgumentsUsage("[key1,key2,...]");
     if( value.isError() ) return(value);
+
+    if( p_qsel ){
+        if( p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() != Restart.GetNumberOfAtoms() ){
+        CSmallString error;
+        error << "number of atoms does not match, topology associated with selection ("
+              << p_qsel->Mask.GetCoordinates()->GetNumberOfAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
+        return( ThrowError("[selection][,point][,key1,...]",error) );
+        }
+    }
 
 // execute code ----------------------------------
     CPoint com;
