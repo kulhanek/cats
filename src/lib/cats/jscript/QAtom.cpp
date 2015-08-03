@@ -303,7 +303,7 @@ QScriptValue QAtom::getNeighbourAtom(void)
 
 // execute ---------------------------------------
     QAtom* p_obj = new QAtom(Topology);
-    p_obj->Atom = GetQTopology()->Topology.AtomList.GetAtom(index);
+    p_obj->Atom = GetQTopology()->Topology.AtomList.GetAtom(Atom->GetNeighbourAtomIndex(index));
     return(engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
 
