@@ -27,9 +27,6 @@
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 
-#include <SmallTimeAndDate.hpp>
-#include <fstream>
-
 using namespace std;
 
 //==============================================================================
@@ -114,8 +111,6 @@ QScriptValue Qx3DNA::analyze(void)
 
 
 // create PDB file -------------------------------
-
-    p_qsnap->saveFile();
 
 
     return(false);

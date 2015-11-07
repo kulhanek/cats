@@ -59,6 +59,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QHistogram.cpp
         jscript/QVolumeData.cpp
         jscript/QThermoIG.cpp
+        jscript/Qx3DNA.cpp
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp
