@@ -84,6 +84,7 @@ private:
     friend class QSnapshot;
     friend class QAverageSnapshot;
     friend class QTransformation;
+    friend class Qx3DNA;
 
     /// clear object data if topology is cleaned - only weak objects
     virtual void CleanData(void);

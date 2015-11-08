@@ -27,6 +27,10 @@
 #include <QScriptable>
 #include <QCATsScriptable.hpp>
 
+#include <QTopology.hpp>
+#include <QSnapshot.hpp>
+#include <QSelection.hpp>
+
 //------------------------------------------------------------------------------
 
 /// 3D x3DNA
@@ -48,7 +52,17 @@ public slots:
 // access methods --------------------------------------------------------------
 private:
 
+    /// create PDB file from QSnapshot
+    bool WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FILE* p_fout);
 
+    /// write PDB remark
+    bool WritePDBRemark(FILE* p_file,const CSmallString& string);
+
+    /// get PDB res name
+    const char* GetPDBResName(CAmberAtom* p_atom,CAmberResidue* p_res);
+
+    /// get PDB atom name
+    const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
 };
 
 //------------------------------------------------------------------------------
