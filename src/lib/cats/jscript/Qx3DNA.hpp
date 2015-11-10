@@ -33,6 +33,20 @@
 
 //------------------------------------------------------------------------------
 
+class CLocalBPParams {
+public:
+    int         ID;
+    std::string Name;
+    double      Shear;
+    double      Stretch;
+    double      Stagger;
+    double      Buckle;
+    double      Propeller;
+    double      Opening;
+};
+
+//------------------------------------------------------------------------------
+
 /// 3D x3DNA
 
 class Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
@@ -45,12 +59,26 @@ public:
 
 // methods ---------------------------------------------------------------------
 public slots:
-
-    /// perfomer core analysis
+    /// perform core analysis
+    /// analyze(snapshot[,selection])
     QScriptValue analyze(void);
+
+    /// get local BP shear
+    QScriptValue Qx3DNA::getLocalBPShear(void);
 
 // access methods --------------------------------------------------------------
 private:
+    CFileName                   WorkDir;    // scratch directory
+    std::vector<CLocalBPParams> LocalBPParams;
+
+    /// create input data
+    bool WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel);
+
+    /// run analysis
+    bool RunAnalysis(void);
+
+    /// parse output data
+    bool ParseOutputData(void);
 
     /// create PDB file from QSnapshot
     bool WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FILE* p_fout);

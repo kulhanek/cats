@@ -83,7 +83,7 @@ QScriptValue Qx3DNA::New(QScriptContext *context,
 Qx3DNA::Qx3DNA(void)
     : QCATsScriptable("x3DNA")
 {
-
+    WorkDir = "/tmp";   /// we can change later
 }
 
 //==============================================================================
@@ -97,56 +97,217 @@ QScriptValue Qx3DNA::analyze(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool x3DNA::analyze(topology,snapshot[,selection])" << endl;
+        sout << "usage: bool x3DNA::analyze(snapshot[,selection])" << endl;
         return(false);
     }
 
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("topology,snapshot[,selection]",2,3);
-    if( value.isError() ) return(value);
+/// UPRAVY
+/// topologii prosim vem ze snapshotu
+/// CAmberTopology* p_top = p_qsnap->Restart.GetTopology();
 
-    QTopology* p_qtop = NULL;
-    value = GetArgAsObject<QTopology*>("topology,snapshot[,selection]","topology","Topology",1,p_qtop);
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("snapshot[,selection]",1,2);
     if( value.isError() ) return(value);
 
     QSnapshot* p_qsnap = NULL;
-    value = GetArgAsObject<QSnapshot*>("topology,snapshot[,selection]","snapshot","Snapshot",2,p_qsnap);
+    value = GetArgAsObject<QSnapshot*>("snapshot[,selection]","snapshot","Snapshot",1,p_qsnap);
     if( value.isError() ) return(value);
 
     QSelection* p_qsel = NULL;
-    if( GetArgumentCount() > 2 ){
-        value = GetArgAsObject<QSelection*>("topology,snapshot,selection","selection","Selection",3,p_qsel);
+    if( GetArgumentCount() > 1 ){
+        value = GetArgAsObject<QSelection*>("snapshot,selection","selection","Selection",2,p_qsel);
         if( value.isError() ) return(value);
     }
 
-// create PDB file -------------------------------
-    // open output file
-    FILE* p_fout;
-    CSmallString fileName = "test.pdb";
-    if( (p_fout = fopen(fileName,"w")) == NULL ) {
-        CSmallString error;
-        error << "unable to open output file " << fileName;
-        error << " (" << strerror(errno) << ")";
-        ES_ERROR(error);
-        return( ThrowError("topology,snapshot[,selection]",error) );
+// do 3DNA analysis -------------------------------
+    // clear previous data
+    ClearAll();
+
+    // write input data
+    if( WriteInputData(p_qsnap,p_qsel) == false ){
+        return( ThrowError("snapshot[,selection]","unable to write input data") );
+    }
+    // start analysis
+    if( RunAnalysis() == false ){
+        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+    }
+    // start analysis
+    if( ParseOutputData() == false ){
+        return( ThrowError("snapshot[,selection]","unable to parse aoutput") );
     }
 
-    // write to output file
-    WritePDB(p_qtop,p_qsnap,p_qsel,p_fout);
-
-    // close output file
-    fclose(p_fout);
-
-// do 3DNA analysis -------------------------------
-
-    return(false);
+    return(true);
 }
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
+// getters
 
+QScriptValue Qx3DNA::getLocalBPShear(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double x3DNA::getLocalBPShear(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= LocalBPParams.size()) ){
+        return( ThrowError("index", "index is out-of-range") );
+    }
+
+// execute code ----------------------------------
+    double shear = LocalBPParams[index].Shear;
+    return(shear);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+void Qx3DNA::ClearAll(void)
+{
+/// UPRAVY
+    // destroy all previous data
+    LocalBPParams.clear();
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
+{
+// create PDB file -------------------------------
+    // open output file
+    FILE* p_fout;
+    CFileName fileName = WorkDir / "test.pdb";   // / - is overloaded operator - it merges two strings by path delimiter (/)
+    if( (p_fout = fopen(fileName,"w")) == NULL ) {
+        CSmallString error;
+        error << "unable to open output file " << fileName;
+        error << " (" << strerror(errno) << ")";
+        ES_ERROR(error);
+        return(false);
+    }
+
+/// UPRAVY
+    if( p_qsel != NULL ){
+        // write to output file
+        WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,p_qsel->Mask,p_fout);
+    } else {
+        CAmberMaskAtoms fake_mask;
+        fake_mask.AssignTopology(p_qsnap->Restart.GetTopology());
+        fake_mask.SelectAllAtoms();
+        // write to output file
+        WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&fake_mask,p_fout);
+    }
+
+    // is everything OK?
+    int ret = ferror(p_fout);
+
+    // close output file
+    fclose(p_fout);
+
+    return(ret == 0);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::RunAnalysis(void)
+{
+/// UPRAVY
+    // tady zavolej system() a proved analyzu
+    // module add nedavej
+    // osetreni pripadne chyby ....
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ParseOutputData(void)
+{
+    ifstream ifs;
+    // open file - nakonec to nebudeme kesovat do stringstream, budeme rovnou nacitat ze souboru
+
+    if( !ifs ) {
+        // report chyba
+        return(false);
+    }
+
+    string lbuf;
+
+    getline(ifs,lbuf);
+    while( ifs ){
+//      Local base-pair parameters
+//      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
+        if( lbuf.find("Local base-pair parameters") != string::npos ){  /// nejake klicove slovo - zapati tabulky
+            getline(ifs,lbuf); // skip heading
+            if( ReadSectionXXX(ifs) == false ) return(false);
+        } else
+//      Local base-pair step parameters
+//                step       Shift     Slide      Rise      Tilt      Roll     Twist
+        if( lbuf.find("Local base-pair step parameters") != string::npos ){
+            getline(ifs,lbuf); // skip heading
+            if( ReadSectionYYY(ifs) == false ) return(false);
+        }
+        /// ....
+        /// ....
+        getline(ifs,lbuf);
+    }
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+// ReadSectionXXX - parsuje danou sekci
+
+bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+            return(true); // konec sekce
+        }
+        stringstream    str(lbuf);
+        CLocalBPParams  params;
+        // bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
+        str >> params.ID >> params.Name >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
+        if( ! str ){
+            // report error
+            return(false);
+        }
+        LocalBPParams.push_back(params);
+
+        getline(ifs,lbuf);
+    }
+
+    // report error
+
+    return( false );
+}
+
+//------------------------------------------------------------------------------
+
+
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+/// UPRAVY
+/// predej pointery na CAmberTopology, CAmberRestart a CAmberMaskAtoms
 
 bool Qx3DNA::WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FILE* p_fout)
 {
@@ -182,6 +343,9 @@ bool Qx3DNA::WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FI
     double occ=1.0;
     double tfac=0.0;
     int seg_id = 1;
+
+/// UPRAVY
+///    zrusit duplicitu kodu, ted mask nemuze byt NULL, viz fake_mask
 
     if ( p_qsel == NULL ){
         for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
@@ -313,8 +477,6 @@ const char* Qx3DNA::GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res)
 
     // direct use
     memcpy(name,p_atom->GetName(),4);
-    return(name);
-
     return(name);
 }
 
