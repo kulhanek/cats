@@ -301,7 +301,7 @@ bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
-bool ReadSectionYYY(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionYYY(std::ifstream& ifs)
 {
     return( false );
 }
