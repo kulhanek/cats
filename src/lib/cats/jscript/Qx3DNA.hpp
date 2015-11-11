@@ -26,10 +26,10 @@
 #include <QScriptContext>
 #include <QScriptable>
 #include <QCATsScriptable.hpp>
-
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
+#include <FileName.hpp>
 
 //------------------------------------------------------------------------------
 
@@ -64,12 +64,15 @@ public slots:
     QScriptValue analyze(void);
 
     /// get local BP shear
-    QScriptValue Qx3DNA::getLocalBPShear(void);
+    QScriptValue getLocalBPShear(void);
 
 // access methods --------------------------------------------------------------
 private:
     CFileName                   WorkDir;    // scratch directory
     std::vector<CLocalBPParams> LocalBPParams;
+
+    /// clear all parsed results
+    void ClearAll(void);
 
     /// create input data
     bool WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel);
@@ -81,7 +84,7 @@ private:
     bool ParseOutputData(void);
 
     /// create PDB file from QSnapshot
-    bool WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FILE* p_fout);
+    bool WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms* p_mask,FILE* p_fout);
 
     /// write PDB remark
     bool WritePDBRemark(FILE* p_file,const CSmallString& string);
@@ -91,6 +94,12 @@ private:
 
     /// get PDB atom name
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
+
+    /// working title
+    bool ReadSectionXXX(std::ifstream& ifs);
+
+    /// working title
+    bool ReadSectionYYY(std::ifstream& ifs);
 };
 
 //------------------------------------------------------------------------------

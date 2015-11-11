@@ -21,6 +21,7 @@
 
 #include <iostream>
 #include <errno.h>
+#include <fstream>
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <Qx3DNA.hpp>
@@ -164,7 +165,7 @@ QScriptValue Qx3DNA::getLocalBPShear(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= LocalBPParams.size()) ){
+    if( (index < 0) || (index >= (int)LocalBPParams.size()) ){
         return( ThrowError("index", "index is out-of-range") );
     }
 
@@ -203,7 +204,7 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 /// UPRAVY
     if( p_qsel != NULL ){
         // write to output file
-        WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,p_qsel->Mask,p_fout);
+        WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&p_qsel->Mask,p_fout);
     } else {
         CAmberMaskAtoms fake_mask;
         fake_mask.AssignTopology(p_qsnap->Restart.GetTopology());
@@ -300,6 +301,10 @@ bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
+bool ReadSectionYYY(std::ifstream& ifs)
+{
+    return( false );
+}
 
 
 //==============================================================================
@@ -309,128 +314,128 @@ bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
 /// UPRAVY
 /// predej pointery na CAmberTopology, CAmberRestart a CAmberMaskAtoms
 
-bool Qx3DNA::WritePDB(QTopology* p_qtop,QSnapshot* p_qsnap,QSelection* p_qsel,FILE* p_fout)
+bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms* p_mask,FILE* p_fout)
 {
 
-    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
-    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
+//    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
+//    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
 
-    //CSmallTimeAndDate time;
-    //time.GetActualTimeAndDate();
+//    //CSmallTimeAndDate time;
+//    //time.GetActualTimeAndDate();
 
-    // init indexes for TER and chain
-    p_qtop->Topology.InitMoleculeIndexes();
+//    // init indexes for TER and chain
+//    p_qtop->Topology.InitMoleculeIndexes();
 
-    // write header
-    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
-    //WritePDBRemark(p_fout,"=== Topology ===");
-    //WritePDBRemark(p_fout,p_qtop->Topology.GetTitle());
-    //WritePDBRemark(p_fout,"=== Coordinates ===");
-    //WritePDBRemark(p_fout,Options.GetArgCrdName());
-    //WritePDBRemark(p_fout,"=== Date ===");
-    //WritePDBRemark(p_fout,time.GetSDateAndTime());
-    //WritePDBRemark(p_fout,"=== Number of selected atoms ===");
-    //CSmallString tmp;
-    //tmp.IntToStr(Mask.GetNumberOfSelectedAtoms());
-    //WritePDBRemark(p_fout,tmp);
-    //WritePDBRemark(p_fout,"=== Mask ===");
-    //WritePDBRemark(p_fout,Mask.GetMask());
+//    // write header
+//    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
+//    //WritePDBRemark(p_fout,"=== Topology ===");
+//    //WritePDBRemark(p_fout,p_qtop->Topology.GetTitle());
+//    //WritePDBRemark(p_fout,"=== Coordinates ===");
+//    //WritePDBRemark(p_fout,Options.GetArgCrdName());
+//    //WritePDBRemark(p_fout,"=== Date ===");
+//    //WritePDBRemark(p_fout,time.GetSDateAndTime());
+//    //WritePDBRemark(p_fout,"=== Number of selected atoms ===");
+//    //CSmallString tmp;
+//    //tmp.IntToStr(Mask.GetNumberOfSelectedAtoms());
+//    //WritePDBRemark(p_fout,tmp);
+//    //WritePDBRemark(p_fout,"=== Mask ===");
+//    //WritePDBRemark(p_fout,Mask.GetMask());
 
-    int last_mol_id = -1;
-    int resid = 0;
-    int atid = 0;
-    char chain_id = 'A';
-    double occ=1.0;
-    double tfac=0.0;
-    int seg_id = 1;
+//    int last_mol_id = -1;
+//    int resid = 0;
+//    int atid = 0;
+//    char chain_id = 'A';
+//    double occ=1.0;
+//    double tfac=0.0;
+//    int seg_id = 1;
 
-/// UPRAVY
-///    zrusit duplicitu kodu, ted mask nemuze byt NULL, viz fake_mask
+///// UPRAVY
+/////    zrusit duplicitu kodu, ted mask nemuze byt NULL, viz fake_mask
 
-    if ( p_qsel == NULL ){
-        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
-            CAmberAtom* p_atom = p_qtop->Topology.AtomList.GetAtom(i);
-            if( p_atom != NULL ) {
-                if( last_mol_id == -1 ) {
-                    last_mol_id = p_atom->GetMoleculeIndex();
-                } else {
-                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
-                        fprintf(p_fout,"TER\n");
-                        chain_id++;
-                        seg_id++;
-                        last_mol_id = p_atom->GetMoleculeIndex();
-                    }
-                }
-                if( chain_id > 'Z' ){
-                    chain_id = 'A';
-                }
-                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
-                    chain_id = 'W';
-                }
-                resid = p_atom->GetResidue()->GetIndex()+1;
-                atid =  i+1;
-                if( seg_id > 99 ){
-                    seg_id = 1;
-                }
-                if( atid > 999999 ) {
-                    atid = 1;
-                }
-                if( resid > 9999 ){
-                    resid = 1;
-                }
-                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
-                        chain_id,
-                        resid,
-                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
-                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
-            }
-        }
-    } else {
-        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
-            CAmberAtom* p_atom = p_qsel->Mask.GetSelectedAtom(i);
-            if( p_atom != NULL ) {
-                if( last_mol_id == -1 ) {
-                    last_mol_id = p_atom->GetMoleculeIndex();
-                } else {
-                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
-                        fprintf(p_fout,"TER\n");
-                        chain_id++;
-                        seg_id++;
-                        last_mol_id = p_atom->GetMoleculeIndex();
-                    }
-                }
-                if( chain_id > 'Z' ){
-                    chain_id = 'A';
-                }
-                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
-                    chain_id = 'W';
-                }
-                resid = p_atom->GetResidue()->GetIndex()+1;
-                atid =  i+1;
-                if( seg_id > 99 ){
-                    seg_id = 1;
-                }
-                if( atid > 999999 ) {
-                    atid = 1;
-                }
-                if( resid > 9999 ){
-                    resid = 1;
-                }
-                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
-                        chain_id,
-                        resid,
-                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
-                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
-            }
-        }
-    }
+//    if ( p_qsel == NULL ){
+//        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+//            CAmberAtom* p_atom = p_qtop->Topology.AtomList.GetAtom(i);
+//            if( p_atom != NULL ) {
+//                if( last_mol_id == -1 ) {
+//                    last_mol_id = p_atom->GetMoleculeIndex();
+//                } else {
+//                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
+//                        fprintf(p_fout,"TER\n");
+//                        chain_id++;
+//                        seg_id++;
+//                        last_mol_id = p_atom->GetMoleculeIndex();
+//                    }
+//                }
+//                if( chain_id > 'Z' ){
+//                    chain_id = 'A';
+//                }
+//                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
+//                    chain_id = 'W';
+//                }
+//                resid = p_atom->GetResidue()->GetIndex()+1;
+//                atid =  i+1;
+//                if( seg_id > 99 ){
+//                    seg_id = 1;
+//                }
+//                if( atid > 999999 ) {
+//                    atid = 1;
+//                }
+//                if( resid > 9999 ){
+//                    resid = 1;
+//                }
+//                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
+//                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
+//                        chain_id,
+//                        resid,
+//                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
+//                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
+//            }
+//        }
+//    } else {
+//        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+//            CAmberAtom* p_atom = p_qsel->Mask.GetSelectedAtom(i);
+//            if( p_atom != NULL ) {
+//                if( last_mol_id == -1 ) {
+//                    last_mol_id = p_atom->GetMoleculeIndex();
+//                } else {
+//                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
+//                        fprintf(p_fout,"TER\n");
+//                        chain_id++;
+//                        seg_id++;
+//                        last_mol_id = p_atom->GetMoleculeIndex();
+//                    }
+//                }
+//                if( chain_id > 'Z' ){
+//                    chain_id = 'A';
+//                }
+//                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
+//                    chain_id = 'W';
+//                }
+//                resid = p_atom->GetResidue()->GetIndex()+1;
+//                atid =  i+1;
+//                if( seg_id > 99 ){
+//                    seg_id = 1;
+//                }
+//                if( atid > 999999 ) {
+//                    atid = 1;
+//                }
+//                if( resid > 9999 ){
+//                    resid = 1;
+//                }
+//                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
+//                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
+//                        chain_id,
+//                        resid,
+//                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
+//                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
+//            }
+//        }
+//    }
 
 
-    fprintf(p_fout,"TER\n");
+//    fprintf(p_fout,"TER\n");
 
-    return(false);
+    return(true);
 }
 
 //------------------------------------------------------------------------------
