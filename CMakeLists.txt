@@ -102,13 +102,8 @@ LINK_DIRECTORIES(${NETCDF_ROOT}/lib)
 SET(NETCDF_CLIB_NAME cnetcdf)
 
 # boost ---------------------------------------
-#INCLUDE(CheckIncludeFiles)
-#CHECK_INCLUDE_FILES(boost/version.hpp HAVE_BOOST_H)
-#IF(NOT HAVE_BOOST_H)
-# on infinity deb5x64 machine is old boost
-    SET(BOOST_ROOT ${DEVELOPMENT_ROOT}/thirdparty/boost/1.51.0)
-    INCLUDE_DIRECTORIES(${BOOST_ROOT} SYSTEM)
-#ENDIF(NOT HAVE_BOOST_H)
+SET(BOOST_ROOT ${DEVELOPMENT_ROOT}/thirdparty/boost/1.59.0)
+INCLUDE_DIRECTORIES(${BOOST_ROOT} SYSTEM)
 
 # FFTW3 =======================
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/cmake/")
