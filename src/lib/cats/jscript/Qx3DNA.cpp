@@ -185,8 +185,10 @@ void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
     LocalBPParams.clear();
+    LocalBPStepParams.clear();
+    LocalBPHelParams.clear();
 
-    // clear all old tmp files
+    // remove all old tmp files
     remove ( WorkDir / "Qx3DNA.pdb" );
     remove ( WorkDir / "Qx3DNA.out" );
     remove ( WorkDir / "auxiliary.par" );
@@ -249,7 +251,7 @@ bool Qx3DNA::RunAnalysis(void)
 
     if ( access ( x3dnaDir / "find_pair", X_OK ) || access ( x3dnaDir / "analyze", X_OK ) ){
         CSmallString error;
-        error << "3DNA executable files do not exist or are not allowed to execute";
+        error << "3DNA executable files find_pair & analyze in " << x3dnaDir << " do not exist or are not allowed to execute";
         ES_ERROR(error);
         return(false);
     }
@@ -294,10 +296,11 @@ bool Qx3DNA::ParseOutputData(void)
 {
     ifstream ifs;
     // open file
-    ifs.open( WorkDir / "Qx3DNA.out" );
+    CFileName fileName = WorkDir / "Qx3DNA.out";
+    ifs.open( fileName );
     if( ifs.fail() ) {
         CSmallString error;
-        error << "unable to open Qx3DNA.out file ";
+        error << "unable to open analysis output file " << fileName;
         error << " (" << strerror(errno) << ")";
         ES_ERROR(error);
         return(false);
