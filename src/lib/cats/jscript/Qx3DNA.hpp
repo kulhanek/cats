@@ -36,13 +36,37 @@
 class CLocalBPParams {
 public:
     int         ID;
-    std::string Name;
+    std::string Name; // one base pair (A-A)
     double      Shear;
     double      Stretch;
     double      Stagger;
     double      Buckle;
     double      Propeller;
     double      Opening;
+};
+
+class CLocalBPStepParams {
+public:
+    int         ID;
+    std::string Step; // two base pairs (AT/AT)
+    double      Shift;
+    double      Slide;
+    double      Rise;
+    double      Tilt;
+    double      Roll;
+    double      Twist;
+};
+
+class CLocalBPHelParams {
+public:
+    int         ID;
+    std::string Step; // two base pairs (AT/AT)
+    double      Xdisp;
+    double      Ydisp;
+    double      Hrise;
+    double      Incl;
+    double      Tip;
+    double      Htwist;
 };
 
 //------------------------------------------------------------------------------
@@ -68,8 +92,11 @@ public slots:
 
 // access methods --------------------------------------------------------------
 private:
-    CFileName                   WorkDir;    // scratch directory
-    std::vector<CLocalBPParams> LocalBPParams;
+    CFileName                       WorkDir;    // scratch directory
+    CFileName                       x3dnaDir;   // 3DNA program directory
+    std::vector<CLocalBPParams>     LocalBPParams;
+    std::vector<CLocalBPStepParams> LocalBPStepParams;
+    std::vector<CLocalBPHelParams>  LocalBPHelParams;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -95,11 +122,14 @@ private:
     /// get PDB atom name
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
 
-    /// working title
-    bool ReadSectionXXX(std::ifstream& ifs);
+    /// read Local BP Params
+    bool ReadSectionLocalBPParams(std::ifstream& ifs);
 
-    /// working title
-    bool ReadSectionYYY(std::ifstream& ifs);
+    /// read Local BP Step Params
+    bool ReadSectionLocalBPStepParams(std::ifstream& ifs);
+
+    /// read Local BP Helical Params
+    bool ReadSectionLocalBPHelParams(std::ifstream& ifs);
 };
 
 //------------------------------------------------------------------------------

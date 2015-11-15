@@ -22,6 +22,9 @@
 #include <iostream>
 #include <errno.h>
 #include <fstream>
+#include <stdlib.h>
+#include <unistd.h>
+
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <Qx3DNA.hpp>
@@ -33,6 +36,7 @@
 #include <QSelection.hpp>
 
 #include <PeriodicTable.hpp>
+//#include <boost/filesystem.hpp>
 
 using namespace std;
 
@@ -85,6 +89,7 @@ Qx3DNA::Qx3DNA(void)
     : QCATsScriptable("x3DNA")
 {
     WorkDir = "/tmp";   /// we can change later
+    x3dnaDir = "/home/ruzickam/x3dna-v2.2/bin";
 }
 
 //==============================================================================
@@ -101,10 +106,6 @@ QScriptValue Qx3DNA::analyze(void)
         sout << "usage: bool x3DNA::analyze(snapshot[,selection])" << endl;
         return(false);
     }
-
-/// UPRAVY
-/// topologii prosim vem ze snapshotu
-/// CAmberTopology* p_top = p_qsnap->Restart.GetTopology();
 
 // check arguments -------------------------------
     value = CheckNumberOfArguments("snapshot[,selection]",1,2);
@@ -128,13 +129,15 @@ QScriptValue Qx3DNA::analyze(void)
     if( WriteInputData(p_qsnap,p_qsel) == false ){
         return( ThrowError("snapshot[,selection]","unable to write input data") );
     }
+
     // start analysis
     if( RunAnalysis() == false ){
         return( ThrowError("snapshot[,selection]","unable to run analysis") );
     }
-    // start analysis
+
+    // parse output data
     if( ParseOutputData() == false ){
-        return( ThrowError("snapshot[,selection]","unable to parse aoutput") );
+        return( ThrowError("snapshot[,selection]","unable to parse output") );
     }
 
     return(true);
@@ -180,9 +183,26 @@ QScriptValue Qx3DNA::getLocalBPShear(void)
 
 void Qx3DNA::ClearAll(void)
 {
-/// UPRAVY
     // destroy all previous data
     LocalBPParams.clear();
+
+    // clear all old tmp files
+    remove ( WorkDir / "Qx3DNA.pdb" );
+    remove ( WorkDir / "Qx3DNA.out" );
+    remove ( WorkDir / "auxiliary.par" );
+    remove ( WorkDir / "bestpairs.pdb" );
+    remove ( WorkDir / "bp_helical.par" );
+    remove ( WorkDir / "bp_order.dat" );
+    remove ( WorkDir / "bp_step.par" );
+
+    remove ( WorkDir / "cf_7methods.par" );
+    remove ( WorkDir / "col_chains.scr" );
+    remove ( WorkDir / "col_helices.scr" );
+    remove ( WorkDir / "hel_regions.pdb" );
+    remove ( WorkDir / "hstacking.pdb" );
+    remove ( WorkDir / "ref_frames.dat" );
+    remove ( WorkDir / "stacking.pdb" );
+
 }
 
 //------------------------------------------------------------------------------
@@ -192,7 +212,7 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 // create PDB file -------------------------------
     // open output file
     FILE* p_fout;
-    CFileName fileName = WorkDir / "test.pdb";   // / - is overloaded operator - it merges two strings by path delimiter (/)
+    CFileName fileName = WorkDir / "Qx3DNA.pdb";   // / - is overloaded operator - it merges two strings by path delimiter (/)
     if( (p_fout = fopen(fileName,"w")) == NULL ) {
         CSmallString error;
         error << "unable to open output file " << fileName;
@@ -201,7 +221,6 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
         return(false);
     }
 
-/// UPRAVY
     if( p_qsel != NULL ){
         // write to output file
         WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&p_qsel->Mask,p_fout);
@@ -226,10 +245,46 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 
 bool Qx3DNA::RunAnalysis(void)
 {
-/// UPRAVY
-    // tady zavolej system() a proved analyzu
-    // module add nedavej
-    // osetreni pripadne chyby ....
+// run 3DNA program -------------------------------
+
+    if ( access ( x3dnaDir / "find_pair", X_OK ) || access ( x3dnaDir / "analyze", X_OK ) ){
+        CSmallString error;
+        error << "3DNA executable files do not exist or are not allowed to execute";
+        ES_ERROR(error);
+        return(false);
+    }
+
+    /// boost code to check executable files
+//    // does find_pair and analyze programs actually exist?
+//    boost::filesystem::path pathFP( x3dnaDir / "find_pair" );
+//    boost::filesystem::path pathA( x3dnaDir / "analyze" );
+//    if ( boost::filesystem::is_regular_file( pathFP ) == false || boost::filesystem::is_regular_file( pathA ) == false ){
+//        CSmallString error;
+//        error << "3DNA executable files do not exist";
+//        ES_ERROR(error);
+//        return(false);
+//    }
+
+    // create input file for analysis first & run analyze program to create output files after
+    cout << "Running 3DNA ..." << endl;
+    int status = system( "cd " / WorkDir + " && " + x3dnaDir / "find_pair " + WorkDir / "Qx3DNA.pdb stdout | " + x3dnaDir / "analyze stdin" );
+
+    if (status < 0){
+        CSmallString error;
+        error << "Error: " << strerror(errno);
+        ES_ERROR(error);
+        return(false);
+    } else {
+        if ( WIFEXITED(status) )
+            cout << endl << "3DNA exited normally" << endl << endl;
+        else {
+            CSmallString error;
+            error << "3DNA exited abnormaly";
+            ES_ERROR(error);
+            return(false);
+        }
+    }
+
     return(true);
 }
 
@@ -238,28 +293,37 @@ bool Qx3DNA::RunAnalysis(void)
 bool Qx3DNA::ParseOutputData(void)
 {
     ifstream ifs;
-    // open file - nakonec to nebudeme kesovat do stringstream, budeme rovnou nacitat ze souboru
-
-    if( !ifs ) {
-        // report chyba
+    // open file
+    ifs.open( WorkDir / "Qx3DNA.out" );
+    if( ifs.fail() ) {
+        CSmallString error;
+        error << "unable to open Qx3DNA.out file ";
+        error << " (" << strerror(errno) << ")";
+        ES_ERROR(error);
         return(false);
     }
 
     string lbuf;
 
     getline(ifs,lbuf);
-    while( ifs ){
+    while( !ifs.eof() ){
 //      Local base-pair parameters
 //      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
-        if( lbuf.find("Local base-pair parameters") != string::npos ){  /// nejake klicove slovo - zapati tabulky
+        if( lbuf.find("Local base-pair parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionXXX(ifs) == false ) return(false);
-        } else
+            if( ReadSectionLocalBPParams(ifs) == false ) return(false);
+        }
 //      Local base-pair step parameters
-//                step       Shift     Slide      Rise      Tilt      Roll     Twist
+//      step       Shift     Slide      Rise      Tilt      Roll     Twist
         if( lbuf.find("Local base-pair step parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionYYY(ifs) == false ) return(false);
+            if( ReadSectionLocalBPStepParams(ifs) == false ) return(false);
+        }
+//      Local base-pair helical parameters
+//      step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
+        if( lbuf.find("Local base-pair helical parameters") != string::npos ){
+            getline(ifs,lbuf); // skip heading
+            if( ReadSectionLocalBPHelParams(ifs) == false ) return(false);
         }
         /// ....
         /// ....
@@ -271,22 +335,26 @@ bool Qx3DNA::ParseOutputData(void)
 
 //------------------------------------------------------------------------------
 
-// ReadSectionXXX - parsuje danou sekci
-
-bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPParams(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // konec sekce
+            return(true); // end of LocalBPParams
+        }
+        if( lbuf.find("----") != string::npos ){
+            getline(ifs,lbuf);
+            continue; // no relevant data
         }
         stringstream    str(lbuf);
         CLocalBPParams  params;
         // bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
         str >> params.ID >> params.Name >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
         if( ! str ){
-            // report error
+            CSmallString error;
+            error << "unable to read Local base-pair parameters in:\n" << lbuf;
+            ES_ERROR(error);
             return(false);
         }
         LocalBPParams.push_back(params);
@@ -294,16 +362,80 @@ bool Qx3DNA::ReadSectionXXX(std::ifstream& ifs)
         getline(ifs,lbuf);
     }
 
-    // report error
-
-    return( false );
+    CSmallString error;
+    error << "unable to read Local base-pair parameters section - no data";
+    ES_ERROR(error);
+    return(false);
 }
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionYYY(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPStepParams(std::ifstream& ifs)
 {
-    return( false );
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+            return(true); // end of LocalBPStepParams
+        }
+        if( lbuf.find("----") != string::npos ){
+            getline(ifs,lbuf);
+            continue; // no relevant data
+        }
+        stringstream    str(lbuf);
+        CLocalBPStepParams  params;
+        // step       Shift     Slide      Rise      Tilt      Roll     Twist
+        str >> params.ID >> params.Step >> params.Shift >> params.Slide >> params.Rise >> params.Tilt >> params.Roll >> params.Twist;
+        if( ! str ){
+            CSmallString error;
+            error << "unable to read Local base-pair step parameters in:\n" << lbuf;
+            ES_ERROR(error);
+            return(false);
+        }
+        LocalBPStepParams.push_back(params);
+
+        getline(ifs,lbuf);
+    }
+
+    CSmallString error;
+    error << "unable to read Local base-pair step parameters section - no data";
+    ES_ERROR(error);
+    return(false);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionLocalBPHelParams(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+            return(true); // end of LocalBPHelParams
+        }
+        if( lbuf.find("----") != string::npos ){
+            getline(ifs,lbuf);
+            continue; // no relevant data
+        }
+        stringstream    str(lbuf);
+        CLocalBPHelParams  params;
+        // step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
+        str >> params.ID >> params.Step >> params.Xdisp >> params.Ydisp >> params.Hrise >> params.Incl >> params.Tip >> params.Htwist;
+        if( ! str ){
+            CSmallString error;
+            error << "unable to read Local base-pair helical parameters in:\n" << lbuf;
+            ES_ERROR(error);
+            return(false);
+        }
+        LocalBPHelParams.push_back(params);
+
+        getline(ifs,lbuf);
+    }
+
+    CSmallString error;
+    error << "unable to read Local base-pair helical parameters section - no data";
+    ES_ERROR(error);
+    return(false);
 }
 
 
@@ -311,129 +443,68 @@ bool Qx3DNA::ReadSectionYYY(std::ifstream& ifs)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-/// UPRAVY
-/// predej pointery na CAmberTopology, CAmberRestart a CAmberMaskAtoms
 
 bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms* p_mask,FILE* p_fout)
 {
 
-//    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
-//    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
+    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
+    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
 
-//    //CSmallTimeAndDate time;
-//    //time.GetActualTimeAndDate();
+    // init indexes for TER and chain
+    p_top->InitMoleculeIndexes();
 
-//    // init indexes for TER and chain
-//    p_qtop->Topology.InitMoleculeIndexes();
+    // write header
+    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
 
-//    // write header
-//    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
-//    //WritePDBRemark(p_fout,"=== Topology ===");
-//    //WritePDBRemark(p_fout,p_qtop->Topology.GetTitle());
-//    //WritePDBRemark(p_fout,"=== Coordinates ===");
-//    //WritePDBRemark(p_fout,Options.GetArgCrdName());
-//    //WritePDBRemark(p_fout,"=== Date ===");
-//    //WritePDBRemark(p_fout,time.GetSDateAndTime());
-//    //WritePDBRemark(p_fout,"=== Number of selected atoms ===");
-//    //CSmallString tmp;
-//    //tmp.IntToStr(Mask.GetNumberOfSelectedAtoms());
-//    //WritePDBRemark(p_fout,tmp);
-//    //WritePDBRemark(p_fout,"=== Mask ===");
-//    //WritePDBRemark(p_fout,Mask.GetMask());
+    int last_mol_id = -1;
+    int resid = 0;
+    int atid = 0;
+    char chain_id = 'A';
+    double occ=1.0;
+    double tfac=0.0;
+    int seg_id = 1;
 
-//    int last_mol_id = -1;
-//    int resid = 0;
-//    int atid = 0;
-//    char chain_id = 'A';
-//    double occ=1.0;
-//    double tfac=0.0;
-//    int seg_id = 1;
-
-///// UPRAVY
-/////    zrusit duplicitu kodu, ted mask nemuze byt NULL, viz fake_mask
-
-//    if ( p_qsel == NULL ){
-//        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
-//            CAmberAtom* p_atom = p_qtop->Topology.AtomList.GetAtom(i);
-//            if( p_atom != NULL ) {
-//                if( last_mol_id == -1 ) {
-//                    last_mol_id = p_atom->GetMoleculeIndex();
-//                } else {
-//                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
-//                        fprintf(p_fout,"TER\n");
-//                        chain_id++;
-//                        seg_id++;
-//                        last_mol_id = p_atom->GetMoleculeIndex();
-//                    }
-//                }
-//                if( chain_id > 'Z' ){
-//                    chain_id = 'A';
-//                }
-//                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
-//                    chain_id = 'W';
-//                }
-//                resid = p_atom->GetResidue()->GetIndex()+1;
-//                atid =  i+1;
-//                if( seg_id > 99 ){
-//                    seg_id = 1;
-//                }
-//                if( atid > 999999 ) {
-//                    atid = 1;
-//                }
-//                if( resid > 9999 ){
-//                    resid = 1;
-//                }
-//                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-//                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
-//                        chain_id,
-//                        resid,
-//                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
-//                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
-//            }
-//        }
-//    } else {
-//        for(int i=0; i < p_qtop->Topology.AtomList.GetNumberOfAtoms(); i++ ) {
-//            CAmberAtom* p_atom = p_qsel->Mask.GetSelectedAtom(i);
-//            if( p_atom != NULL ) {
-//                if( last_mol_id == -1 ) {
-//                    last_mol_id = p_atom->GetMoleculeIndex();
-//                } else {
-//                    if( last_mol_id != p_atom->GetMoleculeIndex() ) {
-//                        fprintf(p_fout,"TER\n");
-//                        chain_id++;
-//                        seg_id++;
-//                        last_mol_id = p_atom->GetMoleculeIndex();
-//                    }
-//                }
-//                if( chain_id > 'Z' ){
-//                    chain_id = 'A';
-//                }
-//                if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
-//                    chain_id = 'W';
-//                }
-//                resid = p_atom->GetResidue()->GetIndex()+1;
-//                atid =  i+1;
-//                if( seg_id > 99 ){
-//                    seg_id = 1;
-//                }
-//                if( atid > 999999 ) {
-//                    atid = 1;
-//                }
-//                if( resid > 9999 ){
-//                    resid = 1;
-//                }
-//                fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-//                        atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
-//                        chain_id,
-//                        resid,
-//                        p_qsnap->Restart.GetPosition(i).x,p_qsnap->Restart.GetPosition(i).y,p_qsnap->Restart.GetPosition(i).z,
-//                        occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
-//            }
-//        }
-//    }
+    for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = p_mask->GetSelectedAtom(i);
+        if( p_atom != NULL ) {
+            if( last_mol_id == -1 ) {
+                last_mol_id = p_atom->GetMoleculeIndex();
+            } else {
+                if( last_mol_id != p_atom->GetMoleculeIndex() ) {
+                    fprintf(p_fout,"TER\n");
+                    chain_id++;
+                    seg_id++;
+                    last_mol_id = p_atom->GetMoleculeIndex();
+                }
+            }
+            if( chain_id > 'Z' ){
+                chain_id = 'A';
+            }
+            if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
+                chain_id = 'W';
+            }
+            resid = p_atom->GetResidue()->GetIndex()+1;
+            atid =  i+1;
+            if( seg_id > 99 ){
+                seg_id = 1;
+            }
+            if( atid > 999999 ) {
+                atid = 1;
+            }
+            if( resid > 9999 ){
+                resid = 1;
+            }
+            fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
+                    atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
+                    chain_id,
+                    resid,
+                    p_crd->GetPosition(i).x,p_crd->GetPosition(i).y,p_crd->GetPosition(i).z,
+                    occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
+        }
+    }
 
 
-//    fprintf(p_fout,"TER\n");
+    fprintf(p_fout,"TER\n");
 
     return(true);
 }
