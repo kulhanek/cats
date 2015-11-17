@@ -33,7 +33,7 @@
 
 //------------------------------------------------------------------------------
 
-class CLocalBPParams {
+class CLocalBP {
 public:
     int         ID;
     std::string Name; // one base pair (A-A)
@@ -45,7 +45,7 @@ public:
     double      Opening;
 };
 
-class CLocalBPStepParams {
+class CLocalBPStep {
 public:
     int         ID;
     std::string Step; // two base pairs (AT/AT)
@@ -57,7 +57,7 @@ public:
     double      Twist;
 };
 
-class CLocalBPHelParams {
+class CLocalBPHel {
 public:
     int         ID;
     std::string Step; // two base pairs (AT/AT)
@@ -87,16 +87,37 @@ public slots:
     /// analyze(snapshot[,selection])
     QScriptValue analyze(void);
 
-    /// get local BP shear
+    /// get local BP
     QScriptValue getLocalBPShear(void);
+    QScriptValue getLocalBPStretch(void);
+    QScriptValue getLocalBPStagger(void);
+    QScriptValue getLocalBPBuckle(void);
+    QScriptValue getLocalBPPropeller(void);
+    QScriptValue getLocalBPOpening(void);
+
+    /// get local BP Step
+    QScriptValue getLocalBPStepShift(void);
+    QScriptValue getLocalBPStepSlide(void);
+    QScriptValue getLocalBPStepRise(void);
+    QScriptValue getLocalBPStepTilt(void);
+    QScriptValue getLocalBPStepRoll(void);
+    QScriptValue getLocalBPStepTwist(void);
+
+    /// get local BP Helical
+    QScriptValue getLocalBPHelXdisp(void);
+    QScriptValue getLocalBPHelYdisp(void);
+    QScriptValue getLocalBPHelHrise(void);
+    QScriptValue getLocalBPHelIncl(void);
+    QScriptValue getLocalBPHelTip(void);
+    QScriptValue getLocalBPHelHtwist(void);
+
 
 // access methods --------------------------------------------------------------
 private:
-    CFileName                       WorkDir;    // scratch directory
-    CFileName                       x3dnaDir;   // 3DNA program directory
-    std::vector<CLocalBPParams>     LocalBPParams;
-    std::vector<CLocalBPStepParams> LocalBPStepParams;
-    std::vector<CLocalBPHelParams>  LocalBPHelParams;
+    CFileName                 WorkDir;    // scratch directory
+    std::vector<CLocalBP>     LocalBP;
+    std::vector<CLocalBPStep> LocalBPStep;
+    std::vector<CLocalBPHel>  LocalBPHel;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -122,14 +143,14 @@ private:
     /// get PDB atom name
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
 
-    /// read Local BP Params
-    bool ReadSectionLocalBPParams(std::ifstream& ifs);
+    /// read Local BP
+    bool ReadSectionLocalBP(std::ifstream& ifs);
 
-    /// read Local BP Step Params
-    bool ReadSectionLocalBPStepParams(std::ifstream& ifs);
+    /// read Local BP Step
+    bool ReadSectionLocalBPStep(std::ifstream& ifs);
 
-    /// read Local BP Helical Params
-    bool ReadSectionLocalBPHelParams(std::ifstream& ifs);
+    /// read Local BP Helical
+    bool ReadSectionLocalBPHel(std::ifstream& ifs);
 };
 
 //------------------------------------------------------------------------------

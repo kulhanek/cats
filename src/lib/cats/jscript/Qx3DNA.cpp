@@ -20,23 +20,18 @@
 // =============================================================================
 
 #include <iostream>
-#include <errno.h>
 #include <fstream>
-#include <stdlib.h>
+#include <sys/stat.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <Qx3DNA.hpp>
 #include <Qx3DNA.moc>
 #include <TerminalStr.hpp>
-
-#include <QTopology.hpp>
-#include <QSnapshot.hpp>
-#include <QSelection.hpp>
-
 #include <PeriodicTable.hpp>
-//#include <boost/filesystem.hpp>
+
 
 using namespace std;
 
@@ -88,8 +83,14 @@ QScriptValue Qx3DNA::New(QScriptContext *context,
 Qx3DNA::Qx3DNA(void)
     : QCATsScriptable("x3DNA")
 {
-    WorkDir = "/tmp";   /// we can change later
-    x3dnaDir = "/home/ruzickam/x3dna-v2.2/bin";
+    // set and create working dir in /tmp
+    ostringstream str_pid;
+    str_pid << getpid();
+    string my_pid(str_pid.str());
+    CFileName fn_pid = my_pid.c_str();
+
+    WorkDir = "/tmp" / fn_pid;
+    mkdir(WorkDir, S_IRWXU);
 }
 
 //==============================================================================
@@ -148,34 +149,53 @@ QScriptValue Qx3DNA::analyze(void)
 //==============================================================================
 
 // getters
-
-QScriptValue Qx3DNA::getLocalBPShear(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: double x3DNA::getLocalBPShear(index)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("index",1);
-    if( value.isError() ) return(value);
-
-    int index;
-    value = GetArgAsInt("index","index",1,index);
-    if( value.isError() ) return(value);
-
-    if( (index < 0) || (index >= (int)LocalBPParams.size()) ){
-        return( ThrowError("index", "index is out-of-range") );
-    }
-
-// execute code ----------------------------------
-    double shear = LocalBPParams[index].Shear;
-    return(shear);
+#define get(what,param) \
+QScriptValue Qx3DNA::get##what##param(void)\
+{\
+    QScriptValue value;\
+\
+    if( IsHelpRequested() ){\
+        CTerminalStr sout;\
+        sout << "usage: double x3DNA::get##what##param(index)" << endl;\
+        return(false);\
+    }\
+\
+    value = CheckNumberOfArguments("index",1);\
+    if( value.isError() ) return(value);\
+\
+    int index;\
+    value = GetArgAsInt("index","index",1,index);\
+    if( value.isError() ) return(value);\
+\
+    if( (index < 0) || (index >= (int)what.size()) ){\
+        return( ThrowError("index", "index is out-of-range") );\
+    }\
+\
+    double num = what[index].param; \
+    return(num);\
 }
+
+get(LocalBP,Shear)
+get(LocalBP,Stretch)
+get(LocalBP,Stagger)
+get(LocalBP,Buckle)
+get(LocalBP,Propeller)
+get(LocalBP,Opening)
+
+get(LocalBPStep,Shift)
+get(LocalBPStep,Slide)
+get(LocalBPStep,Rise)
+get(LocalBPStep,Tilt)
+get(LocalBPStep,Roll)
+get(LocalBPStep,Twist)
+
+get(LocalBPHel,Xdisp)
+get(LocalBPHel,Ydisp)
+get(LocalBPHel,Hrise)
+get(LocalBPHel,Incl)
+get(LocalBPHel,Tip)
+get(LocalBPHel,Htwist)
+
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -184,9 +204,9 @@ QScriptValue Qx3DNA::getLocalBPShear(void)
 void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
-    LocalBPParams.clear();
-    LocalBPStepParams.clear();
-    LocalBPHelParams.clear();
+    LocalBP.clear();
+    LocalBPStep.clear();
+    LocalBPHel.clear();
 
     // remove all old tmp files
     remove ( WorkDir / "Qx3DNA.pdb" );
@@ -249,42 +269,29 @@ bool Qx3DNA::RunAnalysis(void)
 {
 // run 3DNA program -------------------------------
 
-    if ( access ( x3dnaDir / "find_pair", X_OK ) || access ( x3dnaDir / "analyze", X_OK ) ){
+    // create input file for analysis first & run analyze program to create output files after
+    int status = system( "cd " / WorkDir + " > /dev/null 2>&1 && " +
+                         "find_pair " + WorkDir / "Qx3DNA.pdb Qx3DNA.inp > /dev/null 2>&1 && " +
+                         "analyze Qx3DNA.inp > /dev/null 2>&1" );
+
+    if ( status < 0 ){
         CSmallString error;
-        error << "3DNA executable files find_pair & analyze in " << x3dnaDir << " do not exist or are not allowed to execute";
+        error << "running 3DNA program failed - " << strerror(errno);
         ES_ERROR(error);
         return(false);
     }
-
-    /// boost code to check executable files
-//    // does find_pair and analyze programs actually exist?
-//    boost::filesystem::path pathFP( x3dnaDir / "find_pair" );
-//    boost::filesystem::path pathA( x3dnaDir / "analyze" );
-//    if ( boost::filesystem::is_regular_file( pathFP ) == false || boost::filesystem::is_regular_file( pathA ) == false ){
-//        CSmallString error;
-//        error << "3DNA executable files do not exist";
-//        ES_ERROR(error);
-//        return(false);
-//    }
-
-    // create input file for analysis first & run analyze program to create output files after
-    cout << "Running 3DNA ..." << endl;
-    int status = system( "cd " / WorkDir + " && " + x3dnaDir / "find_pair " + WorkDir / "Qx3DNA.pdb stdout | " + x3dnaDir / "analyze stdin" );
-
-    if (status < 0){
+    if ( status > 0 ){
+        int exitCode = WEXITSTATUS(status);
         CSmallString error;
-        error << "Error: " << strerror(errno);
+        if ( exitCode == 126 ){
+            error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
+        } else if ( exitCode == 127 ){
+            error << "running 3DNA program failed -	\"command not found\" (possible problem with $PATH)";
+        } else {
+            error << "running 3DNA program failed - exit code: " << exitCode;
+        }
         ES_ERROR(error);
         return(false);
-    } else {
-        if ( WIFEXITED(status) )
-            cout << endl << "3DNA exited normally" << endl << endl;
-        else {
-            CSmallString error;
-            error << "3DNA exited abnormaly";
-            ES_ERROR(error);
-            return(false);
-        }
     }
 
     return(true);
@@ -314,19 +321,19 @@ bool Qx3DNA::ParseOutputData(void)
 //      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
         if( lbuf.find("Local base-pair parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBPParams(ifs) == false ) return(false);
+            if( ReadSectionLocalBP(ifs) == false ) return(false);
         }
 //      Local base-pair step parameters
 //      step       Shift     Slide      Rise      Tilt      Roll     Twist
         if( lbuf.find("Local base-pair step parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBPStepParams(ifs) == false ) return(false);
+            if( ReadSectionLocalBPStep(ifs) == false ) return(false);
         }
 //      Local base-pair helical parameters
 //      step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
         if( lbuf.find("Local base-pair helical parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBPHelParams(ifs) == false ) return(false);
+            if( ReadSectionLocalBPHel(ifs) == false ) return(false);
         }
         /// ....
         /// ....
@@ -338,20 +345,20 @@ bool Qx3DNA::ParseOutputData(void)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBPParams(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBPParams
+            return(true); // end of LocalBP
         }
         if( lbuf.find("----") != string::npos ){
             getline(ifs,lbuf);
             continue; // no relevant data
         }
         stringstream    str(lbuf);
-        CLocalBPParams  params;
+        CLocalBP  params;
         // bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
         str >> params.ID >> params.Name >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
         if( ! str ){
@@ -360,7 +367,7 @@ bool Qx3DNA::ReadSectionLocalBPParams(std::ifstream& ifs)
             ES_ERROR(error);
             return(false);
         }
-        LocalBPParams.push_back(params);
+        LocalBP.push_back(params);
 
         getline(ifs,lbuf);
     }
@@ -373,20 +380,20 @@ bool Qx3DNA::ReadSectionLocalBPParams(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBPStepParams(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBPStepParams
+            return(true); // end of LocalBPStep
         }
         if( lbuf.find("----") != string::npos ){
             getline(ifs,lbuf);
             continue; // no relevant data
         }
         stringstream    str(lbuf);
-        CLocalBPStepParams  params;
+        CLocalBPStep  params;
         // step       Shift     Slide      Rise      Tilt      Roll     Twist
         str >> params.ID >> params.Step >> params.Shift >> params.Slide >> params.Rise >> params.Tilt >> params.Roll >> params.Twist;
         if( ! str ){
@@ -395,7 +402,7 @@ bool Qx3DNA::ReadSectionLocalBPStepParams(std::ifstream& ifs)
             ES_ERROR(error);
             return(false);
         }
-        LocalBPStepParams.push_back(params);
+        LocalBPStep.push_back(params);
 
         getline(ifs,lbuf);
     }
@@ -408,20 +415,20 @@ bool Qx3DNA::ReadSectionLocalBPStepParams(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBPHelParams(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBPHelParams
+            return(true); // end of LocalBPHel
         }
         if( lbuf.find("----") != string::npos ){
             getline(ifs,lbuf);
             continue; // no relevant data
         }
         stringstream    str(lbuf);
-        CLocalBPHelParams  params;
+        CLocalBPHel  params;
         // step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
         str >> params.ID >> params.Step >> params.Xdisp >> params.Ydisp >> params.Hrise >> params.Incl >> params.Tip >> params.Htwist;
         if( ! str ){
@@ -430,7 +437,7 @@ bool Qx3DNA::ReadSectionLocalBPHelParams(std::ifstream& ifs)
             ES_ERROR(error);
             return(false);
         }
-        LocalBPHelParams.push_back(params);
+        LocalBPHel.push_back(params);
 
         getline(ifs,lbuf);
     }
