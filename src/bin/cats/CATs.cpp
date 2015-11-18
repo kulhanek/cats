@@ -66,6 +66,7 @@
 #include <QVolumeData.hpp>
 #include <QThermoIG.hpp>
 #include <Qx3DNA.hpp>
+#include <QMolSurf.hpp>
 
 // i/o suuport --------------------------------
 #include <QOFile.hpp>
@@ -154,6 +155,7 @@ bool CCATs::Run(void)
     QVolumeData::Register(Engine);
     QThermoIG::Register(Engine);
     Qx3DNA::Register(Engine);
+    QMolSurf::Register(Engine);
 
     // i/o suuport --------------------------------
     QOFile::Register(Engine);

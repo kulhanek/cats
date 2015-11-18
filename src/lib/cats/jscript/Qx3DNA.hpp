@@ -3,8 +3,8 @@
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2012 Petr Kulhanek, kulhanek@chemi.muni.cz
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+//    Copyright (C) 2015 Michal Ruzicka, DOPSAT
+//    Copyright (C) 2015 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
