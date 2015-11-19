@@ -134,7 +134,6 @@ private:
     friend class QResidue;
     friend class QAtom;
     friend class QThermoIG;
-    friend class Qx3DNA;
 
     /// helper methods
     void DestroyChildObjects(void);

@@ -192,6 +192,8 @@ src/lib/cats/jscript/QLinStat.cpp
 src/lib/cats/jscript/QLinStat.hpp
 src/lib/cats/jscript/QMinMax.cpp
 src/lib/cats/jscript/QMinMax.hpp
+src/lib/cats/jscript/QMolSurf.cpp
+src/lib/cats/jscript/QMolSurf.hpp
 src/lib/cats/jscript/QNetResults.cpp
 src/lib/cats/jscript/QNetResults.hpp
 src/lib/cats/jscript/QNetTrajectory.cpp

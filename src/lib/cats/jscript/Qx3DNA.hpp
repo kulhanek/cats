@@ -26,7 +26,6 @@
 #include <QScriptContext>
 #include <QScriptable>
 #include <QCATsScriptable.hpp>
-#include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
 #include <FileName.hpp>
