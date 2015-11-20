@@ -39,6 +39,24 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
+CLocalBP::CLocalBP(void)
+{
+// TODO
+//    bool        Valid;      false
+//    int         ID;         -1
+//    std::string Name;       "nd"
+//    double      Shear;       0.0
+//    double      Stretch;
+//    double      Stagger;
+//    double      Buckle;
+//    double      Propeller;
+//    double      Opening;
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
 void Qx3DNA::Register(QScriptEngine& engine)
 {
     QScriptValue ctor = engine.newFunction(Qx3DNA::New);
@@ -91,14 +109,58 @@ Qx3DNA::Qx3DNA(void)
 
     WorkDir = "/tmp" / fn_pid;
     mkdir(WorkDir, S_IRWXU);
+
+    // default value
+    AutoReferenceMode = true;
 }
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
+QScriptValue Qx3DNA::setAutoreferenceMode(void)
+{
+    // TODO
+    // update value of AutoReferenceMode
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::analyzeReference(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::analyzeReference(snapshot[,selection])" << endl;
+        return(false);
+    }
+
+
+// do analysis -----------------------------------
+    ReferenceBasePairs.clear();
+    ReferenceBasePairSteps.clear();
+    AutoReferenceMode = false;
+
+    //TODO: call find_pairs and parse output file to ReferenceBasePairs and ReferenceBasePairSteps
+    // do not care that WriteInputData() will be called two times for analyze in AutoReferenceMode on
+
+
+    // perform standard analysis
+    return(analyze()); // to avoid infinite recursion - AutoReferenceMode MUST be set to false in this method
+}
+
+//------------------------------------------------------------------------------
+
 QScriptValue Qx3DNA::analyze(void)
 {
+    // in autoreference mode - call analyzeReference
+    if( AutoReferenceMode == true ){
+        return(analyzeReference());
+    }
+
     QScriptValue value;
 
 // help ------------------------------------------
@@ -148,6 +210,49 @@ QScriptValue Qx3DNA::analyze(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
+QScriptValue Qx3DNA::getNumOfBasePairs(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::analyze(snapshot[,selection])" << endl;
+        return(false);
+    }
+
+    // TODO - check syntax
+
+    // TODO - return number of BPs from Reference if it is defined or from LocalBP
+    if( ReferenceBasePairs.size() > 0 ){
+        return((int)ReferenceBasePairs.size());
+    } else {
+        return((int)LocalBP.size());
+    }
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::getNumOfSteps(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::analyze(snapshot[,selection])" << endl;
+        return(false);
+    }
+
+    // TODO
+
+    return(value);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
 // getters
 #define get(what,param) \
 QScriptValue Qx3DNA::get##what##param(void)\
@@ -175,12 +280,24 @@ QScriptValue Qx3DNA::get##what##param(void)\
     return(num);\
 }
 
+QScriptValue Qx3DNA::areLocalBPParamsValid()
+{
+    // TODO
+    return(false);
+}
+
 get(LocalBP,Shear)
 get(LocalBP,Stretch)
 get(LocalBP,Stagger)
 get(LocalBP,Buckle)
 get(LocalBP,Propeller)
 get(LocalBP,Opening)
+
+QScriptValue Qx3DNA::areLocalBPStepParamsValid()
+{
+    // TODO
+    return(false);
+}
 
 get(LocalBPStep,Shift)
 get(LocalBPStep,Slide)
@@ -189,12 +306,19 @@ get(LocalBPStep,Tilt)
 get(LocalBPStep,Roll)
 get(LocalBPStep,Twist)
 
+QScriptValue Qx3DNA::areLocalBPHelParamsValid()
+{
+    // TODO
+    return(false);
+}
+
 get(LocalBPHel,Xdisp)
 get(LocalBPHel,Ydisp)
 get(LocalBPHel,Hrise)
 get(LocalBPHel,Incl)
 get(LocalBPHel,Tip)
 get(LocalBPHel,Htwist)
+
 
 
 //==============================================================================
@@ -340,6 +464,14 @@ bool Qx3DNA::ParseOutputData(void)
         getline(ifs,lbuf);
     }
 
+    //TODO cross-check number of BP and BP Pairs
+    if( ReferenceBasePairs.size() > 0 ){
+        if( ReferenceBasePairs.size() != LocalBP.size() ){
+             // TODO - throw error
+        }
+        // TODO - other tests
+    }
+
     return(true);
 }
 
@@ -353,19 +485,36 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
             return(true); // end of LocalBP
         }
-        if( lbuf.find("----") != string::npos ){
-            getline(ifs,lbuf);
-            continue; // no relevant data
-        }
+
+        CLocalBP        params;
         stringstream    str(lbuf);
-        CLocalBP  params;
-        // bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
-        str >> params.ID >> params.Name >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
-        if( ! str ){
-            CSmallString error;
-            error << "unable to read Local base-pair parameters in:\n" << lbuf;
-            ES_ERROR(error);
-            return(false);
+// CHANGED
+        // bp
+        str >> params.ID >> params.Name;        // this should not fail - but you can test success as well, code is commented below
+//        if( ! str ){
+//            CSmallString error;
+//            error << "unable to read Local base-pair parameters in:\n" << lbuf;
+//            ES_ERROR(error);
+//            return(false);
+//        }
+        if( lbuf.find("----") != string::npos ){
+            // read the rest of parameters
+            //        Shear    Stretch   Stagger    Buckle  Propeller  Opening
+            str >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
+            if( ! str ){
+                CSmallString error;
+                error << "unable to read Local base-pair parameters in:\n" << lbuf;
+                ES_ERROR(error);
+                return(false);
+            }
+            params.Valid = true;  // data are valid
+        }
+
+//TODO - check if the current structure has the same pairing as reference structure
+        if( ReferenceBasePairs.size() > 0 ){  // reference pairing is available -> perform test
+            if( ReferenceBasePairs[params.ID].Name != params.Name ){
+                // TODO - throw error
+            }
         }
         LocalBP.push_back(params);
 
@@ -402,6 +551,8 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
             ES_ERROR(error);
             return(false);
         }
+//TODO - check if the current structure has the same pairing as reference structure
+
         LocalBPStep.push_back(params);
 
         getline(ifs,lbuf);
@@ -437,6 +588,8 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
             ES_ERROR(error);
             return(false);
         }
+//TODO - check if the current structure has the same pairing as reference structure
+
         LocalBPHel.push_back(params);
 
         getline(ifs,lbuf);

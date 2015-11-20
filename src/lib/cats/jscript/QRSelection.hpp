@@ -70,7 +70,7 @@ public slots:
     /// get number of selected residues
     QScriptValue getNumOfSelectedResidues(void);
 
-    /// get selected atom
+    /// get selected residue
     /// residue getResidue(index)
     /// residue getResidue(index,residue)
     QScriptValue getResidue(void);

@@ -26,16 +26,23 @@
 #include <QScriptContext>
 #include <QScriptable>
 #include <QCATsScriptable.hpp>
+#include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
 #include <FileName.hpp>
+#include <map>
 
 //------------------------------------------------------------------------------
 
 class CLocalBP {
 public:
+    // constructor
+    CLocalBP(void);         // basic data initialization
+
+public:
+    bool        Valid;      // determine if data are valid
     int         ID;
-    std::string Name; // one base pair (A-A)
+    std::string Name;       // one base pair (A-A)
     double      Shear;
     double      Stretch;
     double      Stagger;
@@ -46,6 +53,7 @@ public:
 
 class CLocalBPStep {
 public:
+    // TODO
     int         ID;
     std::string Step; // two base pairs (AT/AT)
     double      Shift;
@@ -58,6 +66,7 @@ public:
 
 class CLocalBPHel {
 public:
+    // TODO
     int         ID;
     std::string Step; // two base pairs (AT/AT)
     double      Xdisp;
@@ -66,6 +75,26 @@ public:
     double      Incl;
     double      Tip;
     double      Htwist;
+};
+
+//------------------------------------------------------------------------------
+
+class CDNABasePair {
+public:
+    // TODO
+    int         ID;
+    std::string Name;
+    int         ResIDA;
+    int         ResIDB;
+};
+
+//------------------------------------------------------------------------------
+
+class CDNABasePairStep {
+public:
+    // TODO
+    int         ID;
+    std::string Step;
 };
 
 //------------------------------------------------------------------------------
@@ -80,13 +109,34 @@ public:
     static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
 
+// properties ------------------------------------------------------------------
+    Q_PROPERTY(QScriptValue numOfBasePairs  READ getNumOfBasePairs WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue numOfSteps      READ getNumOfSteps WRITE setIsNotAllowed)
+
 // methods ---------------------------------------------------------------------
 public slots:
+    /// set autoreference mode
+    /// setAutoreferenceMode(set)
+    QScriptValue setAutoreferenceMode(void);
+
+    /// perform analysis on reference structure
+    /// analyzeReference(snapshot[,selection])
+    QScriptValue analyzeReference(void);
+
     /// perform core analysis
     /// analyze(snapshot[,selection])
     QScriptValue analyze(void);
 
+    /// get number of base pairs
+    /// int getNumOfBasePairs()
+    QScriptValue getNumOfBasePairs(void);
+
+    /// get number of steps
+    /// int getNumOfSteps()
+    QScriptValue getNumOfSteps(void);
+
     /// get local BP
+    QScriptValue areLocalBPParamsValid();   // TODO - return true if data are valid, see CLocalBP::Valid
     QScriptValue getLocalBPShear(void);
     QScriptValue getLocalBPStretch(void);
     QScriptValue getLocalBPStagger(void);
@@ -95,6 +145,7 @@ public slots:
     QScriptValue getLocalBPOpening(void);
 
     /// get local BP Step
+    QScriptValue areLocalBPStepParamsValid();   // TODO
     QScriptValue getLocalBPStepShift(void);
     QScriptValue getLocalBPStepSlide(void);
     QScriptValue getLocalBPStepRise(void);
@@ -103,6 +154,7 @@ public slots:
     QScriptValue getLocalBPStepTwist(void);
 
     /// get local BP Helical
+    QScriptValue areLocalBPHelParamsValid();   // TODO
     QScriptValue getLocalBPHelXdisp(void);
     QScriptValue getLocalBPHelYdisp(void);
     QScriptValue getLocalBPHelHrise(void);
@@ -113,10 +165,17 @@ public slots:
 
 // access methods --------------------------------------------------------------
 private:
-    CFileName                 WorkDir;    // scratch directory
-    std::vector<CLocalBP>     LocalBP;
-    std::vector<CLocalBPStep> LocalBPStep;
-    std::vector<CLocalBPHel>  LocalBPHel;
+    CFileName                       WorkDir;            // scratch directory
+    bool                            AutoReferenceMode;  // is autoreference mode enabled?
+
+    // these two items should be set by analyzeReference()
+    std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs form find_pairs
+    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps form find_pairs
+
+    // data from analyzed snapshot
+    std::vector<CLocalBP>           LocalBP;
+    std::vector<CLocalBPStep>       LocalBPStep;
+    std::vector<CLocalBPHel>        LocalBPHel;
 
     /// clear all parsed results
     void ClearAll(void);
