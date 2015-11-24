@@ -150,8 +150,12 @@ public slots:
     /// int getNumOfSteps()
     QScriptValue getNumOfSteps(void);
 
-    /// get local BP
-    QScriptValue areLocalBPParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
+    /// get validity of local BP params
+    /// bool areLocalBPParamsValid(index)
+    QScriptValue areLocalBPParamsValid(void);
+
+    /// get local BP params
+    /// double getLocalBPXXX(index)
     QScriptValue getLocalBPShear(void);
     QScriptValue getLocalBPStretch(void);
     QScriptValue getLocalBPStagger(void);
@@ -159,8 +163,12 @@ public slots:
     QScriptValue getLocalBPPropeller(void);
     QScriptValue getLocalBPOpening(void);
 
-    /// get local BP Step
-    QScriptValue areLocalBPStepParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
+    /// get validity of local BP Step params
+    /// bool areLocalBPStepParamsValid(index)
+    QScriptValue areLocalBPStepParamsValid(void);
+
+    /// get local BP Step params
+    /// double getLocalBPStepXXX(index)
     QScriptValue getLocalBPStepShift(void);
     QScriptValue getLocalBPStepSlide(void);
     QScriptValue getLocalBPStepRise(void);
@@ -168,8 +176,12 @@ public slots:
     QScriptValue getLocalBPStepRoll(void);
     QScriptValue getLocalBPStepTwist(void);
 
-    /// get local BP Helical
-    QScriptValue areLocalBPHelParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
+    /// get validity of local BP Helical params
+    /// bool areLocalBPHelParamsValid(index)
+    QScriptValue areLocalBPHelParamsValid(void);
+
+    /// get local BP Helical params
+    /// double getLocalBPHelXXX(index)
     QScriptValue getLocalBPHelXdisp(void);
     QScriptValue getLocalBPHelYdisp(void);
     QScriptValue getLocalBPHelHrise(void);
@@ -183,9 +195,9 @@ private:
     CFileName                       WorkDir;            // scratch directory
     bool                            AutoReferenceMode;  // is autoreference mode enabled?
 
-    // these two items should be set by analyzeReference()
-    std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs form find_pairs
-    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps form analyze
+    // these two items are be set by analyzeReference()
+    std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs from find_pairs
+    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps from analyze
 
     // data from analyzed snapshot
     std::vector<CLocalBP>           LocalBP;
