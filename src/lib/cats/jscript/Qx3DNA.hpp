@@ -195,7 +195,7 @@ private:
     CFileName                       WorkDir;            // scratch directory
     bool                            AutoReferenceMode;  // is autoreference mode enabled?
 
-    // these two items are be set by analyzeReference()
+    // these two items are set by analyzeReference()
     std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs from find_pairs
     std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps from analyze
 
