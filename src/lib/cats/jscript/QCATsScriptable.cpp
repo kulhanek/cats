@@ -216,6 +216,42 @@ QScriptValue QCATsScriptable::GetArgAsString(const QString& args,const QString& 
 
 //------------------------------------------------------------------------------
 
+bool QCATsScriptable::IsArgumentBool(int idx)
+{
+    QScriptValue svalue = GetArgument(idx);
+    return( svalue.isBool() );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCATsScriptable::GetArgAsBool(const QString& args,const QString& arg,int idx,bool& value)
+{
+    int count = GetArgumentCount();
+    if( (idx > count) || (idx < 1) ){
+        return( ThrowError(args,"argument is out-of-legal range - internal bug") );
+    }
+
+    value = false;
+    QScriptValue svalue = GetArgument(idx);
+    if( svalue.isBool() ){
+        ArgUsageFlags[idx] = true;
+        value = svalue.toBool();
+        return(svalue);
+    }
+
+    // construct error string
+    if( Context() == NULL ){
+        return(QScriptValue(false));
+    }
+    QString error;
+    error = GetMethodName(args) + " - ";
+    error += " argument '" + arg + "' must be of bool type";
+
+    return( Context()->throwError(error) );
+}
+
+//------------------------------------------------------------------------------
+
 bool QCATsScriptable::IsArgumentInt(int idx)
 {
     QScriptValue svalue = GetArgument(idx);

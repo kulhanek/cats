@@ -65,6 +65,12 @@ public:
     /// get argument as string - idx counted from 1
     QScriptValue GetArgAsString(const QString& args,const QString& arg,int idx,QString& value);
 
+    /// is argument bool - idx counted from 1
+    bool IsArgumentBool(int idx);
+
+    /// get argument as bool - idx counted from 1
+    QScriptValue GetArgAsBool(const QString& args,const QString& arg,int idx,bool& value);
+
     /// is argument int - idx counted from 1
     bool IsArgumentInt(int idx);
 

@@ -3,7 +3,7 @@
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2015 Michal Ruzicka, DOPSAT
+//    Copyright (C) 2015 Michal Ruzicka, michalruz@mail.muni.cz
 //    Copyright (C) 2015 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
@@ -34,6 +34,7 @@
 
 //------------------------------------------------------------------------------
 
+// parameters
 class CLocalBP {
 public:
     // constructor
@@ -53,9 +54,13 @@ public:
 
 class CLocalBPStep {
 public:
-    // TODO
+    // constructor
+    CLocalBPStep(void);     // basic data initialization
+
+public:
+    bool        Valid;      // determine if data are valid
     int         ID;
-    std::string Step; // two base pairs (AT/AT)
+    std::string Step;       // two base pairs (AT/AT)
     double      Shift;
     double      Slide;
     double      Rise;
@@ -66,9 +71,13 @@ public:
 
 class CLocalBPHel {
 public:
-    // TODO
+    // constructor
+    CLocalBPHel(void);      // basic data initialization
+
+public:
+    bool        Valid;      // determine if data are valid
     int         ID;
-    std::string Step; // two base pairs (AT/AT)
+    std::string Step;       // two base pairs (AT/AT)
     double      Xdisp;
     double      Ydisp;
     double      Hrise;
@@ -81,9 +90,12 @@ public:
 
 class CDNABasePair {
 public:
-    // TODO
+    // constructor
+    CDNABasePair(void);      // basic data initialization
+
+public:
     int         ID;
-    std::string Name;
+    std::string Name;    // (A-A)
     int         ResIDA;
     int         ResIDB;
 };
@@ -92,9 +104,12 @@ public:
 
 class CDNABasePairStep {
 public:
-    // TODO
+    // constructor
+    CDNABasePairStep(void);      // basic data initialization
+
+public:
     int         ID;
-    std::string Step;
+    std::string Step;    // (AT/AT)
 };
 
 //------------------------------------------------------------------------------
@@ -117,7 +132,7 @@ public:
 public slots:
     /// set autoreference mode
     /// setAutoreferenceMode(set)
-    QScriptValue setAutoreferenceMode(void);
+    QScriptValue setAutoReferenceMode(void);
 
     /// perform analysis on reference structure
     /// analyzeReference(snapshot[,selection])
@@ -136,7 +151,7 @@ public slots:
     QScriptValue getNumOfSteps(void);
 
     /// get local BP
-    QScriptValue areLocalBPParamsValid();   // TODO - return true if data are valid, see CLocalBP::Valid
+    QScriptValue areLocalBPParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
     QScriptValue getLocalBPShear(void);
     QScriptValue getLocalBPStretch(void);
     QScriptValue getLocalBPStagger(void);
@@ -145,7 +160,7 @@ public slots:
     QScriptValue getLocalBPOpening(void);
 
     /// get local BP Step
-    QScriptValue areLocalBPStepParamsValid();   // TODO
+    QScriptValue areLocalBPStepParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
     QScriptValue getLocalBPStepShift(void);
     QScriptValue getLocalBPStepSlide(void);
     QScriptValue getLocalBPStepRise(void);
@@ -154,7 +169,7 @@ public slots:
     QScriptValue getLocalBPStepTwist(void);
 
     /// get local BP Helical
-    QScriptValue areLocalBPHelParamsValid();   // TODO
+    QScriptValue areLocalBPHelParamsValid(void);   // return true if data are valid, see CLocalBP::Valid
     QScriptValue getLocalBPHelXdisp(void);
     QScriptValue getLocalBPHelYdisp(void);
     QScriptValue getLocalBPHelHrise(void);
@@ -170,7 +185,7 @@ private:
 
     // these two items should be set by analyzeReference()
     std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs form find_pairs
-    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps form find_pairs
+    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps form analyze
 
     // data from analyzed snapshot
     std::vector<CLocalBP>           LocalBP;
@@ -186,6 +201,9 @@ private:
     /// run analysis
     bool RunAnalysis(void);
 
+    /// parse reference data
+    bool ParseReferenceData(void);
+
     /// parse output data
     bool ParseOutputData(void);
 
@@ -200,6 +218,12 @@ private:
 
     /// get PDB atom name
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
+
+    /// read reference BP
+    bool ReadSectionReferenceBP(std::ifstream& ifs);
+
+    /// read reference BP Step
+    bool ReadSectionReferenceBPStep(std::ifstream& ifs);
 
     /// read Local BP
     bool ReadSectionLocalBP(std::ifstream& ifs);
