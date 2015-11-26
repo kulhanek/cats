@@ -575,9 +575,9 @@ bool Qx3DNA::RunAnalysis(void)
         if ( exitCode == 126 ){
             error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
         } else if ( exitCode == 127 ){
-            error << "running 3DNA program failed -	\"command not found\" (possible problem with $PATH)";
+            error << "running 3DNA program failed - \"command not found\" (possible problem with $PATH)";
         } else {
-            error << "running 3DNA program failed - exit code: " << exitCode;
+            error << "running 3DNA program failed - exit code (" << exitCode << ")";
         }
         ES_ERROR(error);
         return(false);
