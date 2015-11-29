@@ -216,8 +216,7 @@ QScriptValue Qx3DNA::analyzeReference(void)
 
 // do analysis -----------------------------------
     // clear previous data
-    ReferenceBasePairs.clear();
-    ReferenceBasePairSteps.clear();
+    ClearAll();
     AutoReferenceMode = false;
 
     // write input data
@@ -232,7 +231,7 @@ QScriptValue Qx3DNA::analyzeReference(void)
 
     // parse output data to set ReferenceBasePairs and ReferenceBasePairSteps
     if( ParseReferenceData() == false ){
-        return( ThrowError("snapshot[,selection]","unable to parse output reference data") );
+        return( ThrowError("snapshot[,selection]","unable to parse reference data") );
     }
 
     // perform standard analysis
@@ -494,9 +493,14 @@ get(LocalBPHel,Htwist)
 void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
-    LocalBP.clear();
-    LocalBPStep.clear();
-    LocalBPHel.clear();
+    if ( AutoReferenceMode == false ){
+        LocalBP.clear();
+        LocalBPStep.clear();
+        LocalBPHel.clear();
+    } else {
+        ReferenceBasePairs.clear();
+        ReferenceBasePairSteps.clear();
+    }
 
     // remove all old tmp files
     remove ( WorkDir / "Qx3DNA.pdb" );
@@ -576,6 +580,8 @@ bool Qx3DNA::RunAnalysis(void)
             error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
         } else if ( exitCode == 127 ){
             error << "running 3DNA program failed - \"command not found\" (possible problem with $PATH)";
+        } else if ( exitCode == 1 ){
+            error << "running 3DNA program failed - analyzed snapshot has probably no base pairs";
         } else {
             error << "running 3DNA program failed - exit code (" << exitCode << ")";
         }
