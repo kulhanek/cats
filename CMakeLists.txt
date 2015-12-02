@@ -130,14 +130,19 @@ LINK_DIRECTORIES(${PMFLIB_ROOT}/lib)
 LINK_DIRECTORIES(${PMFLIB_ROOT}/lib/drivers)
 SET(PMF_LIB_NAME fpmfdrv_cats fpmf cpmf)
 
-SET(CATS_LIBS cats
+SET(SYSTEM_LIBS
         ${PMF_LIB_NAME}
         ${NETCDF_CLIB_NAME}
         ${NETLIB_LIB_NAME}
         ${QT_LIBRARIES}
         ${ASL_LIB_NAME}
         ${PRMFILE_CLIB_NAME}
+        ${SCIMAFIC_CLIB_NAME}
         ${HIPOLY_LIB_NAME}
+        )
+
+SET(CATS_LIBS cats
+        ${SYSTEM_LIBS}
         )
 
 # ==============================================================================

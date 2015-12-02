@@ -24,6 +24,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
 #include <ExtraClient.hpp>
 
 //------------------------------------------------------------------------------
@@ -32,7 +33,7 @@ class CAmberRestart;
 
 //------------------------------------------------------------------------------
 
-class CTrajectoryClient : public CExtraClient {
+class CATS_PACKAGE CTrajectoryClient : public CExtraClient {
 public:
     // constructor
     CTrajectoryClient(void);

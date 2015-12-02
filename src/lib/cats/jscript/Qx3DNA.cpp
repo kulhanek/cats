@@ -31,6 +31,7 @@
 #include <Qx3DNA.moc>
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
+#include <QTemporaryDir>
 
 
 using namespace std;
@@ -145,16 +146,6 @@ QScriptValue Qx3DNA::New(QScriptContext *context,
 Qx3DNA::Qx3DNA(void)
     : QCATsScriptable("x3DNA")
 {
-    // set and create working dir in /tmp
-    ostringstream str_pid;
-    str_pid << getpid();
-    string my_pid(str_pid.str());
-    CFileName fn_pid = my_pid.c_str();
-
-    WorkDir = "/tmp" / fn_pid;
-    // FIXME
-    // mkdir(WorkDir, S_IRWXU);
-    mkdir(WorkDir);
     // default value
     AutoReferenceMode = true;
 }
@@ -274,7 +265,19 @@ QScriptValue Qx3DNA::analyze(void)
 // do 3DNA analysis -------------------------------
     // clear previous data
     ClearAll();
+    
+    // create temporary directory
+    QTemporaryDir tmp_dir;
+    tmp_dir.setAutoRemove(false); // keep files in the case of failure
+    if( ! tmp_dir.isValid() ){
+	    // TODO
+	    // report that directory cannot be created
+	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
+	}
+	WorkDir = CFileName(tmp_dir.path());    
 
+	//FIXME - put to the error message the pathname to the working directory
+	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
         return( ThrowError("snapshot[,selection]","unable to write input data") );
@@ -289,6 +292,9 @@ QScriptValue Qx3DNA::analyze(void)
     if( ParseOutputData() == false ){
         return( ThrowError("snapshot[,selection]","unable to parse output") );
     }
+    
+    // clean temporary directory
+    tmp_dir.remove();
 
     return(true);
 }
@@ -502,24 +508,7 @@ void Qx3DNA::ClearAll(void)
         ReferenceBasePairs.clear();
         ReferenceBasePairSteps.clear();
     }
-
-    // remove all old tmp files
-    remove ( WorkDir / "Qx3DNA.pdb" );
-    remove ( WorkDir / "Qx3DNA.out" );
-    remove ( WorkDir / "auxiliary.par" );
-    remove ( WorkDir / "bestpairs.pdb" );
-    remove ( WorkDir / "bp_helical.par" );
-    remove ( WorkDir / "bp_order.dat" );
-    remove ( WorkDir / "bp_step.par" );
-
-    remove ( WorkDir / "cf_7methods.par" );
-    remove ( WorkDir / "col_chains.scr" );
-    remove ( WorkDir / "col_helices.scr" );
-    remove ( WorkDir / "hel_regions.pdb" );
-    remove ( WorkDir / "hstacking.pdb" );
-    remove ( WorkDir / "ref_frames.dat" );
-    remove ( WorkDir / "stacking.pdb" );
-
+    // data in the temporary directory are removed by QTemporaryDir
 }
 
 //------------------------------------------------------------------------------

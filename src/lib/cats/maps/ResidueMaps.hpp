@@ -22,6 +22,8 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
+
 #define MAXRESLIST 24
 
 // translation rules for N and C terminal residues
@@ -30,9 +32,9 @@ extern const char* ResidueNameConversion[MAXRESLIST][2];
 
 //---------------------------------------------------------------------------
 
-bool ConvertResnameToCTerminal(CSmallString& resname,bool silent=false);
-bool ConvertResnameToNTerminal(CSmallString& resname,bool silent=false);
-bool ConvertNCResnameToResname(CSmallString& resname);
+bool CATS_PACKAGE ConvertResnameToCTerminal(CSmallString& resname,bool silent=false);
+bool CATS_PACKAGE ConvertResnameToNTerminal(CSmallString& resname,bool silent=false);
+bool CATS_PACKAGE ConvertNCResnameToResname(CSmallString& resname);
 
 //---------------------------------------------------------------------------
 
@@ -42,7 +44,7 @@ extern const char* ResidueToFASTA[MAXRESLISTFASTA][2];
 
 //---------------------------------------------------------------------------
 
-bool ConvertResnameToFASTA(CSmallString& resname);
+bool CATS_PACKAGE ConvertResnameToFASTA(CSmallString& resname);
 
 //---------------------------------------------------------------------------
 
