@@ -30,7 +30,7 @@
 
 /// transformation matrix
 
-class QTransformation : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QTransformation : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

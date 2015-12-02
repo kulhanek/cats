@@ -29,7 +29,7 @@
 //------------------------------------------------------------------------------
 
 /// Amber Residue
-class QResidue : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QResidue : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

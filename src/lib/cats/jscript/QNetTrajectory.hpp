@@ -34,7 +34,7 @@ class QSnapshot;
 
 //------------------------------------------------------------------------------
 
-class QNetTrajectory : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QNetTrajectory : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

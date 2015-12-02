@@ -38,7 +38,7 @@ class QSnapshot;
 
 /// select group of atoms and provide their properties
 
-class QRSelection : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QRSelection : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

@@ -124,13 +124,13 @@ QScriptValue QMolSurf::analyze(void)
     QTemporaryDir tmp_dir;
     tmp_dir.setAutoRemove(false); // keep files in the case of failure
     if( ! tmp_dir.isValid() ){
-	    // TODO
-	    // report that directory cannot be created
-	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
-	}
-	WorkDir = CFileName(tmp_dir.path()); 
+        // TODO
+        // report that directory cannot be created
+        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+    }
+    WorkDir = CFileName(tmp_dir.path());
 	
-	//FIXME - put to the error message the pathname to the working directory
+    //FIXME - put to the error message the pathname to the working directory
 
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
@@ -187,15 +187,6 @@ void QMolSurf::ClearAll(void)
     // destroy all previous data
     SASA.clear();
     SESA.clear();
-
-    // remove all old tmp files
-//    remove ( WorkDir / "QMolSurf.pdb" );
-//    remove ( WorkDir / "QMolSurf.out" );
-//    remove ( WorkDir / "auxiliary.par" );
-//    remove ( WorkDir / "bestpairs.pdb" );
-//    remove ( WorkDir / "bp_helical.par" );
-//    remove ( WorkDir / "bp_order.dat" );
-//    remove ( WorkDir / "bp_step.par" );
 }
 
 //------------------------------------------------------------------------------

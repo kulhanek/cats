@@ -34,7 +34,7 @@
 
 /// volume data
 
-class QVolumeData : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QVolumeData : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

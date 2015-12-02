@@ -29,7 +29,7 @@
 
 //------------------------------------------------------------------------------
 
-class QGeometry : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QGeometry : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

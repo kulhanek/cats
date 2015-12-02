@@ -116,7 +116,7 @@ public:
 
 /// 3D x3DNA
 
-class Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
@@ -147,7 +147,8 @@ public slots:
     QScriptValue getNumOfBasePairs(void);
 
     /// get number of steps
-    /// int getNumOfSteps()
+    /// int g
+    /// etNumOfSteps()
     QScriptValue getNumOfSteps(void);
 
     /// get validity of local BP params

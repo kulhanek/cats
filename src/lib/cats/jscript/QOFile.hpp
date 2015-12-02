@@ -31,7 +31,7 @@
 
 /// support for formatted output
 
-class QOFile : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QOFile : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

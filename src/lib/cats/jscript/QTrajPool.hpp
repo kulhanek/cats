@@ -36,7 +36,7 @@ class QSnapshot;
 
 //------------------------------------------------------------------------------
 
-class QTrajPool : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QTrajPool : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

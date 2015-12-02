@@ -36,7 +36,7 @@ class QTopology;
 
 /// average snapshot optionaly including velocity and box sizes
 
-class QAverageSnapshot : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QAverageSnapshot : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

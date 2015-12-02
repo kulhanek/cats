@@ -215,13 +215,13 @@ QScriptValue Qx3DNA::analyzeReference(void)
     QTemporaryDir tmp_dir;
     tmp_dir.setAutoRemove(false); // keep files in the case of failure
     if( ! tmp_dir.isValid() ){
-	    // TODO
-	    // report that directory cannot be created
-	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
-	}
-	WorkDir = CFileName(tmp_dir.path());     
+        // TODO
+        // report that directory cannot be created
+        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+    }
+    WorkDir = CFileName(tmp_dir.path());
 
-	//FIXME - put to the error message the pathname to the working directory	
+    //FIXME - put to the error message the pathname to the working directory
 	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
@@ -288,10 +288,10 @@ QScriptValue Qx3DNA::analyze(void)
 	    // TODO
 	    // report that directory cannot be created
 	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
-	}
-	WorkDir = CFileName(tmp_dir.path());    
+    }
+    WorkDir = CFileName(tmp_dir.path());
 
-	//FIXME - put to the error message the pathname to the working directory
+    //FIXME - put to the error message the pathname to the working directory
 	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){

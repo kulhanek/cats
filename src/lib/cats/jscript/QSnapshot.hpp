@@ -32,7 +32,7 @@ class QTopology;
 
 /// system snapshot optionaly including velocity and box sizes
 
-class QSnapshot : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QSnapshot : public QTopologyObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

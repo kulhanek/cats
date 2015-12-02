@@ -30,7 +30,7 @@
 
 /// vector
 
-class QSimpleVector : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QSimpleVector : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

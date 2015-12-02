@@ -28,7 +28,7 @@
 //------------------------------------------------------------------------------
 
 /// helper class
-class QCATsScriptable {
+class CATS_PACKAGE QCATsScriptable {
 public:
     /// init object
     QCATsScriptable(const QString& classname);

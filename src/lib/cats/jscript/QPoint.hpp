@@ -32,7 +32,7 @@
 
 /// 3D point
 
-class QPoint : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QPoint : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

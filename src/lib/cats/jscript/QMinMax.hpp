@@ -29,7 +29,7 @@
 //------------------------------------------------------------------------------
 
 /// property summation
-class QMinMax : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QMinMax : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

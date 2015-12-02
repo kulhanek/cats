@@ -31,7 +31,7 @@
 //------------------------------------------------------------------------------
 
 /// Topology object
-class QTopology : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QTopology : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
