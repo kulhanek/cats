@@ -20,6 +20,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
 #include <QObject>
 #include <QScriptValue>
 #include <QScriptContext>
@@ -36,7 +37,7 @@ class QSnapshot;
 
 /// PMFLib bridge - only one instance
 
-class QPMFLib : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QPMFLib : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------

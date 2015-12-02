@@ -20,6 +20,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
 #include <QObject>
 #include <QScriptValue>
 #include <QScriptContext>
@@ -31,7 +32,7 @@
 
 /// thermochemistry of ideal gas
 
-class QThermoIG : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QThermoIG : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
