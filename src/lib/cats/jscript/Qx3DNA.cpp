@@ -830,7 +830,7 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
 
         // check if the current structure has the same pairing as reference structure
         if( ReferenceBasePairs.size() > 0 ){  // reference pairing is available -> perform test
-            if( ReferenceBasePairs[params.ID].Name != params.Name ){
+            if( ( ReferenceBasePairs[params.ID].Name.substr(0,1) != params.Name.substr(0,1) ) || ( ReferenceBasePairs[params.ID].Name.substr(2,1) != params.Name.substr(2,1) ) ){
                 CSmallString error;
                 error << "base pair (" << params.Name << ") with number (" << params.ID << ") is not the same as in reference structure";
                 ES_ERROR(error);
