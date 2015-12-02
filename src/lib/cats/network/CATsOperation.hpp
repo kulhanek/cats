@@ -30,16 +30,16 @@
 //------------------------------------------------------------------------------
 
 /// flush data
-DECLARE_OPERATION(Operation_FlushServerData);
+DECLARE_OPERATION(CATS_PACKAGE,Operation_FlushServerData);
 
 /// write data to server
-DECLARE_OPERATION(Operation_WriteData);
+DECLARE_OPERATION(CATS_PACKAGE,Operation_WriteData);
 
 /// get data statistics
-DECLARE_OPERATION(Operation_GetStatistics);
+DECLARE_OPERATION(CATS_PACKAGE,Operation_GetStatistics);
 
 /// get trajectory snapshot
-DECLARE_OPERATION(Operation_GetSnapshot);
+DECLARE_OPERATION(CATS_PACKAGE,Operation_GetSnapshot);
 
 //------------------------------------------------------------------------------
 

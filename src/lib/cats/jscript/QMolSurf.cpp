@@ -90,7 +90,9 @@ QMolSurf::QMolSurf(void)
     CFileName fn_pid = my_pid.c_str();
 
     WorkDir = "/tmp" / fn_pid;
-    mkdir(WorkDir, S_IRWXU);
+    // FIXME
+    // mkdir(WorkDir, S_IRWXU);
+    mkdir(WorkDir);
 }
 
 //==============================================================================
@@ -243,7 +245,9 @@ bool QMolSurf::RunAnalysis(void)
         return(false);
     }
     if ( status > 0 ){
-        int exitCode = WEXITSTATUS(status);
+	    // FIXME
+        // int exitCode = WEXITSTATUS(status);
+        int exitCode = status;
         CSmallString error;
         if ( exitCode == 126 ){
             error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
