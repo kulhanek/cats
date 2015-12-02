@@ -20,6 +20,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
 #include <QTopology.hpp>
 #include <QScriptValue>
 #include <QScriptContext>
