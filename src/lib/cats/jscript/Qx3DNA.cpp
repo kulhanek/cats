@@ -210,7 +210,19 @@ QScriptValue Qx3DNA::analyzeReference(void)
     // clear previous data
     ClearAll();
     AutoReferenceMode = false;
+    
+    // create temporary directory
+    QTemporaryDir tmp_dir;
+    tmp_dir.setAutoRemove(false); // keep files in the case of failure
+    if( ! tmp_dir.isValid() ){
+	    // TODO
+	    // report that directory cannot be created
+	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
+	}
+	WorkDir = CFileName(tmp_dir.path());     
 
+	//FIXME - put to the error message the pathname to the working directory	
+	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
         return( ThrowError("snapshot[,selection]","unable to write input data") );
@@ -226,6 +238,9 @@ QScriptValue Qx3DNA::analyzeReference(void)
         return( ThrowError("snapshot[,selection]","unable to parse reference data") );
     }
 
+    // clean temporary directory
+    tmp_dir.remove();    
+    
     // perform standard analysis
     return(analyze()); // to avoid infinite recursion - AutoReferenceMode MUST be set to false in this method
 }

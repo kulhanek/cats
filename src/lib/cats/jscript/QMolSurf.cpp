@@ -31,6 +31,7 @@
 #include <QMolSurf.moc>
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
+#include <QTemporaryDir>
 
 
 using namespace std;
@@ -83,16 +84,7 @@ QScriptValue QMolSurf::New(QScriptContext *context,
 QMolSurf::QMolSurf(void)
     : QCATsScriptable("MolSurf")
 {
-    // set and create working dir in /tmp
-    ostringstream str_pid;
-    str_pid << getpid();
-    string my_pid(str_pid.str());
-    CFileName fn_pid = my_pid.c_str();
 
-    WorkDir = "/tmp" / fn_pid;
-    // FIXME
-    // mkdir(WorkDir, S_IRWXU);
-    mkdir(WorkDir);
 }
 
 //==============================================================================
@@ -127,6 +119,18 @@ QScriptValue QMolSurf::analyze(void)
 // do 3DNA analysis -------------------------------
     // clear previous data
     ClearAll();
+    
+    // create temporary directory
+    QTemporaryDir tmp_dir;
+    tmp_dir.setAutoRemove(false); // keep files in the case of failure
+    if( ! tmp_dir.isValid() ){
+	    // TODO
+	    // report that directory cannot be created
+	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
+	}
+	WorkDir = CFileName(tmp_dir.path()); 
+	
+	//FIXME - put to the error message the pathname to the working directory
 
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
@@ -142,6 +146,9 @@ QScriptValue QMolSurf::analyze(void)
     if( ParseOutputData() == false ){
         return( ThrowError("snapshot[,selection]","unable to parse output") );
     }
+    
+    // clean temporary directory
+    tmp_dir.remove();        
 
     return(true);
 }
