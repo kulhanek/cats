@@ -40,6 +40,32 @@ ENDIF(NOT DEVELOPMENT_ROOT)
 # external libraries -----------------------------------------------------------
 # ==============================================================================
 
+# NetCDFCore ==================
+SET(NETCDF_ROOT ${DEVELOPMENT_ROOT}/thirdparty/netcdfcore/4.0.1)
+INCLUDE_DIRECTORIES(${NETCDF_ROOT}/include SYSTEM)
+LINK_DIRECTORIES(${NETCDF_ROOT}/lib)
+SET(NETCDF_CLIB_NAME cnetcdf)
+
+# boost =======================
+SET(BOOST_ROOT ${DEVELOPMENT_ROOT}/thirdparty/boost/1.59.0)
+INCLUDE_DIRECTORIES(${BOOST_ROOT} SYSTEM)
+
+# readline ====================
+SET(READLINE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/readline/6.2.0)
+INCLUDE_DIRECTORIES(${READLINE_ROOT}/include SYSTEM)
+LINK_DIRECTORIES(${READLINE_ROOT}/lib)
+SET(READLINE_LIB_NAME readline)
+
+# FFTW3 =======================
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/cmake/")
+FIND_PACKAGE(FFTW3)
+
+# OpenBabel Core  =============
+SET(OBCORE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/obcore/2.3.1)
+INCLUDE_DIRECTORIES(${OBCORE_ROOT}/include SYSTEM)
+LINK_DIRECTORIES(${OBCORE_ROOT}/lib)
+SET(OBCORE_LIB_NAME obcore)
+
 # HIPOLY ====================
 SET(HIPOLY_ROOT ${DEVELOPMENT_ROOT}/projects/hipoly/1.0)
 INCLUDE_DIRECTORIES(${HIPOLY_ROOT}/src/lib/hipoly SYSTEM)
@@ -95,33 +121,6 @@ INCLUDE_DIRECTORIES(${ASL_ROOT}/src/lib/asl/mask SYSTEM)
 LINK_DIRECTORIES(${ASL_ROOT}/lib)
 SET(ASL_LIB_NAME asl)
 
-# NetCDFCore ==================
-SET(NETCDF_ROOT ${DEVELOPMENT_ROOT}/thirdparty/netcdfcore/4.0.1)
-INCLUDE_DIRECTORIES(${NETCDF_ROOT}/include SYSTEM)
-LINK_DIRECTORIES(${NETCDF_ROOT}/lib)
-SET(NETCDF_CLIB_NAME cnetcdf)
-
-# boost ---------------------------------------
-SET(BOOST_ROOT ${DEVELOPMENT_ROOT}/thirdparty/boost/1.59.0)
-INCLUDE_DIRECTORIES(${BOOST_ROOT} SYSTEM)
-
-# FFTW3 =======================
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/cmake/")
-FIND_PACKAGE(FFTW3)
-
-# OpenBabel Core  =========================
-SET(OBCORE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/obcore/2.3.1)
-INCLUDE_DIRECTORIES(${OBCORE_ROOT}/include SYSTEM)
-LINK_DIRECTORIES(${OBCORE_ROOT}/lib)
-SET(OBCORE_LIB_NAME obcore)
-
-# QT5 =========================
-SET(CMAKE_AUTOMOC ON)
-FIND_PACKAGE(Qt5Core REQUIRED)
-FIND_PACKAGE(Qt5Script REQUIRED)
-SET(HAVE_QT5 1)
-ADD_DEFINITIONS(-DHAVE_QT5)
-
 # PMFLib =========================
 SET(PMFLIB_ROOT ${DEVELOPMENT_ROOT}/projects/pmflib/5.0)
 INCLUDE_DIRECTORIES(${PMFLIB_ROOT}/src/lib/cpmf SYSTEM)
@@ -129,6 +128,14 @@ INCLUDE_DIRECTORIES(${PMFLIB_ROOT}/src/lib/fdrivers/cats/ SYSTEM)
 LINK_DIRECTORIES(${PMFLIB_ROOT}/lib)
 LINK_DIRECTORIES(${PMFLIB_ROOT}/lib/drivers)
 SET(PMF_LIB_NAME fpmfdrv_cats fpmf cpmf)
+
+
+# QT5 =========================
+SET(CMAKE_AUTOMOC ON)
+FIND_PACKAGE(Qt5Core REQUIRED)
+FIND_PACKAGE(Qt5Script REQUIRED)
+SET(HAVE_QT5 1)
+ADD_DEFINITIONS(-DHAVE_QT5)
 
 SET(SYSTEM_LIBS
         ${PMF_LIB_NAME}
@@ -142,6 +149,7 @@ SET(SYSTEM_LIBS
         )
 
 SET(CATS_LIBS cats
+		${READLINE_LIB_NAME}
         ${SYSTEM_LIBS}
         )
 
