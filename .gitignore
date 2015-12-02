@@ -12,4 +12,5 @@ lib/*
 include/*
 Testing/
 CATs.*
+CATsWin.*
 test/*
