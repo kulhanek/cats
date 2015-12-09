@@ -60,6 +60,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QVolumeData.cpp
         jscript/QThermoIG.cpp
         jscript/Qx3DNA.cpp
+        jscript/Qx3DNAHelper.cpp
         jscript/QMolSurf.cpp
 
     # i/o suuport --------------------------------

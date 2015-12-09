@@ -31,87 +31,8 @@
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
 #include <FileName.hpp>
+#include <Qx3DNAHelper.hpp>
 #include <map>
-
-//------------------------------------------------------------------------------
-
-// parameters
-class CLocalBP {
-public:
-    // constructor
-    CLocalBP(void);         // basic data initialization
-
-public:
-    bool        Valid;      // determine if data are valid
-    int         ID;
-    std::string Name;       // one base pair (A-A)
-    double      Shear;
-    double      Stretch;
-    double      Stagger;
-    double      Buckle;
-    double      Propeller;
-    double      Opening;
-};
-
-class CLocalBPStep {
-public:
-    // constructor
-    CLocalBPStep(void);     // basic data initialization
-
-public:
-    bool        Valid;      // determine if data are valid
-    int         ID;
-    std::string Step;       // two base pairs (AT/AT)
-    double      Shift;
-    double      Slide;
-    double      Rise;
-    double      Tilt;
-    double      Roll;
-    double      Twist;
-};
-
-class CLocalBPHel {
-public:
-    // constructor
-    CLocalBPHel(void);      // basic data initialization
-
-public:
-    bool        Valid;      // determine if data are valid
-    int         ID;
-    std::string Step;       // two base pairs (AT/AT)
-    double      Xdisp;
-    double      Ydisp;
-    double      Hrise;
-    double      Incl;
-    double      Tip;
-    double      Htwist;
-};
-
-//------------------------------------------------------------------------------
-
-class CDNABasePair {
-public:
-    // constructor
-    CDNABasePair(void);      // basic data initialization
-
-public:
-    int         ID;
-    std::string Name;    // (A-A)
-    int         ResIDA;
-    int         ResIDB;
-};
-
-//------------------------------------------------------------------------------
-
-class CDNABasePairStep {
-public:
-    // constructor
-    CDNABasePairStep(void);      // basic data initialization
-
-public:
-    int         ID;
-    std::string Step;    // (AT/AT)
-};
 
 //------------------------------------------------------------------------------
 
@@ -130,7 +51,7 @@ public:
     Q_PROPERTY(QScriptValue numOfSteps      READ getNumOfSteps WRITE setIsNotAllowed)
 
 // methods ---------------------------------------------------------------------
-public slots:
+public slots:   
     /// set autoreference mode
     /// setAutoreferenceMode(set)
     QScriptValue setAutoReferenceMode(void);
@@ -148,9 +69,12 @@ public slots:
     QScriptValue getNumOfBasePairs(void);
 
     /// get number of steps
-    /// int g
-    /// etNumOfSteps()
+    /// int getNumOfSteps()
     QScriptValue getNumOfSteps(void);
+
+    /// get index from residA and residB - it returns -1 if the BP was not analyzed
+    /// int getBPIndex(residA,residB)
+    QScriptValue getBPIndex(void);
 
     /// get validity of local BP params
     /// bool areLocalBPParamsValid(index)
@@ -191,17 +115,21 @@ public slots:
     QScriptValue getLocalBPHelTip(void);
     QScriptValue getLocalBPHelHtwist(void);
 
-
 // access methods --------------------------------------------------------------
 private:
     CFileName                       WorkDir;            // scratch directory
     bool                            AutoReferenceMode;  // is autoreference mode enabled?
 
+    // topology residue index <-> local translation
+    std::map<int,int>               ResIDMap;
+
     // these two items are set by analyzeReference()
-    std::map<int,CDNABasePair>      ReferenceBasePairs;      // list of base pairs from find_pairs
-    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps;  // list of base pair steps from analyze
+    std::map<int,CDNABasePair>      ReferenceBasePairs;     // list of base pairs from find_pairs
+    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps; // list of base pair steps from analyze
 
     // data from analyzed snapshot
+    std::map<int,CDNABasePair>      BasePairs;              // list of base pairs from find_pairs
+    std::map<int,CDNABasePairStep>  BasePairSteps;          // list of base pair steps from analyze
     std::vector<CLocalBP>           LocalBP;
     std::vector<CLocalBPStep>       LocalBPStep;
     std::vector<CLocalBPHel>        LocalBPHel;
@@ -234,10 +162,10 @@ private:
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
 
     /// read reference BP
-    bool ReadSectionReferenceBP(std::ifstream& ifs);
+    bool ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps);
 
     /// read reference BP Step
-    bool ReadSectionReferenceBPStep(std::ifstream& ifs);
+    bool ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>& bpsteps);
 
     /// read Local BP
     bool ReadSectionLocalBP(std::ifstream& ifs);

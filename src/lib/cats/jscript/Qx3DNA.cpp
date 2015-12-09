@@ -32,71 +32,10 @@
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
 #include <QTemporaryDir>
-
+#include <AmberResidue.hpp>
+#include <boost/format.hpp>
 
 using namespace std;
-
-//==============================================================================
-//------------------------------------------------------------------------------
-//==============================================================================
-
-CLocalBP::CLocalBP(void)
-{
-    Valid = false;
-    ID = -1;
-    Name = "nd";
-    Shear = 0.0;
-    Stretch = 0.0;
-    Stagger = 0.0;
-    Buckle = 0.0;
-    Propeller = 0.0;
-    Opening = 0.0;
-}
-
-
-CLocalBPStep::CLocalBPStep(void)
-{
-    Valid = false;
-    ID = -1;
-    Step = "nd";
-    Shift = 0.0;
-    Slide = 0.0;
-    Rise = 0.0;
-    Tilt = 0.0;
-    Roll = 0.0;
-    Twist = 0.0;
-}
-
-CLocalBPHel::CLocalBPHel(void)
-{
-    Valid = false;
-    ID = -1;
-    Step = "nd";
-    Xdisp = 0.0;
-    Ydisp = 0.0;
-    Hrise = 0.0;
-    Incl = 0.0;
-    Tip = 0.0;
-    Htwist = 0.0;
-}
-
-//------------------------------------------------------------------------------
-
-CDNABasePair::CDNABasePair(void)
-{
-    ID = -1;
-    Name = "nd";
-    ResIDA = 0;
-    ResIDB = 0;
-}
-
-//------------------------------------------------------------------------------
-
-CDNABasePairStep::CDNABasePairStep(void)
-{
-    ID = -1;
-    Step = "nd";
-}
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -147,7 +86,7 @@ Qx3DNA::Qx3DNA(void)
     : QCATsScriptable("x3DNA")
 {
     // default value
-    AutoReferenceMode = true;
+    AutoReferenceMode = false;
 }
 
 //==============================================================================
@@ -169,7 +108,7 @@ QScriptValue Qx3DNA::setAutoReferenceMode(void)
     value = CheckNumberOfArguments("set",1);
     if( value.isError() ) return(value);
 
-    bool set;
+    bool set = false;
     value = GetArgAsBool("set","set",1,set);
     if( value.isError() ) return(value);
 
@@ -215,27 +154,31 @@ QScriptValue Qx3DNA::analyzeReference(void)
     QTemporaryDir tmp_dir;
     tmp_dir.setAutoRemove(false); // keep files in the case of failure
     if( ! tmp_dir.isValid() ){
-        // TODO
-        // report that directory cannot be created
-        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        CSmallString error;
+        error << "unable to create a working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
     WorkDir = CFileName(tmp_dir.path());
-
-    //FIXME - put to the error message the pathname to the working directory
 	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
-        return( ThrowError("snapshot[,selection]","unable to write input data") );
+        CSmallString error;
+        error << "unable to write a reference input data into the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
 
     // start analysis
     if( RunAnalysis() == false ){
-        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        CSmallString error;
+        error << "unable to run reference analysis, temporary data were left in the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
 
-    // parse output data to set ReferenceBasePairs and ReferenceBasePairSteps
+    // parse output data
     if( ParseReferenceData() == false ){
-        return( ThrowError("snapshot[,selection]","unable to parse reference data") );
+        CSmallString error;
+        error << "unable to parse reference output, temporary data were left in the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
 
     // clean temporary directory
@@ -285,27 +228,31 @@ QScriptValue Qx3DNA::analyze(void)
     QTemporaryDir tmp_dir;
     tmp_dir.setAutoRemove(false); // keep files in the case of failure
     if( ! tmp_dir.isValid() ){
-	    // TODO
-	    // report that directory cannot be created
-	    return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        CSmallString error;
+        error << "unable to create a working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]","unable to run analysis") );
     }
     WorkDir = CFileName(tmp_dir.path());
-
-    //FIXME - put to the error message the pathname to the working directory
 	
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
-        return( ThrowError("snapshot[,selection]","unable to write input data") );
+        CSmallString error;
+        error << "unable to write an input data into the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
 
     // start analysis
     if( RunAnalysis() == false ){
-        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        CSmallString error;
+        error << "unable to run analysis, temporary data were left in the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
 
     // parse output data
     if( ParseOutputData() == false ){
-        return( ThrowError("snapshot[,selection]","unable to parse output") );
+        CSmallString error;
+        error << "unable to parse output, temporary data were left in the working directory: " << tmp_dir.path();
+        return( ThrowError("snapshot[,selection]",error) );
     }
     
     // clean temporary directory
@@ -318,7 +265,6 @@ QScriptValue Qx3DNA::analyze(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-// getters
 QScriptValue Qx3DNA::getNumOfBasePairs(void)
 {
     QScriptValue value;
@@ -368,6 +314,57 @@ QScriptValue Qx3DNA::getNumOfSteps(void)
 }
 
 //------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::getBPIndex(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int x3DNA::getBPIndex(residA,residB)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("residA,residB",2);
+    if( value.isError() ) return(value);
+    int residA = -1;
+    int residB = -1;
+    value = GetArgAsInt("residA,residB","residA",1,residA);
+    if( value.isError() ) return(value);
+    value = GetArgAsInt("residA,residB","residB",2,residB);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    if( ResIDMap.find(residA) == ResIDMap.end() ){
+        return( ThrowError("residA,residB","residA was not included in the analysis") );
+    }
+    if( ResIDMap.find(residB) == ResIDMap.end() ){
+        return( ThrowError("residA,residB","residB was not included in the analysis") );
+    }
+
+    // remap to local indexing
+    residA = ResIDMap[residA];
+    residB = ResIDMap[residB];
+
+    std::map<int,CDNABasePair>::iterator it = BasePairs.begin();
+    std::map<int,CDNABasePair>::iterator ie = BasePairs.end();
+
+    while( it != ie ){
+        if( ((it->second.ResIDA == residA)&&(it->second.ResIDB == residB)) ||
+            ((it->second.ResIDA == residB)&&(it->second.ResIDB == residA)) ){
+            return( it->first );
+        }
+        it++;
+    }
+
+    return(-1);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
 
 #define get(what,param) \
 QScriptValue Qx3DNA::get##what##param(void)\
@@ -506,8 +503,6 @@ get(LocalBPHel,Incl)
 get(LocalBPHel,Tip)
 get(LocalBPHel,Htwist)
 
-
-
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -515,14 +510,18 @@ get(LocalBPHel,Htwist)
 void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
-    if ( AutoReferenceMode == false ){
-        LocalBP.clear();
-        LocalBPStep.clear();
-        LocalBPHel.clear();
-    } else {
+    BasePairs.clear();
+    BasePairSteps.clear();
+    LocalBP.clear();
+    LocalBPStep.clear();
+    LocalBPHel.clear();
+
+    if ( AutoReferenceMode == true ){
+        // destroy reference data only in the case a new reference structure is going to be analyzed
         ReferenceBasePairs.clear();
         ReferenceBasePairSteps.clear();
     }
+
     // data in the temporary directory are removed by QTemporaryDir
 }
 
@@ -543,9 +542,42 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
     }
 
     if( p_qsel != NULL ){
+
+        // create map and count residues
+        CAmberResidue* p_last = NULL;
+        int       rcount = 0;
+        for(int i=0; i < p_qsel->Mask.GetNumberOfSelectedAtoms(); i++){
+            CAmberAtom* p_atom = p_qsel->Mask.GetSelectedAtomCondensed(i);
+            CAmberResidue* p_res = p_atom->GetResidue();
+            if( p_last != p_res ){
+                ResIDMap[p_res->GetIndex()] = rcount;
+                rcount++;
+                p_last = p_res;
+            }
+        }
+
+        if( rcount > 9999 ){
+            CSmallString error;
+            error << "too many residues for analysis: " << rcount;
+            ES_ERROR(error);
+            return(false);
+        }
+
         // write to output file
         WritePDB(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&p_qsel->Mask,p_fout);
     } else {
+        if( p_qsnap->Restart.GetTopology()->ResidueList.GetNumberOfResidues() > 9999 ){
+            CSmallString error;
+            error << "too many residues for analysis: " << p_qsnap->Restart.GetTopology()->ResidueList.GetNumberOfResidues();
+            ES_ERROR(error);
+            return(false);
+        }
+
+        // create map
+        for(int i=0; i < p_qsnap->Restart.GetTopology()->ResidueList.GetNumberOfResidues(); i++ ){
+            ResIDMap[i] = i;
+        }
+
         CAmberMaskAtoms fake_mask;
         fake_mask.AssignTopology(p_qsnap->Restart.GetTopology());
         fake_mask.SelectAllAtoms();
@@ -567,31 +599,16 @@ bool Qx3DNA::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 bool Qx3DNA::RunAnalysis(void)
 {
 // run 3DNA program -------------------------------
-    // create input file for analysis first & run analyze program to create output files after
-    int status = system( "cd " + WorkDir + " > /dev/null 2>&1 && " +
-                         "find_pair " + WorkDir / "Qx3DNA.pdb Qx3DNA.inp > /dev/null 2>&1 && " +
-                         "analyze Qx3DNA.inp > /dev/null 2>&1" );
+    // prepare command
+    stringstream cmd;
+    cmd << boost::format("cd %s > /dev/null 2>&1 && "
+                         "find_pair Qx3DNA.pdb Qx3DNA.inp > find_pair.stdout 2>&1 && "
+                         "analyze Qx3DNA.inp > analyze.stdout 2>&1")%WorkDir;
+    int status = system( cmd.str().c_str() );
 
-    if ( status < 0 ){
+    if ( status != 0 ){
         CSmallString error;
         error << "running 3DNA program failed - " << strerror(errno);
-        ES_ERROR(error);
-        return(false);
-    }
-    if ( status > 0 ){
-	    // FIXME
-        //int exitCode = WEXITSTATUS(status);
-        int exitCode = status;
-        CSmallString error;
-        if ( exitCode == 126 ){
-            error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
-        } else if ( exitCode == 127 ){
-            error << "running 3DNA program failed - \"command not found\" (possible problem with $PATH)";
-        } else if ( exitCode == 1 ){
-            error << "running 3DNA program failed - analyzed snapshot has probably no base pairs";
-        } else {
-            error << "running 3DNA program failed - exit code (" << exitCode << ")";
-        }
         ES_ERROR(error);
         return(false);
     }
@@ -622,7 +639,7 @@ bool Qx3DNA::ParseReferenceData(void)
     getline(ifs,lbuf);
     while( !ifs.eof() ){
         if( lbuf.find("explicit bp numbering/hetero atoms") != string::npos ){
-            if( ReadSectionReferenceBP(ifs) == false ) return(false);
+            if( ReadSectionBP(ifs,ReferenceBasePairs) == false ) return(false);
         }
 
         getline(ifs,lbuf);
@@ -644,7 +661,7 @@ bool Qx3DNA::ParseReferenceData(void)
     getline(ifs,lbuf);
     while( !ifs.eof() ){
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
-            if( ReadSectionReferenceBPStep(ifs) == false ) return(false);
+            if( ReadSectionBPStep(ifs,ReferenceBasePairSteps) == false ) return(false);
         }
 
         getline(ifs,lbuf);
@@ -660,8 +677,10 @@ bool Qx3DNA::ParseReferenceData(void)
 bool Qx3DNA::ParseOutputData(void)
 {
     ifstream ifs;
+
+// parse BP  -----------------------------------
     // open file
-    CFileName fileName = WorkDir / "Qx3DNA.out";
+    CFileName fileName = WorkDir / "Qx3DNA.inp";
     ifs.open( fileName );
     if( ifs.fail() ) {
         CSmallString error;
@@ -675,6 +694,34 @@ bool Qx3DNA::ParseOutputData(void)
 
     getline(ifs,lbuf);
     while( !ifs.eof() ){
+        if( lbuf.find("explicit bp numbering/hetero atoms") != string::npos ){
+            if( ReadSectionBP(ifs,BasePairs) == false ) return(false);
+        }
+
+        getline(ifs,lbuf);
+    }
+
+    ifs.close();
+
+
+// parse BP Step -------------------------------
+    // open file
+    fileName = WorkDir / "Qx3DNA.out";
+    ifs.open( fileName );
+    if( ifs.fail() ) {
+        CSmallString error;
+        error << "unable to open analysis output file " << fileName;
+        error << " (" << strerror(errno) << ")";
+        ES_ERROR(error);
+        return(false);
+    }
+
+    getline(ifs,lbuf);
+    while( !ifs.eof() ){
+// read steps
+        if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
+            if( ReadSectionBPStep(ifs,BasePairSteps) == false ) return(false);
+        }
 //      Local base-pair parameters
 //      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
         if( lbuf.find("Local base-pair parameters") != string::npos ){
@@ -727,13 +774,13 @@ bool Qx3DNA::ParseOutputData(void)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionReferenceBP(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("##### Base-pair criteria used:") != string::npos ){
-            return(true); // end of ReferenceBP
+            return(true); // end of BP
         }
 
         stringstream    str(lbuf);
@@ -747,31 +794,35 @@ bool Qx3DNA::ReadSectionReferenceBP(std::ifstream& ifs)
         params.Name = dummy.substr(18,1) + "-" + dummy.substr(24,1);
         if( ! str ){
             CSmallString error;
-            error << "unable to read Reference base-pairs in:\n" << lbuf;
+            error << "unable to read base-pairs in: " << lbuf;
             ES_ERROR(error);
             return(false);
         }
 
-        ReferenceBasePairs[params.ID] = params;
+        // FIXME? - should we use dedicated counter for ID?
+        params.ID--;
+        params.ResIDA--;
+        params.ResIDB--;
+        bps[params.ID] = params;
 
         getline(ifs,lbuf);
     }
 
     CSmallString error;
-    error << "unable to read Reference base-pairs";
+    error << "unable to read base-pairs";
     ES_ERROR(error);
     return(false);
 }
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionReferenceBPStep(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>& bpsteps)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("****************************************************************************") != string::npos ){
-            return(true); // end of ReferenceBPStep
+            return(true); // end of steps
         }
 
         stringstream        str(lbuf);
@@ -782,18 +833,20 @@ bool Qx3DNA::ReadSectionReferenceBPStep(std::ifstream& ifs)
 
         if( ! str ){
             CSmallString error;
-            error << "unable to read Reference base-pair step in:\n" << lbuf;
+            error << "unable to read base-pair step in: " << lbuf;
             ES_ERROR(error);
             return(false);
         }
 
-        ReferenceBasePairSteps[params.ID] = params;
+        // FIXME? - should we use dedicated counter for ID?
+        params.ID--;
+        bpsteps[params.ID] = params;
 
         getline(ifs,lbuf);
     }
 
     CSmallString error;
-    error << "unable to read Reference base-pair step";
+    error << "unable to read base-pair step";
     ES_ERROR(error);
     return(false);
 }
@@ -813,9 +866,10 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
         stringstream    str(lbuf);
         // bp
         str >> params.ID >> params.Name;        // this should not fail - but you can test success as well, code is commented below
+        params.ID--;
 //        if( ! str ){
 //            CSmallString error;
-//            error << "unable to read Local base-pair parameters in:\n" << lbuf;
+//            error << "unable to read Local base-pair parameters in: " << lbuf;
 //            ES_ERROR(error);
 //            return(false);
 //        }
@@ -825,7 +879,7 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
             str >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read Local base-pair parameters in:\n" << lbuf;
+                error << "unable to read Local base-pair parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -868,9 +922,10 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
         CLocalBPStep    params;
         // step
         str >> params.ID >> params.Step;        // this should not fail - but you can test success as well, code is commented below
+        params.ID--;
         //        if( ! str ){
         //            CSmallString error;
-        //            error << "unable to read Local base-pair parameters in:\n" << lbuf;
+        //            error << "unable to read Local base-pair parameters in: " << lbuf;
         //            ES_ERROR(error);
         //            return(false);
         //        }
@@ -880,7 +935,7 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
             str >> params.Shift >> params.Slide >> params.Rise >> params.Tilt >> params.Roll >> params.Twist;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read Local base-pair step parameters in:\n" << lbuf;
+                error << "unable to read Local base-pair step parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -923,9 +978,10 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
         CLocalBPHel     params;
         // step
         str >> params.ID >> params.Step;        // this should not fail - but you can test success as well, code is commented below
+        params.ID--;
         //        if( ! str ){
         //            CSmallString error;
-        //            error << "unable to read Local base-pair parameters in:\n" << lbuf;
+        //            error << "unable to read Local base-pair parameters in: " << lbuf;
         //            ES_ERROR(error);
         //            return(false);
         //        }
@@ -934,7 +990,7 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
             str >> params.Xdisp >> params.Ydisp >> params.Hrise >> params.Incl >> params.Tip >> params.Htwist;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read Local base-pair helical parameters in:\n" << lbuf;
+                error << "unable to read Local base-pair helical parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -966,7 +1022,6 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
-
 
 bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms* p_mask,FILE* p_fout)
 {
