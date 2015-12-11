@@ -66,6 +66,7 @@ private:
     CFileName               WorkDir;    // scratch directory
     std::map<int,double>    SASA;
     std::map<int,double>    SESA;
+    std::map<int, int>      AtomIDMap;
 
     /// clear all parsed results
     void ClearAll(void);

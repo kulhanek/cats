@@ -126,7 +126,7 @@ QScriptValue QMolSurf::analyze(void)
     if( ! tmp_dir.isValid() ){
         // TODO
         // report that directory cannot be created
-        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        return( ThrowError("snapshot[,selection]","unable to run analysis in tmp dir") );
     }
     WorkDir = CFileName(tmp_dir.path());
 	
@@ -139,12 +139,12 @@ QScriptValue QMolSurf::analyze(void)
 
     // start analysis
     if( RunAnalysis() == false ){
-        return( ThrowError("snapshot[,selection]","unable to run analysis") );
+        return( ThrowError("snapshot[,selection]","unable to run analysis (RunAnalysis)"));
     }
 
     // parse output data
     if( ParseOutputData() == false ){
-        return( ThrowError("snapshot[,selection]","unable to parse output") );
+        return( ThrowError("snapshot[,selection]","unable to parse output"));
     }
     
     // clean temporary directory
@@ -163,6 +163,60 @@ QScriptValue QMolSurf::analyze(void)
 /// double getSASA(selections)
 QScriptValue QMolSurf::getSASA(void)
 {
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double MolSurf::getSASA()"  << \
+                "       double getSASA(index)"      << \
+                "       double getSASA(selections)" << endl;
+        return(false);
+    }
+
+// check arguments & execute -------------------------------
+    // double getSASA()
+    if( GetArgumentCount() == 0 ){
+        map<int, double>::iterator it;
+        double SASAtot = 0.0;
+        for(it = SASA.begin(); it!=SASA.end(); ++it)
+            SASAtot += it->second;
+        //cout << "Total SASA: " << SASAtot << endl;
+        return(SASAtot);
+    }
+    else if( GetArgumentCount() == 1 )
+    {
+        value = CheckNumberOfArguments("index/Selection",1);
+        if( value.isError() ) return(value);
+
+        // double getSASA(index)
+        if( IsArgumentInt(1) ){
+            int index;
+            value = (GetArgAsInt("index","index",1,index));
+            if( value.isError() ) return(value);
+            if( (index < 0) || (index >= (int)SASA.size()) )
+                return( ThrowError("index","index out-of-legal range") );
+
+            return(SASA[index]);
+
+        } else {
+
+            // double getSASA(selection)
+            QSelection* p_qsel = NULL;
+            value = GetArgAsObject<QSelection*>("selection","selection","Selection",1,p_qsel);
+            if( value.isError() ) return(value);
+
+            double SASAsel = 0.0;
+
+            for(int i = 0; i < p_qsel->Mask.GetNumberOfSelectedAtoms(); i++) {
+                map<int, int>::iterator it = AtomIDMap.find(p_qsel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex());
+                if(it != AtomIDMap.end()){
+                    SASAsel += SASA[it->second];
+                }
+            }
+            return(SASAsel);
+        }
+    }
     return(QScriptValue());
 }
 
@@ -174,6 +228,63 @@ QScriptValue QMolSurf::getSASA(void)
 /// double getSESA(selections)
 QScriptValue QMolSurf::getSESA(void)
 {
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double MolSurf::getSESA()"  << \
+                "       double getSESA(index)"      << \
+                "       double getSESA(Selection)" << endl;
+        return(false);
+    }
+
+// check arguments & execute -------------------------------
+
+    // double getSESA()
+    if( GetArgumentCount() == 0 ){
+        map<int, double>::iterator it;
+        double SESAtot = 0.0;
+        for(it = SESA.begin(); it!=SESA.end(); ++it)
+            SESAtot += it->second;
+        //cout << "Total SESA: " << SESAtot << endl;
+        return(SESAtot);
+    }
+
+    else if( GetArgumentCount() == 1 )
+    {
+        value = CheckNumberOfArguments("index/Selection",1);
+        if( value.isError() ) return(value);
+
+        // double getSESA(index)
+        if( IsArgumentInt(1) ){
+            int index;
+            value = (GetArgAsInt("index","index",1,index));
+            if( value.isError() ) return(value);
+            if( (index < 0) || (index >= (int)SESA.size()) )
+                return( ThrowError("index","index out-of-legal range") );
+
+            return(SESA[index]);
+
+        } else {
+
+            // double getSESA(selection)
+            /// FIXME selekcia podselekciou tej v analyze
+            QSelection* p_qsel = NULL;
+            value = GetArgAsObject<QSelection*>("selection","selection","Selection",1,p_qsel);
+            if( value.isError() ) return(value);
+
+            double SESAsel = 0.0;
+
+            for(int i = 0; i < p_qsel->Mask.GetNumberOfSelectedAtoms(); i++) {
+                map<int, int>::iterator it = AtomIDMap.find(p_qsel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex());
+                if(it != AtomIDMap.end()){
+                    SESAsel += SESA[it->second];
+                }
+            }
+            return(SESAsel);
+        }
+    }
     return(QScriptValue());
 }
 
@@ -208,12 +319,24 @@ bool QMolSurf::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
     if( p_qsel != NULL ){
         // write to output file
         WriteXYZR(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&p_qsel->Mask,p_fout);
+        // make AtomIDMap
+        for(int i = 0; i < p_qsel->Mask.GetNumberOfSelectedAtoms(); i++){
+                AtomIDMap[p_qsel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex()] = i;
+        }
     } else {
         CAmberMaskAtoms fake_mask;
         fake_mask.AssignTopology(p_qsnap->Restart.GetTopology());
         fake_mask.SelectAllAtoms();
         // write to output file
         WriteXYZR(p_qsnap->Restart.GetTopology(),&p_qsnap->Restart,&fake_mask,p_fout);
+        // make AtomIDMap
+        for(int i = 0; i < fake_mask.GetNumberOfSelectedAtoms(); i++){
+            AtomIDMap[i] = i;
+        }
+    }
+
+    for(int k =0; k < (int)AtomIDMap.size(); k++){
+        cout << AtomIDMap[k] << endl;
     }
 
     // is everything OK?
@@ -229,16 +352,15 @@ bool QMolSurf::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 
 bool QMolSurf::RunAnalysis(void)
 {
-// run 3DNA program -------------------------------
+// run MolSurf program -------------------------------
 
-    // create input file for analysis first & run analyze program to create output files after
+    // start analysis -> msms of .xyzr to area output file .area containing sasa&sesa for indexed atoms
     int status = system( "cd " / WorkDir + " > /dev/null 2>&1 && " +
-                         "find_pair " + WorkDir / "QMolSurf.pdb QMolSurf.inp > /dev/null 2>&1 && " +
-                         "analyze QMolSurf.inp > /dev/null 2>&1" );
+                         "msms -if QMolSurf.xyzr -af QMolSurf.area");
 
     if ( status < 0 ){
         CSmallString error;
-        error << "running 3DNA program failed - " << strerror(errno);
+        error << "running MolSurf program failed (status)- " << strerror(errno);
         ES_ERROR(error);
         return(false);
     }
@@ -248,11 +370,11 @@ bool QMolSurf::RunAnalysis(void)
         int exitCode = status;
         CSmallString error;
         if ( exitCode == 126 ){
-            error << "running 3DNA program failed - command invoked cannot execute (permission problem or command is not an executable)";
+            error << "running MolSurf program failed - command invoked cannot execute (permission problem or command is not an executable)";
         } else if ( exitCode == 127 ){
-            error << "running 3DNA program failed -	\"command not found\" (possible problem with $PATH)";
+            error << "running MolSurf program failed -	\"command not found\" (possible problem with $PATH)";
         } else {
-            error << "running 3DNA program failed - exit code: " << exitCode;
+            error << "running MolSurf program failed - exit code: " << exitCode;
         }
         ES_ERROR(error);
         return(false);
@@ -265,9 +387,9 @@ bool QMolSurf::RunAnalysis(void)
 
 bool QMolSurf::ParseOutputData(void)
 {
+    //  open file
     ifstream ifs;
-    // open file
-    CFileName fileName = WorkDir / "QMolSurf.out";
+    CFileName fileName = WorkDir / "QMolSurf.area";
     ifs.open( fileName );
     if( ifs.fail() ) {
         CSmallString error;
@@ -277,32 +399,21 @@ bool QMolSurf::ParseOutputData(void)
         return(false);
     }
 
+    // read MSMS surface area output params SASA & SESA
     string lbuf;
-
-//    getline(ifs,lbuf);
-//    while( !ifs.eof() ){
-////      Local base-pair parameters
-////      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
-//        if( lbuf.find("Local base-pair parameters") != string::npos ){
-//            getline(ifs,lbuf); // skip heading
-//            if( ReadSectionLocalBP(ifs) == false ) return(false);
-//        }
-////      Local base-pair step parameters
-////      step       Shift     Slide      Rise      Tilt      Roll     Twist
-//        if( lbuf.find("Local base-pair step parameters") != string::npos ){
-//            getline(ifs,lbuf); // skip heading
-//            if( ReadSectionLocalBPStep(ifs) == false ) return(false);
-//        }
-////      Local base-pair helical parameters
-////      step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
-//        if( lbuf.find("Local base-pair helical parameters") != string::npos ){
-//            getline(ifs,lbuf); // skip heading
-//            if( ReadSectionLocalBPHel(ifs) == false ) return(false);
-//        }
-//        /// ....
-//        /// ....
-//        getline(ifs,lbuf);
-//    }
+    getline(ifs,lbuf);
+    getline(ifs,lbuf);
+    while( !ifs.eof() ){
+        int n =0;
+        double sasa = 0.0;
+        double sesa = 0.0;
+        stringstream    str(lbuf);\
+        //    Number  SESA  SASA
+        str >>   n >> sesa >> sasa;
+        SASA.insert(std::pair<int, double>(n, sasa));
+        SESA.insert(std::pair<int, double>(n, sesa));
+        getline(ifs,lbuf);
+    }
 
     return(true);
 }
@@ -314,66 +425,17 @@ bool QMolSurf::ParseOutputData(void)
 bool QMolSurf::WriteXYZR(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms* p_mask,FILE* p_fout)
 {
 
-//    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
-//    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
-
-//    // init indexes for TER and chain
-//    p_top->InitMoleculeIndexes();
-
-//    // write header
-//    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
-
-//    int last_mol_id = -1;
-//    int resid = 0;
-//    int atid = 0;
-//    char chain_id = 'A';
-//    double occ=1.0;
-//    double tfac=0.0;
-//    int seg_id = 1;
-
-//    for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++ ) {
-//        CAmberAtom* p_atom = p_mask->GetSelectedAtom(i);
-//        if( p_atom != NULL ) {
-//            if( last_mol_id == -1 ) {
-//                last_mol_id = p_atom->GetMoleculeIndex();
-//            } else {
-//                if( last_mol_id != p_atom->GetMoleculeIndex() ) {
-//                    fprintf(p_fout,"TER\n");
-//                    chain_id++;
-//                    seg_id++;
-//                    last_mol_id = p_atom->GetMoleculeIndex();
-//                }
-//            }
-//            if( chain_id > 'Z' ){
-//                chain_id = 'A';
-//            }
-//            if( strncmp(p_atom->GetResidue()->GetName(),"WAT ",4) == 0 ){
-//                chain_id = 'W';
-//            }
-//            resid = p_atom->GetResidue()->GetIndex()+1;
-//            atid =  i+1;
-//            if( seg_id > 99 ){
-//                seg_id = 1;
-//            }
-//            if( atid > 999999 ) {
-//                atid = 1;
-//            }
-//            if( resid > 9999 ){
-//                resid = 1;
-//            }
-//            fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-//                    atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
-//                    chain_id,
-//                    resid,
-//                    p_crd->GetPosition(i).x,p_crd->GetPosition(i).y,p_crd->GetPosition(i).z,
-//                    occ,tfac,seg_id,PeriodicTable.GetSymbol(p_atom->GuessZ()));
-//        }
-//    }
-
-
-//    fprintf(p_fout,"TER\n");
-
-    return(false);
+    for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = p_mask->GetSelectedAtom(i);
+        if( p_atom == NULL ) {
+            cout << "atom null during WriteXYZR()" << endl;
+            continue;
+        }
+        fprintf(p_fout,"%8.3f%8.3f%8.3f %6.3f\n",
+                p_crd->GetPosition(i).x, p_crd->GetPosition(i).y, p_crd->GetPosition(i).z,
+                p_atom->GetRadius());
+    }
+    return(true);
 }
 
 //------------------------------------------------------------------------------
