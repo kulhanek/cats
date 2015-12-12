@@ -17,6 +17,7 @@ SET(RS_SERVER_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(result-server ${RS_SERVER_SRC})
+ADD_DEPENDENCIES(result-server cats_shared)
 
 TARGET_LINK_LIBRARIES(result-server
         ${CATS_LIBS}

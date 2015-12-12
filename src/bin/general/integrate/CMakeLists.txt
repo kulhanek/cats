@@ -11,6 +11,8 @@ SET(INTEGRATE_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(integrate ${INTEGRATE_SRC})
+ADD_DEPENDENCIES(integrate cats_shared)
+
 QT5_USE_MODULES(integrate Core)
 TARGET_LINK_LIBRARIES(integrate ${HIPOLY_LIB_NAME} ${SYSTEM_LIBS})
 

@@ -11,6 +11,8 @@ SET(TOPSOLSOL_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topsolsol ${TOPSOLSOL_SRC})
+ADD_DEPENDENCIES(topsolsol cats_shared)
+
 QT5_USE_MODULES(topsolsol Core)
 TARGET_LINK_LIBRARIES(topsolsol
                 ${ASL_LIB_NAME}
