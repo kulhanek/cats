@@ -11,6 +11,8 @@ SET(CATS_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(cats_inter ${CATS_SRC} ${MOC_LIST})
+ADD_DEPENDENCIES(cats_inter cats_shared)
+
 QT5_USE_MODULES(cats_inter Core Script)
 SET_TARGET_PROPERTIES(cats_inter PROPERTIES
                         OUTPUT_NAME cats

@@ -12,6 +12,8 @@ SET(TOP2PARAMS_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(top2params ${TOP2PARAMS_SRC})
+ADD_DEPENDENCIES(top2params cats_shared)
+
 QT5_USE_MODULES(top2params Core)
 TARGET_LINK_LIBRARIES(top2params
                 ${ASL_LIB_NAME}

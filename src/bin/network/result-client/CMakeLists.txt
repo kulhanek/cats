@@ -11,6 +11,8 @@ SET(RESULT_CLIENT_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(result-client ${RESULT_CLIENT_SRC})
+ADD_DEPENDENCIES(result-client cats_shared)
+
 QT5_USE_MODULES(result-client Core)
 TARGET_LINK_LIBRARIES(result-client
         ${CATS_LIBS}

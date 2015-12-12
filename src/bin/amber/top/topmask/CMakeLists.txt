@@ -11,6 +11,8 @@ SET(TOPMASK_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topmask ${TOPMASK_SRC})
+ADD_DEPENDENCIES(topmask cats_shared)
+
 QT5_USE_MODULES(topmask Core)
 TARGET_LINK_LIBRARIES(topmask
                 ${ASL_LIB_NAME}

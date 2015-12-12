@@ -13,6 +13,8 @@ SET(TOPCRD2CPMD_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcrd2cpmd ${TOPCRD2CPMD_SRC})
+ADD_DEPENDENCIES(topcrd2cpmd cats_shared)
+
 QT5_USE_MODULES(topcrd2cpmd Core)
 TARGET_LINK_LIBRARIES(topcrd2cpmd
                 ${ASL_LIB_NAME}

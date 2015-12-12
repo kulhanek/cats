@@ -11,6 +11,8 @@ SET(TOPINFO_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topinfo ${TOPINFO_SRC})
+ADD_DEPENDENCIES(topinfo cats_shared)
+
 QT5_USE_MODULES(topinfo Core)
 TARGET_LINK_LIBRARIES(topinfo
                 ${ASL_LIB_NAME}

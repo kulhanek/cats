@@ -11,6 +11,8 @@ SET(TOPCUT_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcut ${TOPCUT_SRC})
+ADD_DEPENDENCIES(topcut cats_shared)
+
 QT5_USE_MODULES(topcut Core)
 TARGET_LINK_LIBRARIES(topcut
                 ${ASL_LIB_NAME}

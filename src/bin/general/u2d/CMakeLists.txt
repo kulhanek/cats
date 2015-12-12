@@ -10,6 +10,8 @@ SET(U2D_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(u2d ${U2D_SRC})
+ADD_DEPENDENCIES(u2d cats_shared)
+
 QT5_USE_MODULES(u2d Core)
 TARGET_LINK_LIBRARIES(u2d ${HIPOLY_LIB_NAME} ${SYSTEM_LIBS})
 
