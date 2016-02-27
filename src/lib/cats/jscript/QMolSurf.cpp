@@ -32,6 +32,8 @@
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
 #include <QTemporaryDir>
+#include <boost/format.hpp>
+
 
 
 using namespace std;
@@ -116,7 +118,7 @@ QScriptValue QMolSurf::analyze(void)
         if( value.isError() ) return(value);
     }
 
-// do 3DNA analysis -------------------------------
+// do Molalysis -------------------------------
     // clear previous data
     ClearAll();
     
@@ -131,6 +133,13 @@ QScriptValue QMolSurf::analyze(void)
     WorkDir = CFileName(tmp_dir.path());
 	
     //FIXME - put to the error message the pathname to the working directory
+
+    // check if topology or selections contains atoms
+    if(p_qsnap->Restart.GetTopology()->AtomList.GetNumberOfAtoms() == 0 ||  p_qsel->Mask.GetNumberOfSelectedAtoms() == 0){
+        SASA[0]=0.0;
+        SESA[0]=0.0;
+        return(true);
+    }
 
     // write input data
     if( WriteInputData(p_qsnap,p_qsel) == false ){
@@ -157,6 +166,60 @@ QScriptValue QMolSurf::analyze(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
+/// set probe radius
+/// setProbeRadius(double)
+QScriptValue QMolSurf::setProbeRadius(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+    // help ------------------------------------------
+        if( IsHelpRequested() ){
+            CTerminalStr sout;
+            sout << "usage:  QMolSurf::setProbeRadius(x)" << endl;
+            return(value);
+        }
+
+// check arguments -------------------------------
+        value = CheckNumberOfArguments("x",1);
+        if( value.isError() ) return(value);
+
+        double x;
+
+        value = GetArgAsRNumber("x","x",1,x);
+        if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+        probeRadius = x;
+        return(value);
+}
+
+// ------------------------------------------------------------------------
+
+/// get probe radius
+/// double getProbeRadius()
+QScriptValue QMolSurf::getProbeRadius(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double QMolSurf::getProbeRadius()" << endl;
+        return(0);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(0);
+
+// execute ---------------------------------------
+    return(probeRadius);
+
+}
+
+// ------------------------------------------------------------------------
+
+
 /// get solvent accesible surface area
 /// double getSASA()
 /// double getSASA(index)
@@ -181,7 +244,6 @@ QScriptValue QMolSurf::getSASA(void)
         double SASAtot = 0.0;
         for(it = SASA.begin(); it!=SASA.end(); ++it)
             SASAtot += it->second;
-        //cout << "Total SASA: " << SASAtot << endl;
         return(SASAtot);
     }
     else if( GetArgumentCount() == 1 )
@@ -247,7 +309,6 @@ QScriptValue QMolSurf::getSESA(void)
         double SESAtot = 0.0;
         for(it = SESA.begin(); it!=SESA.end(); ++it)
             SESAtot += it->second;
-        //cout << "Total SESA: " << SESAtot << endl;
         return(SESAtot);
     }
 
@@ -298,6 +359,7 @@ void QMolSurf::ClearAll(void)
     // destroy all previous data
     SASA.clear();
     SESA.clear();
+    AtomIDMap.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -335,10 +397,6 @@ bool QMolSurf::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
         }
     }
 
-    for(int k =0; k < (int)AtomIDMap.size(); k++){
-        cout << AtomIDMap[k] << endl;
-    }
-
     // is everything OK?
     int ret = ferror(p_fout);
 
@@ -352,30 +410,22 @@ bool QMolSurf::WriteInputData(QSnapshot* p_qsnap,QSelection* p_qsel)
 
 bool QMolSurf::RunAnalysis(void)
 {
+// check topology & snapshot
+
+
 // run MolSurf program -------------------------------
 
-    // start analysis -> msms of .xyzr to area output file .area containing sasa&sesa for indexed atoms
-    int status = system( "cd " / WorkDir + " > /dev/null 2>&1 && " +
-                         "msms -if QMolSurf.xyzr -af QMolSurf.area");
+    // prepare command
+    stringstream cmd;
+    cmd << boost::format("cd %s > /dev/null 2>&1 && "
+                         "msms -if QMolSurf.xyzr -af QMolSurf.area -probe_radius %d > msms.stdout 2>&1")%WorkDir %probeRadius;
 
-    if ( status < 0 ){
+    // start analysis -> msms of .xyzr to area output file .area containing sasa&sesa for indexed atoms
+    int status = system( cmd.str().c_str() );
+
+    if (status != 0){
         CSmallString error;
-        error << "running MolSurf program failed (status)- " << strerror(errno);
-        ES_ERROR(error);
-        return(false);
-    }
-    if ( status > 0 ){
-	    // FIXME
-        // int exitCode = WEXITSTATUS(status);
-        int exitCode = status;
-        CSmallString error;
-        if ( exitCode == 126 ){
-            error << "running MolSurf program failed - command invoked cannot execute (permission problem or command is not an executable)";
-        } else if ( exitCode == 127 ){
-            error << "running MolSurf program failed -	\"command not found\" (possible problem with $PATH)";
-        } else {
-            error << "running MolSurf program failed - exit code: " << exitCode;
-        }
+        error << "running MSMS program failed - " << strerror(errno);
         ES_ERROR(error);
         return(false);
     }
@@ -407,8 +457,7 @@ bool QMolSurf::ParseOutputData(void)
         int n =0;
         double sasa = 0.0;
         double sesa = 0.0;
-        stringstream    str(lbuf);\
-        //    Number  SESA  SASA
+        stringstream    str(lbuf);
         str >>   n >> sesa >> sasa;
         SASA.insert(std::pair<int, double>(n, sasa));
         SESA.insert(std::pair<int, double>(n, sesa));
@@ -428,7 +477,6 @@ bool QMolSurf::WriteXYZR(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAt
     for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++ ) {
         CAmberAtom* p_atom = p_mask->GetSelectedAtom(i);
         if( p_atom == NULL ) {
-            cout << "atom null during WriteXYZR()" << endl;
             continue;
         }
         fprintf(p_fout,"%8.3f%8.3f%8.3f %6.3f\n",

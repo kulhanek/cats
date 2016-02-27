@@ -43,6 +43,10 @@ public:
     static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
 
+// properties ------------------------------------------------------------------
+    /// access probe radius via properties
+    Q_PROPERTY(QScriptValue probeRadiusQ READ getProbeRadius WRITE setProbeRadius)
+
 // methods ---------------------------------------------------------------------
 public slots:
     /// perform core analysis
@@ -61,12 +65,19 @@ public slots:
     /// double getSESA(selections)
     QScriptValue getSESA(void);
 
+    /// get probe radius
+    QScriptValue getProbeRadius(void);
+
+    /// set probe radius
+    QScriptValue setProbeRadius(const QScriptValue& dummy);
+
 // access methods --------------------------------------------------------------
 private:
     CFileName               WorkDir;    // scratch directory
     std::map<int,double>    SASA;
     std::map<int,double>    SESA;
     std::map<int, int>      AtomIDMap;
+    double                  probeRadius;
 
     /// clear all parsed results
     void ClearAll(void);
