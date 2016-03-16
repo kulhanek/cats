@@ -32,6 +32,10 @@
 
 //------------------------------------------------------------------------------
 
+class Qx3DNA;
+
+//------------------------------------------------------------------------------
+
 class Qx3DNAStatistics : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
@@ -64,14 +68,12 @@ private:
     void PrintLocalBPHelParams(std::ostream& vout);
 
     /// register data into the database
-    void RegisterData(const CLocalBP& data);
-    void RegisterData(const CLocalBPStep& data);
-    void RegisterData(const CLocalBPHel& data);
+    void RegisterData(Qx3DNA* p_data);
 
     std::set<CDNABasePairID>                    BasePairIDs;
     std::set<CDNABasePairStepID>                BasePairStepIDs;
 
-    std::map<CDNABasePairID,CLocalBPStatPtr>    LocalBPSnapshots;
+    std::map<CDNABasePairID,CLocalBPStatPtr>    LocalBPStat;
 };
 
 

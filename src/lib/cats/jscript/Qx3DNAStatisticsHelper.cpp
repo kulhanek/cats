@@ -29,7 +29,49 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
+CLocalBPStat::CLocalBPStat(void)
+{
+    NumOfSamples = 0;
+}
 
+//------------------------------------------------------------------------------
+
+void CLocalBPStat::RegisterData(const CLocalBP& data)
+{
+    NumOfSamples++;
+
+    Sum.Shear += data.Shear;
+    Sum.Stretch += data.Stretch;
+    Sum.Stagger += data.Stagger;
+    Sum.Buckle += data.Buckle;
+    Sum.Propeller += data.Propeller;
+    Sum.Opening += data.Opening;
+
+    Sum2.Shear += data.Shear*data.Shear;
+    Sum2.Stretch += data.Stretch*data.Stretch;
+    Sum2.Stagger += data.Stagger*data.Stagger;
+    Sum2.Buckle += data.Buckle*data.Buckle;
+    Sum2.Propeller += data.Propeller*data.Propeller;
+    Sum2.Opening += data.Opening*data.Opening;
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+CDNABasePairID::CDNABasePairID(const CDNABasePair& bp)
+{
+    ResIDA = bp.ResIDA;
+    ResIDB = bp.ResIDB;
+    Name = bp.Name;
+}
+
+//------------------------------------------------------------------------------
+
+bool CDNABasePairID::operator < (const CDNABasePairID& bp_id) const
+{
+    return( (ResIDA < bp_id.ResIDA) || (ResIDB < bp_id.ResIDB) );
+}
 
 //------------------------------------------------------------------------------
 

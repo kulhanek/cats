@@ -31,12 +31,14 @@
 class CLocalBPStat {
 public:
     // constructor
-    CLocalBPStat(void);         // basic data initialization
+    CLocalBPStat(void);
 
 public:
     int         NumOfSamples;
     CLocalBP    Sum;
     CLocalBP    Sum2;
+
+    void RegisterData(const CLocalBP& data);
 };
 
 typedef boost::shared_ptr<CLocalBPStat>   CLocalBPStatPtr;
@@ -46,7 +48,7 @@ typedef boost::shared_ptr<CLocalBPStat>   CLocalBPStatPtr;
 class CLocalBPStepStat {
 public:
     // constructor
-    CLocalBPStepStat(void);     // basic data initialization
+    CLocalBPStepStat(void);
 
 public:
     int             NumOfSamples;
@@ -61,7 +63,7 @@ typedef boost::shared_ptr<CLocalBPStepStat>   CLocalBPStepStatPtr;
 class CLocalBPHelStat {
 public:
     // constructor
-    CLocalBPHelStat(void);      // basic data initialization
+    CLocalBPHelStat(void);
 
 public:
     int         NumOfSamples;
@@ -78,12 +80,14 @@ typedef boost::shared_ptr<CLocalBPHelStat>   CLocalBPHelStatPtr;
 class CDNABasePairID {
 public:
     // constructor
-    CDNABasePairID(void);       // basic data initialization
+    CDNABasePairID(const CDNABasePair& bp);
 
 public:
     int         ResIDA;
     int         ResIDB;
     std::string Name;           // (ResA-ResB)
+
+    bool operator < (const CDNABasePairID& bp_id) const;
 };
 
 //------------------------------------------------------------------------------
@@ -91,7 +95,7 @@ public:
 class CDNABasePairStepID {
 public:
     // constructor
-    CDNABasePairStepID(void);   // basic data initialization
+    CDNABasePairStepID(void);
 
 public:
     int         ResIDA;

@@ -175,6 +175,8 @@ private:
 
     /// read Local BP Helical
     bool ReadSectionLocalBPHel(std::ifstream& ifs);
+
+    friend class Qx3DNAStatistics;
 };
 
 //------------------------------------------------------------------------------
