@@ -95,7 +95,7 @@ public:
 class CDNABasePairStepID {
 public:
     // constructor
-    CDNABasePairStepID(void);
+    CDNABasePairStepID(const CDNABasePairStep& bp);
 
 public:
     int         ResIDA;
@@ -103,6 +103,8 @@ public:
     int         ResIDC;
     int         ResIDD;
     std::string Step;           // ((ResA-ResB)/(ResC-ResD)) ???
+
+    bool operator < (const CDNABasePairStepID& bp_id) const;
 };
 
 //------------------------------------------------------------------------------

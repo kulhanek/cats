@@ -73,5 +73,27 @@ bool CDNABasePairID::operator < (const CDNABasePairID& bp_id) const
     return( (ResIDA < bp_id.ResIDA) || (ResIDB < bp_id.ResIDB) );
 }
 
+//==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
+
+CDNABasePairStepID::CDNABasePairStepID(const CDNABasePairStep& bp)
+{
+    ResIDA = bp.ResIDA;
+    ResIDB = bp.ResIDB;
+    ResIDC = bp.ResIDC;
+    ResIDD = bp.ResIDD;
+    Step = bp.Step;
+}
+
+//------------------------------------------------------------------------------
+
+bool CDNABasePairStepID::operator < (const CDNABasePairStepID& bp_id) const
+{
+    return( (ResIDA < bp_id.ResIDA) || (ResIDB < bp_id.ResIDB) || (ResIDC < bp_id.ResIDC) || (ResIDD < bp_id.ResIDD) );
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
 
