@@ -28,12 +28,15 @@
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <Qx3DNA.hpp>
-#include <Qx3DNA.moc>
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
 #include <QTemporaryDir>
 #include <AmberResidue.hpp>
 #include <boost/format.hpp>
+
+#include <Qx3DNA.moc>
+
+//------------------------------------------------------------------------------
 
 using namespace std;
 

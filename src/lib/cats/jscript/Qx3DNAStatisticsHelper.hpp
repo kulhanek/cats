@@ -1,3 +1,5 @@
+#ifndef Qx3DNAStatisticsHelperH
+#define Qx3DNAStatisticsHelperH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -19,51 +21,86 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <Qx3DNADatabase.hpp>
+#include <CATsMainHeader.hpp>
+#include <Qx3DNAHelper.hpp>
+#include <boost/shared_ptr.hpp>
+#include <string>
 
 //------------------------------------------------------------------------------
 
-using namespace std;
+class CLocalBPStat {
+public:
+    // constructor
+    CLocalBPStat(void);         // basic data initialization
 
-//==============================================================================
-//------------------------------------------------------------------------------
-//==============================================================================
+public:
+    int         NumOfSamples;
+    CLocalBP    Sum;
+    CLocalBP    Sum2;
+};
 
-
-
-//==============================================================================
-//------------------------------------------------------------------------------
-//==============================================================================
-
-/// clear all previous data
-void Cx3DNADatabase::Clear(void)
-{
-    // clear all local data
-}
+typedef boost::shared_ptr<CLocalBPStat>   CLocalBPStatPtr;
 
 //------------------------------------------------------------------------------
 
-void Cx3DNADatabase::RegisterData(const CLocalBP& data)
-{
-    // register key
-    BasePairIDs.insert(data.ID);
-    // add new data to key
-    LocalBPSnapshots[data.ID].push_back(data.Data);
-}
+class CLocalBPStepStat {
+public:
+    // constructor
+    CLocalBPStepStat(void);     // basic data initialization
+
+public:
+    int             NumOfSamples;
+    CLocalBPStep    Sum;
+    CLocalBPStep    Sum2;
+};
+
+typedef boost::shared_ptr<CLocalBPStepStat>   CLocalBPStepStatPtr;
 
 //------------------------------------------------------------------------------
 
-void Cx3DNADatabase::RegisterData(const CLocalBPStep& data)
-{
+class CLocalBPHelStat {
+public:
+    // constructor
+    CLocalBPHelStat(void);      // basic data initialization
 
-}
+public:
+    int         NumOfSamples;
+    CLocalBPHel Sum;
+    CLocalBPHel Sum2;
+};
+
+typedef boost::shared_ptr<CLocalBPHelStat>   CLocalBPHelStatPtr;
 
 //------------------------------------------------------------------------------
 
-void Cx3DNADatabase::RegisterData(const CLocalBPHel& data)
-{
+// parameters - only ID of pair or step
 
-}
+class CDNABasePairID {
+public:
+    // constructor
+    CDNABasePairID(void);       // basic data initialization
+
+public:
+    int         ResIDA;
+    int         ResIDB;
+    std::string Name;           // (ResA-ResB)
+};
 
 //------------------------------------------------------------------------------
 
+class CDNABasePairStepID {
+public:
+    // constructor
+    CDNABasePairStepID(void);   // basic data initialization
+
+public:
+    int         ResIDA;
+    int         ResIDB;
+    int         ResIDC;
+    int         ResIDD;
+    std::string Step;           // ((ResA-ResB)/(ResC-ResD)) ???
+};
+
+//------------------------------------------------------------------------------
+
+#endif

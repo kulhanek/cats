@@ -1,5 +1,3 @@
-#ifndef Qx3DNADatabaseH
-#define Qx3DNADatabaseH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -21,39 +19,17 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <Qx3DNAHelper.hpp>
-#include <Qx3DNADatabaseHelper.hpp>
-#include <map>
+#include <Qx3DNAStatisticsHelper.hpp>
 
 //------------------------------------------------------------------------------
 
+using namespace std;
 
-
+//==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
 
-class Qx3DNADatabase {
-public:
-    /// clear all previous data
-    void Clear(void);
-
-
-
-private:
-    /// register data into the database
-    void RegisterData(const CLocalBP& data);
-    void RegisterData(const CLocalBPStep& data);
-    void RegisterData(const CLocalBPHel& data);
-
-    std::set<CDNABasePairID>                            BasePairIDs;
-    std::set<CDNABasePairStepID>                        BasePairStepIDs;
-
-    std::map<CDNABasePairID,CLocalBPSnapshots>          LocalBPSnapshots;
-    std::map<CDNABasePairStepID,CLocalBPStepSnapshots>  LocalBPStepSnapshots;
-    std::map<CDNABasePairStepID,CLocalBPHelSnapshots>   LocalBPHelSnapshots;
-};
 
 
 //------------------------------------------------------------------------------
 
-#endif
