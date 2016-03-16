@@ -105,6 +105,10 @@ public:
 
 public:
     int         ID;     // counted from 0
+    int         ResIDA;     // local residue index - counted from 0
+    int         ResIDB;     // local residue index - counted from 0
+    int         ResIDC;     // local residue index - counted from 0
+    int         ResIDD;     // local residue index - counted from 0
     std::string Step;   // (AT/AT)
 };
 

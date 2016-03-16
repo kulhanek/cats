@@ -95,7 +95,7 @@ public:
 class CDNABasePairStepID {
 public:
     // constructor
-    CDNABasePairStepID(void);
+    CDNABasePairStepID(const CDNABasePairStep& bp);
 
 public:
     int         ResIDA;

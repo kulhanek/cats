@@ -77,7 +77,7 @@ bool CDNABasePairID::operator < (const CDNABasePairID& bp_id) const
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CDNABasePairStepID::CDNABasePairStepID(const CDNABasePairStepID& bp)
+CDNABasePairStepID::CDNABasePairStepID(const CDNABasePairStep& bp)
 {
     ResIDA = bp.ResIDA;
     ResIDB = bp.ResIDB;
