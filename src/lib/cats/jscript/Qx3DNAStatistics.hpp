@@ -74,6 +74,8 @@ private:
     std::set<CDNABasePairStepID>                BasePairStepIDs;
 
     std::map<CDNABasePairID,CLocalBPStatPtr>    LocalBPStat;
+
+    int                                         NumOfSnapshots;
 };
 
 

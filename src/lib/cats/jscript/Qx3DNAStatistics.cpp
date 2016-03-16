@@ -20,8 +20,8 @@
 // =============================================================================
 
 #include <fstream>
+#include <iomanip>
 #include <errno.h>
-
 #include <Qx3DNAStatistics.hpp>
 #include <TerminalStr.hpp>
 #include <Qx3DNA.hpp>
@@ -81,6 +81,7 @@ QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
 Qx3DNAStatistics::Qx3DNAStatistics(void)
     : QCATsScriptable("x3DNAStatistics")
 {
+    NumOfSnapshots = 0;
 }
 
 //==============================================================================
@@ -107,6 +108,7 @@ QScriptValue Qx3DNAStatistics::registerData(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
+    NumOfSnapshots++;
     RegisterData(p_x3dna);
     return(true);
 }
@@ -202,7 +204,29 @@ void Qx3DNAStatistics::PrintLocalBPParams(ofstream& vout)
     while( it != ie ){
         CDNABasePairID  bp_id = it->first;
         CLocalBPStatPtr bp_stat = it->second;
-        vout << bp_id.ResIDA << " " << bp_id.ResIDB << " " << bp_id.Name << " " << bp_stat->NumOfSamples << endl;
+        // ResIDA ResIDB BasePair
+        vout << right << setw(8) << bp_id.ResIDA << " " << right << setw(6) << bp_id.ResIDB << " " << right << setw(8) << bp_id.Name << " ";
+        // Abundance
+        vout << right << fixed << setprecision(2) << setw(9) << ( bp_stat->NumOfSamples /  NumOfSnapshots ) * 100 << " ";
+        // Shear
+        vout << right << fixed << setprecision(2) << setw(7) << bp_stat->Sum.Shear / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Shear - bp_stat->Sum.Shear * bp_stat->Sum.Shear )  / bp_stat->NumOfSamples << " "; // sigma
+        // Stretch
+        vout << right << fixed << setprecision(2) << setw(9) << bp_stat->Sum.Stretch / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(10) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Stretch - bp_stat->Sum.Stretch * bp_stat->Sum.Stretch )  / bp_stat->NumOfSamples << " "; // sigma
+        // Stagger
+        vout << right << fixed << setprecision(2) << setw(9) << bp_stat->Sum.Stagger / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(10) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Stagger - bp_stat->Sum.Stagger * bp_stat->Sum.Stagger )  / bp_stat->NumOfSamples << " "; // sigma
+        // Buckle
+        vout << right << fixed << setprecision(2) << setw(8) << bp_stat->Sum.Buckle / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(9) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Buckle - bp_stat->Sum.Buckle * bp_stat->Sum.Buckle )  / bp_stat->NumOfSamples << " "; // sigma
+        // Propeller
+        vout << right << fixed << setprecision(2) << setw(11) << bp_stat->Sum.Propeller / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(12) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Propeller - bp_stat->Sum.Propeller * bp_stat->Sum.Propeller )  / bp_stat->NumOfSamples << " "; // sigma
+        // Opening
+        vout << right << fixed << setprecision(2) << setw(9) << bp_stat->Sum.Opening / bp_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(10) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Opening - bp_stat->Sum.Opening * bp_stat->Sum.Opening )  / bp_stat->NumOfSamples << " "; // sigma
+        vout << endl;
 
         it++;
     }
