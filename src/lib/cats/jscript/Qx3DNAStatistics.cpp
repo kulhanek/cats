@@ -192,6 +192,9 @@ void Qx3DNAStatistics::PrintLocalBPHelParams(ostream& vout)
 
 void Qx3DNAStatistics::RegisterData(Qx3DNA* p_data)
 {
+    if( p_data == NULL ) return;    // no valid input
+
+// local bp parameters
     std::vector<CLocalBP>::iterator  it = p_data->LocalBP.begin();
     std::vector<CLocalBP>::iterator  ie = p_data->LocalBP.end();
 
@@ -211,6 +214,12 @@ void Qx3DNAStatistics::RegisterData(Qx3DNA* p_data)
         }
         it++;
     }
+
+// local step parameters
+
+
+// local helical parameters
+
 }
 
 //------------------------------------------------------------------------------
