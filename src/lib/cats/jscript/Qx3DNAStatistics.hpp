@@ -59,9 +59,9 @@ private:
     void ClearAll(void);
 
     /// print results
-    void PrintLocalBPParams(std::ostream& vout);
-    void PrintLocalBPStepParams(std::ostream& vout);
-    void PrintLocalBPHelParams(std::ostream& vout);
+    void PrintLocalBPParams(std::ofstream& vout);
+    void PrintLocalBPStepParams(std::ofstream& vout);
+    void PrintLocalBPHelParams(std::ofstream& vout);
 
     /// register data into the database
     void RegisterData(const CLocalBP& data);
