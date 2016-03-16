@@ -41,7 +41,7 @@ void Qx3DNAStatistics::Register(QScriptEngine& engine)
 {
     QScriptValue ctor = engine.newFunction(Qx3DNAStatistics::New);
     QScriptValue metaObject = engine.newQMetaObject(&Qx3DNAStatistics::staticMetaObject, ctor);
-    engine.globalObject().setProperty("x3DNADatabase", metaObject);
+    engine.globalObject().setProperty("x3DNAStatistics", metaObject);
 }
 
 //------------------------------------------------------------------------------
@@ -49,16 +49,16 @@ void Qx3DNAStatistics::Register(QScriptEngine& engine)
 QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
                          QScriptEngine *engine)
 {
-    QCATsScriptable scriptable("x3DNADatabase");
+    QCATsScriptable scriptable("x3DNAStatistics");
     QScriptValue    value;
 
 // print help ------------------------------------
     if( scriptable.IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "x3DNADatabase object" << endl;
+        sout << "x3DNAStatistics object" << endl;
         sout << endl;
         sout << "Constructors:" << endl;
-        sout << "   new x3DNADatabase()" << endl;
+        sout << "   new x3DNAStatistics()" << endl;
         return(scriptable.GetUndefinedValue());
     }
 
@@ -70,7 +70,7 @@ QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
     if( value.isError() ) return(value);
 
 // create pbject
-    Qx3DNA* p_obj = new Qx3DNA();
+    Qx3DNAStatistics* p_obj = new Qx3DNAStatistics();
     return(engine->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
 
@@ -79,7 +79,7 @@ QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
 //==============================================================================
 
 Qx3DNAStatistics::Qx3DNAStatistics(void)
-    : QCATsScriptable("x3DNADatabase")
+    : QCATsScriptable("x3DNAStatistics")
 {
 }
 
@@ -94,21 +94,20 @@ QScriptValue Qx3DNAStatistics::registerData(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool x3DNADatabase::registerData(x3DNA)" << endl;
+        sout << "usage: bool x3DNAStatistics::registerData(x3DNA)" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("set",1);
+    value = CheckNumberOfArguments("x3DNA",1);
     if( value.isError() ) return(value);
 
-    bool set = false;
-    value = GetArgAsBool("set","set",1,set);
+    Qx3DNA* p_x3dna;
+    value = GetArgAsObject<Qx3DNA*>("x3DNA","x3DNA","x3DNA",1,p_x3dna);
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-
-
+    RegisterData(p_x3dna);
     return(true);
 }
 
@@ -121,7 +120,7 @@ QScriptValue Qx3DNAStatistics::clear(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: x3DNADatabase::clear()" << endl;
+        sout << "usage: x3DNAStatistics::clear()" << endl;
         return(false);
     }
 
@@ -144,7 +143,7 @@ QScriptValue Qx3DNAStatistics::printResults(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool x3DNADatabase::printResults(name[,options])" << endl;
+        sout << "usage: bool x3DNAStatistics::printResults(name[,options])" << endl;
         return(false);
     }
 
@@ -215,26 +214,27 @@ void Qx3DNAStatistics::PrintLocalBPHelParams(ofstream& vout)
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::RegisterData(const CLocalBP& data)
+void Qx3DNAStatistics::RegisterData(Qx3DNA* p_data)
 {
-//    // register key
-//    BasePairIDs.insert(data.ID);
-//    // add new data to key
-//    LocalBPSnapshots[data.ID].push_back(data.Data);
-}
+    std::vector<CLocalBP>::iterator  it = p_data->LocalBP.begin();
+    std::vector<CLocalBP>::iterator  ie = p_data->LocalBP.end();
 
-//------------------------------------------------------------------------------
-
-void Qx3DNAStatistics::RegisterData(const CLocalBPStep& data)
-{
-
-}
-
-//------------------------------------------------------------------------------
-
-void Qx3DNAStatistics::RegisterData(const CLocalBPHel& data)
-{
-
+    while( it != ie ){
+        CLocalBP local_bp = *it;
+        if( local_bp.Valid ){
+            CDNABasePairID bp_id(p_data->BasePairs[local_bp.ID]);
+            if (LocalBPStat.find(bp_id) == LocalBPStat.end() ){
+                // new data
+                CLocalBPStatPtr data(new CLocalBPStat);
+                LocalBPStat[bp_id] = data;
+            }
+            CLocalBPStatPtr data = LocalBPStat[bp_id];
+            if( data ){
+                data->RegisterData(local_bp);
+            }
+        }
+        it++;
+    }
 }
 
 //------------------------------------------------------------------------------
