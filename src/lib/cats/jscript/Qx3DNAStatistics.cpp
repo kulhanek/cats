@@ -196,6 +196,16 @@ void Qx3DNAStatistics::PrintLocalBPParams(ofstream& vout)
     vout << "# ResIDA ResIDB BasePair Abundance Shear<> s(Shear) Stretch<> s(Stretch) Stagger<> s(Stagger) Buckle<> s(Buckle) Propeller<> s(Propeller) Opening<> s(Opening)" << endl;
     vout << "#------- ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
 
+    std::map<CDNABasePairID,CLocalBPStatPtr>::iterator  it = LocalBPStat.begin();
+    std::map<CDNABasePairID,CLocalBPStatPtr>::iterator  ie = LocalBPStat.end();
+
+    while( it != ie ){
+        CDNABasePairID  bp_id = it->first;
+        CLocalBPStatPtr bp_stat = it->second;
+        vout << bp_id.ResIDA << " " << bp_id.ResIDB << " " << bp_id.Name << " " << bp_stat->NumOfSamples << endl;
+
+        it++;
+    }
 }
 
 //------------------------------------------------------------------------------
