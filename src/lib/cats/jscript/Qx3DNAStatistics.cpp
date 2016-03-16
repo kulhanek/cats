@@ -19,6 +19,9 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <fstream>
+#include <errno.h>
+
 #include <Qx3DNAStatistics.hpp>
 #include <TerminalStr.hpp>
 #include <Qx3DNA.hpp>
@@ -153,7 +156,24 @@ QScriptValue Qx3DNAStatistics::printResults(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
+    // open file
+    CFileName fileName = name;
+    ofstream ofs;
 
+    ofs.open( fileName );
+    if( ofs.fail() ) {
+        CSmallString error;
+        error << "unable to open analysis output file " << fileName;
+        error << " (" << strerror(errno) << ")";
+        ES_ERROR(error);
+        return(false);
+    }
+
+    PrintLocalBPParams(ofs);
+    PrintLocalBPStepParams(ofs);
+    PrintLocalBPHelParams(ofs);
+
+    ofs.close();
 
     return(true);
 }
@@ -169,21 +189,25 @@ void Qx3DNAStatistics::ClearAll(void)
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::PrintLocalBPParams(ostream& vout)
+void Qx3DNAStatistics::PrintLocalBPParams(ofstream& vout)
+{
+    // TODO
+
+    vout << "# ResIDA ResIDB BasePair Abundance Shear<> s(Shear) Stretch<> s(Stretch) Stagger<> s(Stagger) Buckle<> s(Buckle) Propeller<> s(Propeller) Opening<> s(Opening)" << endl;
+    vout << "#------- ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
+
+}
+
+//------------------------------------------------------------------------------
+
+void Qx3DNAStatistics::PrintLocalBPStepParams(ofstream& vout)
 {
     // TODO
 }
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::PrintLocalBPStepParams(ostream& vout)
-{
-    // TODO
-}
-
-//------------------------------------------------------------------------------
-
-void Qx3DNAStatistics::PrintLocalBPHelParams(ostream& vout)
+void Qx3DNAStatistics::PrintLocalBPHelParams(ofstream& vout)
 {
     // TODO
 }
