@@ -22,12 +22,12 @@
 #include <fstream>
 #include <iomanip>
 #include <errno.h>
-#include <Qx3DNAStatistics.hpp>
+#include <QNAStat.hpp>
 #include <TerminalStr.hpp>
 #include <Qx3DNA.hpp>
 #include <ErrorSystem.hpp>
 
-#include <Qx3DNAStatistics.moc>
+#include <QNAStat.moc>
 
 //------------------------------------------------------------------------------
 
@@ -37,28 +37,28 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-void Qx3DNAStatistics::Register(QScriptEngine& engine)
+void QNAStat::Register(QScriptEngine& engine)
 {
-    QScriptValue ctor = engine.newFunction(Qx3DNAStatistics::New);
-    QScriptValue metaObject = engine.newQMetaObject(&Qx3DNAStatistics::staticMetaObject, ctor);
-    engine.globalObject().setProperty("x3DNAStatistics", metaObject);
+    QScriptValue ctor = engine.newFunction(QNAStat::New);
+    QScriptValue metaObject = engine.newQMetaObject(&QNAStat::staticMetaObject, ctor);
+    engine.globalObject().setProperty("NAStat", metaObject);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
+QScriptValue QNAStat::New(QScriptContext *context,
                          QScriptEngine *engine)
 {
-    QCATsScriptable scriptable("x3DNAStatistics");
+    QCATsScriptable scriptable("NAStat");
     QScriptValue    value;
 
 // print help ------------------------------------
     if( scriptable.IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "x3DNAStatistics object" << endl;
+        sout << "NAStat object" << endl;
         sout << endl;
         sout << "Constructors:" << endl;
-        sout << "   new x3DNAStatistics()" << endl;
+        sout << "   new NAStat()" << endl;
         return(scriptable.GetUndefinedValue());
     }
 
@@ -70,7 +70,7 @@ QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
     if( value.isError() ) return(value);
 
 // create pbject
-    Qx3DNAStatistics* p_obj = new Qx3DNAStatistics();
+    QNAStat* p_obj = new QNAStat();
     return(engine->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
 
@@ -78,8 +78,8 @@ QScriptValue Qx3DNAStatistics::New(QScriptContext *context,
 //------------------------------------------------------------------------------
 //==============================================================================
 
-Qx3DNAStatistics::Qx3DNAStatistics(void)
-    : QCATsScriptable("x3DNAStatistics")
+QNAStat::QNAStat(void)
+    : QCATsScriptable("NAStat")
 {
     NumOfSnapshots = 0;
 }
@@ -88,41 +88,45 @@ Qx3DNAStatistics::Qx3DNAStatistics(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QScriptValue Qx3DNAStatistics::registerData(void)
+QScriptValue QNAStat::addSample(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool x3DNAStatistics::registerData(x3DNA)" << endl;
+        sout << "usage: bool NAStat::addSample(x3dna)" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("x3DNA",1);
+    value = CheckNumberOfArguments("x3dna",1);
     if( value.isError() ) return(value);
 
     Qx3DNA* p_x3dna;
-    value = GetArgAsObject<Qx3DNA*>("x3DNA","x3DNA","x3DNA",1,p_x3dna);
+    value = GetArgAsObject<Qx3DNA*>("x3dna","x3dna","x3DNA",1,p_x3dna);
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
     NumOfSnapshots++;
-    RegisterData(p_x3dna);
+
+    RegisterBPData(p_x3dna);
+    RegisterBPStepData(p_x3dna);
+    RegisterBPHelData(p_x3dna);
+
     return(true);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue Qx3DNAStatistics::clear(void)
+QScriptValue QNAStat::clear(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: x3DNAStatistics::clear()" << endl;
+        sout << "usage: NAStat::clear()" << endl;
         return(false);
     }
 
@@ -132,20 +136,19 @@ QScriptValue Qx3DNAStatistics::clear(void)
 
 // execute ---------------------------------------
     ClearAll();
-
     return(true);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue Qx3DNAStatistics::printResults(void)
+QScriptValue QNAStat::printResults(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool x3DNAStatistics::printResults(name[,options])" << endl;
+        sout << "usage: bool NAStat::printResults(name)" << endl;
         return(false);
     }
 
@@ -171,9 +174,9 @@ QScriptValue Qx3DNAStatistics::printResults(void)
         return(false);
     }
 
-    PrintLocalBPParams(ofs);
-    PrintLocalBPStepParams(ofs);
-    PrintLocalBPHelParams(ofs);
+    PrintBPParams(ofs);
+    PrintBPStepParams(ofs);
+    PrintBPHelParams(ofs);
 
     ofs.close();
 
@@ -184,30 +187,38 @@ QScriptValue Qx3DNAStatistics::printResults(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-void Qx3DNAStatistics::ClearAll(void)
+void QNAStat::ClearAll(void)
 {
-    // clear all local data
+    BPIDs.clear();
+    BPStepIDs.clear();
+
+    NumOfSnapshots = 0;
+    LocalBPStat.clear();
+    LocalBPStepStat.clear();
+    LocalBPHelStat.clear();
 }
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::PrintLocalBPParams(ofstream& vout)
+void QNAStat::PrintBPParams(ofstream& vout)
 {
-    // TODO
+    vout << "# Local Base Pair Parameters" << endl;
+    vout << "# index ResIDA ResIDB BasePair Abundance <shear> s(shear) <stretch> s(stretch) <stagger> s(stagger) <buckle> s(buckle) <propeller> s(propeller) <opening> s(opening)" << endl;
+    vout << "#------ ------ ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
 
-    vout << "# ResIDA ResIDB BasePair Abundance Shear<> s(Shear) Stretch<> s(Stretch) Stagger<> s(Stagger) Buckle<> s(Buckle) Propeller<> s(Propeller) Opening<> s(Opening)" << endl;
-    vout << "#------- ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
+    std::map<CNABPID,CNALocalBPStatPtr>::iterator  it = LocalBPStat.begin();
+    std::map<CNABPID,CNALocalBPStatPtr>::iterator  ie = LocalBPStat.end();
 
-    std::map<CDNABasePairID,CLocalBPStatPtr>::iterator  it = LocalBPStat.begin();
-    std::map<CDNABasePairID,CLocalBPStatPtr>::iterator  ie = LocalBPStat.end();
-
+    int i = 1;
     while( it != ie ){
-        CDNABasePairID  bp_id = it->first;
-        CLocalBPStatPtr bp_stat = it->second;
+        CNABPID  bp_id = it->first;
+        CNALocalBPStatPtr bp_stat = it->second;
+        vout << right << setw(7) << i << " ";
         // ResIDA ResIDB BasePair
-        vout << right << setw(8) << bp_id.ResIDA << " " << right << setw(6) << bp_id.ResIDB << " " << right << setw(8) << bp_id.Name << " ";
+        vout << right << setw(6) << bp_id.ResIDA + 1 << " " << right << setw(6) << bp_id.ResIDB + 1 << " " << right << setw(8) << bp_id.Name << " ";
         // Abundance
-        vout << right << fixed << setprecision(2) << setw(9) << ( bp_stat->NumOfSamples /  NumOfSnapshots ) * 100 << " ";
+        double abundance = (double)bp_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
+        vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
         // Shear
         vout << right << fixed << setprecision(2) << setw(7) << bp_stat->Sum.Shear / bp_stat->NumOfSamples << " "; // average
         vout << right << fixed << setprecision(2) << setw(8) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Shear - bp_stat->Sum.Shear * bp_stat->Sum.Shear )  / bp_stat->NumOfSamples << " "; // sigma
@@ -227,57 +238,135 @@ void Qx3DNAStatistics::PrintLocalBPParams(ofstream& vout)
         vout << right << fixed << setprecision(2) << setw(9) << bp_stat->Sum.Opening / bp_stat->NumOfSamples << " "; // average
         vout << right << fixed << setprecision(2) << setw(10) << sqrt( bp_stat->NumOfSamples * bp_stat->Sum2.Opening - bp_stat->Sum.Opening * bp_stat->Sum.Opening )  / bp_stat->NumOfSamples << " "; // sigma
         vout << endl;
-
+        i++;
         it++;
     }
 }
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::PrintLocalBPStepParams(ofstream& vout)
+void QNAStat::PrintBPStepParams(ofstream& vout)
 {
-    // TODO
+    vout << "# Local Base Pair Step Parameters" << endl;
+    vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance " << endl;
+    vout << "#------ ------ ------ ------ ------ -------- --------- " << endl;
+
+    std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  it = LocalBPStepStat.begin();
+    std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  ie = LocalBPStepStat.end();
+
+    int i = 1;
+    while( it != ie ){
+        CNABPStepID  bpstep_id = it->first;
+        CNALocalBPStepStatPtr bpstep_stat = it->second;
+        vout << right << setw(7) << i << " ";
+        // ResIDA ResIDB BasePair
+        vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDB + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDC + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDD + 1 << right << setw(8) << bpstep_id.Step << " ";
+        // Abundance
+        double abundance = (double)bpstep_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
+        vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
+        vout << endl;
+        i++;
+        it++;
+    }
 }
 
 //------------------------------------------------------------------------------
 
-void Qx3DNAStatistics::PrintLocalBPHelParams(ofstream& vout)
+void QNAStat::PrintBPHelParams(ofstream& vout)
 {
     // TODO
 }
 
+//==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
 
-void Qx3DNAStatistics::RegisterData(Qx3DNA* p_data)
+void QNAStat::RegisterBPData(Qx3DNA* p_data)
 {
     if( p_data == NULL ) return;    // no valid input
 
 // local bp parameters
-    std::vector<CLocalBP>::iterator  it = p_data->LocalBP.begin();
-    std::vector<CLocalBP>::iterator  ie = p_data->LocalBP.end();
+    std::vector<CNALocalBPPar>::iterator  it = p_data->LocalBPPar.begin();
+    std::vector<CNALocalBPPar>::iterator  ie = p_data->LocalBPPar.end();
 
     while( it != ie ){
-        CLocalBP local_bp = *it;
+        CNALocalBPPar local_bp = *it;
         if( local_bp.Valid ){
-            CDNABasePairID bp_id(p_data->BasePairs[local_bp.ID]);
+            CNABPID bp_id(p_data->BPIDs[local_bp.ID]);
             if (LocalBPStat.find(bp_id) == LocalBPStat.end() ){
                 // new data
-                CLocalBPStatPtr data(new CLocalBPStat);
+                CNALocalBPStatPtr data(new CNALocalBPStat);
                 LocalBPStat[bp_id] = data;
             }
-            CLocalBPStatPtr data = LocalBPStat[bp_id];
+            BPIDs.insert(bp_id);
+            CNALocalBPStatPtr data = LocalBPStat[bp_id];
             if( data ){
                 data->RegisterData(local_bp);
             }
         }
         it++;
     }
+}
+
+//------------------------------------------------------------------------------
+
+void QNAStat::RegisterBPStepData(Qx3DNA* p_data)
+{
+    if( p_data == NULL ) return;    // no valid input
 
 // local step parameters
+    std::vector<CNALocalBPStepPar>::iterator  it = p_data->LocalBPStepPar.begin();
+    std::vector<CNALocalBPStepPar>::iterator  ie = p_data->LocalBPStepPar.end();
 
+    while( it != ie ){
+        CNALocalBPStepPar local_bpstep = *it;
+        if( local_bpstep.Valid ){
+            CNABPStepID bpstep_id(p_data->BPStepIDs[local_bpstep.ID]);
+            if (LocalBPStepStat.find(bpstep_id) == LocalBPStepStat.end() ){
+                // new data
+                CNALocalBPStepStatPtr data(new CNALocalBPStepStat);
+                LocalBPStepStat[bpstep_id] = data;
+            }
+            BPStepIDs.insert(bpstep_id);
+            CNALocalBPStepStatPtr data = LocalBPStepStat[bpstep_id];
+            if( data ){
+                data->RegisterData(local_bpstep);
+            }
+        }
+        it++;
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void QNAStat::RegisterBPHelData(Qx3DNA* p_data)
+{
+    if( p_data == NULL ) return;    // no valid input
 
 // local helical parameters
+    std::vector<CNALocalBPHelPar>::iterator  it = p_data->LocalBPHelPar.begin();
+    std::vector<CNALocalBPHelPar>::iterator  ie = p_data->LocalBPHelPar.end();
 
+    while( it != ie ){
+        CNALocalBPHelPar local_bphel = *it;
+        if( local_bphel.Valid ){
+            CNABPStepID bpstep_id(p_data->BPStepIDs[local_bphel.ID]);
+            if (LocalBPHelStat.find(bpstep_id) == LocalBPHelStat.end() ){
+                // new data
+                CNALocalBPHelStatPtr data(new CNALocalBPHelStat);
+                LocalBPHelStat[bpstep_id] = data;
+            }
+            BPStepIDs.insert(bpstep_id);
+            CNALocalBPHelStatPtr data = LocalBPHelStat[bpstep_id];
+            if( data ){
+                data->RegisterData(local_bphel);
+            }
+        }
+        it++;
+    }
 }
 
 //------------------------------------------------------------------------------
