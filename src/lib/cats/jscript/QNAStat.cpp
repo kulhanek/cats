@@ -263,7 +263,7 @@ void QNAStat::PrintBPStepParams(ofstream& vout)
         vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
              << right << setw(6) << bpstep_id.ResIDB + 1 << " "
              << right << setw(6) << bpstep_id.ResIDC + 1 << " "
-             << right << setw(6) << bpstep_id.ResIDD + 1 << right << setw(8) << bpstep_id.Step << " ";
+             << right << setw(6) << bpstep_id.ResIDD + 1 << " " << right << setw(8) << bpstep_id.Step << " ";
         // Abundance
         double abundance = (double)bpstep_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
         vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
