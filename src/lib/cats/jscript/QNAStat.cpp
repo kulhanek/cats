@@ -252,6 +252,7 @@ void QNAStat::PrintBPStepParams(ofstream& vout)
 {
     vout << "# Local Base Pair Step Parameters" << endl;
     vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <shift> s(shift) <slide> s(slide)  <rise> s(rise)  <tilt> s(tilt)  <roll> s(roll) <twist> s(twist)" << endl;
+    vout << "#   1      2      3      4      5       6        7        8        9       10      11       12     13       14     15       16     17       18      19   " << endl;
     vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- ------- ------- ------- ------- ------- ------- --------" << endl;
 
     std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  it = LocalBPStepStat.begin();
@@ -302,6 +303,7 @@ void QNAStat::PrintBPHelParams(ofstream& vout)
 {
     vout << "# Local Base Pair Helical Parameters" << endl;
     vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <xdisp> s(xdisp) <ydisp> s(ydisp) <hrise> s(hrise)  <incl> s(incl)  <tip>   s(tip) <htwist> s(htwist)" << endl;
+    vout << "#   1      2      3      4      5       6        7        8        9       10      11       12      13       14      15      16      17      18        19   " << endl;
     vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- -------- ------- ------- ------- ------- -------- ---------" << endl;
 
     std::map<CNABPStepID,CNALocalBPHelStatPtr>::iterator  it = LocalBPHelStat.begin();
