@@ -204,6 +204,7 @@ void QNAStat::PrintBPParams(ofstream& vout)
 {
     vout << "# Local Base Pair Parameters" << endl;
     vout << "# index ResIDA ResIDB BasePair Abundance <shear> s(shear) <stretch> s(stretch) <stagger> s(stagger) <buckle> s(buckle) <propeller> s(propeller) <opening> s(opening)" << endl;
+    vout << "#   1      2      3      4         5        6       7         8         9         10         11        12        13        14           15          16        17    " << endl;
     vout << "#------ ------ ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
 
     std::map<CNABPID,CNALocalBPStatPtr>::iterator  it = LocalBPStat.begin();
@@ -213,6 +214,7 @@ void QNAStat::PrintBPParams(ofstream& vout)
     while( it != ie ){
         CNABPID  bp_id = it->first;
         CNALocalBPStatPtr bp_stat = it->second;
+        // index
         vout << right << setw(7) << i << " ";
         // ResIDA ResIDB BasePair
         vout << right << setw(6) << bp_id.ResIDA + 1 << " " << right << setw(6) << bp_id.ResIDB + 1 << " " << right << setw(8) << bp_id.Name << " ";
@@ -241,6 +243,7 @@ void QNAStat::PrintBPParams(ofstream& vout)
         i++;
         it++;
     }
+    vout << endl;
 }
 
 //------------------------------------------------------------------------------
@@ -248,8 +251,8 @@ void QNAStat::PrintBPParams(ofstream& vout)
 void QNAStat::PrintBPStepParams(ofstream& vout)
 {
     vout << "# Local Base Pair Step Parameters" << endl;
-    vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance " << endl;
-    vout << "#------ ------ ------ ------ ------ -------- --------- " << endl;
+    vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <shift> s(shift) <slide> s(slide)  <rise> s(rise)  <tilt> s(tilt)  <roll> s(roll) <twist> s(twist)" << endl;
+    vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- ------- ------- ------- ------- ------- ------- --------" << endl;
 
     std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  it = LocalBPStepStat.begin();
     std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  ie = LocalBPStepStat.end();
@@ -258,8 +261,9 @@ void QNAStat::PrintBPStepParams(ofstream& vout)
     while( it != ie ){
         CNABPStepID  bpstep_id = it->first;
         CNALocalBPStepStatPtr bpstep_stat = it->second;
+        // index
         vout << right << setw(7) << i << " ";
-        // ResIDA ResIDB BasePair
+        // ResIDA ResIDB ResIDC ResIDD  BPStep
         vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
              << right << setw(6) << bpstep_id.ResIDB + 1 << " "
              << right << setw(6) << bpstep_id.ResIDC + 1 << " "
@@ -267,17 +271,79 @@ void QNAStat::PrintBPStepParams(ofstream& vout)
         // Abundance
         double abundance = (double)bpstep_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
         vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
+        // Shift
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Shift / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Shift - bpstep_stat->Sum.Shift * bpstep_stat->Sum.Shift )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Slide
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Slide / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Slide - bpstep_stat->Sum.Slide * bpstep_stat->Sum.Slide )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Rise
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Rise / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Rise - bpstep_stat->Sum.Rise * bpstep_stat->Sum.Rise )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Tilt
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Tilt / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Tilt - bpstep_stat->Sum.Tilt * bpstep_stat->Sum.Tilt )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Roll
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Roll / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Roll - bpstep_stat->Sum.Roll * bpstep_stat->Sum.Roll )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Twist
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Twist / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Twist - bpstep_stat->Sum.Twist * bpstep_stat->Sum.Twist )  / bpstep_stat->NumOfSamples << " "; // sigma
         vout << endl;
         i++;
         it++;
     }
+    vout << endl;
 }
 
 //------------------------------------------------------------------------------
 
 void QNAStat::PrintBPHelParams(ofstream& vout)
 {
-    // TODO
+    vout << "# Local Base Pair Helical Parameters" << endl;
+    vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <xdisp> s(xdisp) <ydisp> s(ydisp) <hrise> s(hrise)  <incl> s(incl)  <tip>   s(tip) <htwist> s(htwist)" << endl;
+    vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- -------- ------- ------- ------- ------- -------- ---------" << endl;
+
+    std::map<CNABPStepID,CNALocalBPHelStatPtr>::iterator  it = LocalBPHelStat.begin();
+    std::map<CNABPStepID,CNALocalBPHelStatPtr>::iterator  ie = LocalBPHelStat.end();
+
+    int i = 1;
+    while( it != ie ){
+        CNABPStepID  bpstep_id = it->first;
+        CNALocalBPHelStatPtr bphel_stat = it->second;
+        // index
+        vout << right << setw(7) << i << " ";
+        // ResIDA ResIDB ResIDC ResIDD  BPStep
+        vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDB + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDC + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDD + 1 << " " << right << setw(8) << bpstep_id.Step << " ";
+        // Abundance
+        double abundance = (double)bphel_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
+        vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
+        // Xdisp
+        vout << right << fixed << setprecision(2) << setw(7) << bphel_stat->Sum.Xdisp / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Xdisp - bphel_stat->Sum.Xdisp * bphel_stat->Sum.Xdisp )  / bphel_stat->NumOfSamples << " "; // sigma
+        // Ydisp
+        vout << right << fixed << setprecision(2) << setw(7) << bphel_stat->Sum.Ydisp / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Ydisp - bphel_stat->Sum.Ydisp * bphel_stat->Sum.Ydisp )  / bphel_stat->NumOfSamples << " "; // sigma
+        // Hrise
+        vout << right << fixed << setprecision(2) << setw(7) << bphel_stat->Sum.Hrise / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(8) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Hrise - bphel_stat->Sum.Hrise * bphel_stat->Sum.Hrise )  / bphel_stat->NumOfSamples << " "; // sigma
+        // Incl
+        vout << right << fixed << setprecision(2) << setw(7) << bphel_stat->Sum.Incl / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Incl - bphel_stat->Sum.Incl * bphel_stat->Sum.Incl )  / bphel_stat->NumOfSamples << " "; // sigma
+        // Tip
+        vout << right << fixed << setprecision(2) << setw(7) << bphel_stat->Sum.Tip / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Tip - bphel_stat->Sum.Tip * bphel_stat->Sum.Tip )  / bphel_stat->NumOfSamples << " "; // sigma
+        // Htwist
+        vout << right << fixed << setprecision(2) << setw(8) << bphel_stat->Sum.Htwist / bphel_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(9) << sqrt( bphel_stat->NumOfSamples * bphel_stat->Sum2.Htwist - bphel_stat->Sum.Htwist * bphel_stat->Sum.Htwist )  / bphel_stat->NumOfSamples << " "; // sigma
+        vout << endl;
+        i++;
+        it++;
+    }
+    vout << endl;
 }
 
 //==============================================================================
