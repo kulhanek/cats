@@ -156,7 +156,7 @@ bool CCATs::Run(void)
     QVolumeData::Register(Engine);
     QThermoIG::Register(Engine);
     Qx3DNA::Register(Engine);
-    Qx3DNAStatistics::Register(Engine);
+    //Qx3DNAStatistics::Register(Engine);
     QMolSurf::Register(Engine);
 
     // i/o suuport --------------------------------
