@@ -31,7 +31,7 @@
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
 #include <FileName.hpp>
-#include <Qx3DNAHelper.hpp>
+#include <QNAHelper.hpp>
 #include <map>
 
 //------------------------------------------------------------------------------
@@ -73,8 +73,14 @@ public slots:
     QScriptValue getNumOfSteps(void);
 
     /// get index from residA and residB - it returns -1 if the BP was not analyzed
+    /// residA-residB
     /// int getBPIndex(residA,residB)
     QScriptValue getBPIndex(void);
+
+    /// get index from residA, residB and residC, residD - it returns -1 if the BP Step was not analyzed
+    /// (residA-residB)/(residC-residD)
+    /// int getBPStepIndex(residA,residB,residC,residD)
+    QScriptValue getBPStepIndex(void);
 
     /// get validity of local BP params
     /// bool areLocalBPParamsValid(index)
@@ -124,15 +130,15 @@ private:
     std::map<int,int>               ResIDMap;
 
     // these two items are set by analyzeReference()
-    std::map<int,CDNABasePair>      ReferenceBasePairs;     // list of base pairs from find_pairs
-    std::map<int,CDNABasePairStep>  ReferenceBasePairSteps; // list of base pair steps from analyze
+    std::map<int,CNABPID>           ReferenceBPIDs;     // list of base pairs from find_pairs
+    std::map<int,CNABPStepID>       ReferenceBPStepIDs; // list of base pair steps from analyze
 
     // data from analyzed snapshot
-    std::map<int,CDNABasePair>      BasePairs;              // list of base pairs from find_pairs
-    std::map<int,CDNABasePairStep>  BasePairSteps;          // list of base pair steps from analyze
-    std::vector<CLocalBP>           LocalBP;
-    std::vector<CLocalBPStep>       LocalBPStep;
-    std::vector<CLocalBPHel>        LocalBPHel;
+    std::map<int,CNABPID>           BPIDs;              // list of base pairs from find_pairs
+    std::map<int,CNABPStepID>       BPStepIDs;          // list of base pair steps from analyze
+    std::vector<CNALocalBPPar>      LocalBPPar;
+    std::vector<CNALocalBPStepPar>  LocalBPStepPar;
+    std::vector<CNALocalBPHelPar>   LocalBPHelPar;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -162,21 +168,21 @@ private:
     const char* GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res);
 
     /// read reference BP
-    bool ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps);
+    bool ReadSectionBPIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps);
 
     /// read reference BP Step
-    bool ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>& bpsteps);
+    bool ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,std::map<int,CNABPStepID>& bpsteps);
 
     /// read Local BP
-    bool ReadSectionLocalBP(std::ifstream& ifs);
+    bool ReadSectionLocalBPPar(std::ifstream& ifs);
 
     /// read Local BP Step
-    bool ReadSectionLocalBPStep(std::ifstream& ifs);
+    bool ReadSectionLocalBPStepPar(std::ifstream& ifs);
 
     /// read Local BP Helical
-    bool ReadSectionLocalBPHel(std::ifstream& ifs);
+    bool ReadSectionLocalBPHelPar(std::ifstream& ifs);
 
-    friend class Qx3DNAStatistics;
+    friend class QNAStat;
 };
 
 //------------------------------------------------------------------------------

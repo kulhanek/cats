@@ -1,5 +1,5 @@
-#ifndef Qx3DNAStatisticsHelperH
-#define Qx3DNAStatisticsHelperH
+#ifndef QNAStatHelperH
+#define QNAStatHelperH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -22,90 +22,66 @@
 // =============================================================================
 
 #include <CATsMainHeader.hpp>
-#include <Qx3DNAHelper.hpp>
+#include <QNAHelper.hpp>
 #include <boost/shared_ptr.hpp>
 #include <string>
 
 //------------------------------------------------------------------------------
 
-class CLocalBPStat {
+class CNALocalBPStat {
 public:
     // constructor
-    CLocalBPStat(void);
-
-public:
-    int         NumOfSamples;
-    CLocalBP    Sum;
-    CLocalBP    Sum2;
-
-    void RegisterData(const CLocalBP& data);
-};
-
-typedef boost::shared_ptr<CLocalBPStat>   CLocalBPStatPtr;
-
-//------------------------------------------------------------------------------
-
-class CLocalBPStepStat {
-public:
-    // constructor
-    CLocalBPStepStat(void);
+    CNALocalBPStat(void);
 
 public:
     int             NumOfSamples;
-    CLocalBPStep    Sum;
-    CLocalBPStep    Sum2;
-};
+    CNALocalBPPar   Sum;
+    CNALocalBPPar   Sum2;
 
-typedef boost::shared_ptr<CLocalBPStepStat>   CLocalBPStepStatPtr;
-
-//------------------------------------------------------------------------------
-
-class CLocalBPHelStat {
-public:
-    // constructor
-    CLocalBPHelStat(void);
-
-public:
-    int         NumOfSamples;
-    CLocalBPHel Sum;
-    CLocalBPHel Sum2;
-};
-
-typedef boost::shared_ptr<CLocalBPHelStat>   CLocalBPHelStatPtr;
-
-//------------------------------------------------------------------------------
-
-// parameters - only ID of pair or step
-
-class CDNABasePairID {
-public:
-    // constructor
-    CDNABasePairID(const CDNABasePair& bp);
-
-public:
-    int         ResIDA;
-    int         ResIDB;
-    std::string Name;           // (ResA-ResB)
-
-    bool operator < (const CDNABasePairID& bp_id) const;
+    void RegisterData(const CNALocalBPPar& data);
 };
 
 //------------------------------------------------------------------------------
 
-class CDNABasePairStepID {
+typedef boost::shared_ptr<CNALocalBPStat>   CNALocalBPStatPtr;
+
+//------------------------------------------------------------------------------
+
+class CNALocalBPStepStat {
 public:
     // constructor
-    CDNABasePairStepID(const CDNABasePairStep& bp);
+    CNALocalBPStepStat(void);
 
 public:
-    int         ResIDA;
-    int         ResIDB;
-    int         ResIDC;
-    int         ResIDD;
-    std::string Step;           // ((ResA-ResB)/(ResC-ResD)) ???
+    int                 NumOfSamples;
+    CNALocalBPStepPar   Sum;
+    CNALocalBPStepPar   Sum2;
 
-    bool operator < (const CDNABasePairStepID& bp_id) const;
+    void RegisterData(const CNALocalBPStepPar& data);
 };
+
+//------------------------------------------------------------------------------
+
+typedef boost::shared_ptr<CNALocalBPStepStat>   CNALocalBPStepStatPtr;
+
+//------------------------------------------------------------------------------
+
+class CNALocalBPHelStat {
+public:
+    // constructor
+    CNALocalBPHelStat(void);
+
+public:
+    int                 NumOfSamples;
+    CNALocalBPHelPar    Sum;
+    CNALocalBPHelPar    Sum2;
+
+    void RegisterData(const CNALocalBPHelPar& data);
+};
+
+//------------------------------------------------------------------------------
+
+typedef boost::shared_ptr<CNALocalBPHelStat>   CNALocalBPHelStatPtr;
 
 //------------------------------------------------------------------------------
 

@@ -19,7 +19,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <Qx3DNAHelper.hpp>
+#include <QNAHelper.hpp>
 
 using namespace std;
 
@@ -27,7 +27,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CLocalBP::CLocalBP(void)
+CNALocalBPPar::CNALocalBPPar(void)
 {
     Valid = false;
     ID = -1;
@@ -42,7 +42,7 @@ CLocalBP::CLocalBP(void)
 
 //------------------------------------------------------------------------------
 
-CLocalBPStep::CLocalBPStep(void)
+CNALocalBPStepPar::CNALocalBPStepPar(void)
 {
     Valid = false;
     ID = -1;
@@ -57,7 +57,7 @@ CLocalBPStep::CLocalBPStep(void)
 
 //------------------------------------------------------------------------------
 
-CLocalBPHel::CLocalBPHel(void)
+CNALocalBPHelPar::CNALocalBPHelPar(void)
 {
     Valid = false;
     ID = -1;
@@ -70,22 +70,63 @@ CLocalBPHel::CLocalBPHel(void)
     Htwist = 0.0;
 }
 
+//==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
 
-CDNABasePair::CDNABasePair(void)
+CNABPID::CNABPID(void)
 {
     ID = -1;
     Name = "nd";
-    ResIDA = 0;
-    ResIDB = 0;
+    ResIDA = -1;
+    ResIDB = -1;
 }
 
 //------------------------------------------------------------------------------
 
-CDNABasePairStep::CDNABasePairStep(void)
+bool CNABPID::operator < (const CNABPID& bp_id) const
+{
+    if (ResIDA < bp_id.ResIDA)  return(true);
+    if (ResIDA > bp_id.ResIDA)  return(false);
+    // Otherwise a are equal
+    if (ResIDB < bp_id.ResIDB)  return(true);
+    if (ResIDB > bp_id.ResIDB)  return(false);
+    // Otherwise both are equal
+    return(false);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+CNABPStepID::CNABPStepID(void)
 {
     ID = -1;
     Step = "nd";
+    ResIDA = -1;
+    ResIDB = -1;
+    ResIDC = -1;
+    ResIDD = -1;
+}
+
+//------------------------------------------------------------------------------
+
+bool CNABPStepID::operator < (const CNABPStepID& bp_id) const
+{
+    if (ResIDA < bp_id.ResIDA)  return(true);
+    if (ResIDA > bp_id.ResIDA)  return(false);
+    // Otherwise a are equal
+    if (ResIDB < bp_id.ResIDB)  return(true);
+    if (ResIDB > bp_id.ResIDB)  return(false);
+    // Otherwise b are equal
+    if (ResIDC < bp_id.ResIDC)  return(true);
+    if (ResIDC > bp_id.ResIDC)  return(false);
+    // Otherwise c are equal
+    if (ResIDD < bp_id.ResIDD)  return(true);
+    if (ResIDD > bp_id.ResIDD)  return(false);
+
+    // Otherwise all are equal
+    return(false);
 }
 
 //==============================================================================

@@ -19,7 +19,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <Qx3DNAStatisticsHelper.hpp>
+#include <QNAStatHelper.hpp>
 
 //------------------------------------------------------------------------------
 
@@ -29,14 +29,14 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CLocalBPStat::CLocalBPStat(void)
+CNALocalBPStat::CNALocalBPStat(void)
 {
     NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CLocalBPStat::RegisterData(const CLocalBP& data)
+void CNALocalBPStat::RegisterData(const CNALocalBPPar& data)
 {
     NumOfSamples++;
 
@@ -59,38 +59,60 @@ void CLocalBPStat::RegisterData(const CLocalBP& data)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CDNABasePairID::CDNABasePairID(const CDNABasePair& bp)
+CNALocalBPStepStat::CNALocalBPStepStat(void)
 {
-    ResIDA = bp.ResIDA;
-    ResIDB = bp.ResIDB;
-    Name = bp.Name;
+    NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-bool CDNABasePairID::operator < (const CDNABasePairID& bp_id) const
+void CNALocalBPStepStat::RegisterData(const CNALocalBPStepPar& data)
 {
-    return( (ResIDA < bp_id.ResIDA) || (ResIDB < bp_id.ResIDB) );
+    NumOfSamples++;
+
+    Sum.Shift += data.Shift;
+    Sum.Slide += data.Slide;
+    Sum.Rise += data.Rise;
+    Sum.Tilt += data.Tilt;
+    Sum.Roll += data.Roll;
+    Sum.Twist += data.Twist;
+
+    Sum2.Shift += data.Shift*data.Shift;
+    Sum2.Slide += data.Slide*data.Slide;
+    Sum2.Rise += data.Rise*data.Rise;
+    Sum2.Tilt += data.Tilt*data.Tilt;
+    Sum2.Roll += data.Roll*data.Roll;
+    Sum2.Twist += data.Twist*data.Twist;
 }
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CDNABasePairStepID::CDNABasePairStepID(const CDNABasePairStep& bp)
+CNALocalBPHelStat::CNALocalBPHelStat(void)
 {
-    ResIDA = bp.ResIDA;
-    ResIDB = bp.ResIDB;
-    ResIDC = bp.ResIDC;
-    ResIDD = bp.ResIDD;
-    Step = bp.Step;
+    NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-bool CDNABasePairStepID::operator < (const CDNABasePairStepID& bp_id) const
+void CNALocalBPHelStat::RegisterData(const CNALocalBPHelPar& data)
 {
-    return( (ResIDA < bp_id.ResIDA) || (ResIDB < bp_id.ResIDB) || (ResIDC < bp_id.ResIDC) || (ResIDD < bp_id.ResIDD) );
+    NumOfSamples++;
+
+    Sum.Xdisp += data.Xdisp;
+    Sum.Ydisp += data.Ydisp;
+    Sum.Hrise += data.Hrise;
+    Sum.Incl += data.Incl;
+    Sum.Tip += data.Tip;
+    Sum.Htwist += data.Htwist;
+
+    Sum2.Xdisp += data.Xdisp*data.Xdisp;
+    Sum2.Ydisp += data.Ydisp*data.Ydisp;
+    Sum2.Hrise += data.Hrise*data.Hrise;
+    Sum2.Incl += data.Incl*data.Incl;
+    Sum2.Tip += data.Tip*data.Tip;
+    Sum2.Htwist += data.Htwist*data.Htwist;
 }
 
 //==============================================================================

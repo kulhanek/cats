@@ -1,5 +1,5 @@
-#ifndef Qx3DNAHelperH
-#define Qx3DNAHelperH
+#ifndef QNAHelperH
+#define QNAHelperH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -25,15 +25,16 @@
 #include <string>
 
 //------------------------------------------------------------------------------
+// nucleic acid parameters
+//------------------------------------------------------------------------------
 
-// parameters
-class CLocalBP {
+class CNALocalBPPar {
 public:
     // constructor
-    CLocalBP(void);         // basic data initialization
+    CNALocalBPPar(void);
 
 public:
-    bool        Valid;      // determine if data are valid
+    bool        Valid;      // determine if data are valid - if reference snapshot is activated
     int         ID;         // counted from 0
     std::string Name;       // one base pair (A-A)
     double      Shear;
@@ -46,13 +47,13 @@ public:
 
 //------------------------------------------------------------------------------
 
-class CLocalBPStep {
+class CNALocalBPStepPar {
 public:
     // constructor
-    CLocalBPStep(void);     // basic data initialization
+    CNALocalBPStepPar(void);
 
 public:
-    bool        Valid;      // determine if data are valid
+    bool        Valid;      // determine if data are valid - if reference snapshot is activated
     int         ID;         // counted from 0
     std::string Step;       // two base pairs (AT/AT)
     double      Shift;
@@ -65,13 +66,13 @@ public:
 
 //------------------------------------------------------------------------------
 
-class CLocalBPHel {
+class CNALocalBPHelPar {
 public:
     // constructor
-    CLocalBPHel(void);      // basic data initialization
+    CNALocalBPHelPar(void);
 
 public:
-    bool        Valid;      // determine if data are valid
+    bool        Valid;      // determine if data are valid - if reference snapshot is activated
     int         ID;         // counted from 0
     std::string Step;       // two base pairs (AT/AT)
     double      Xdisp;
@@ -84,32 +85,36 @@ public:
 
 //------------------------------------------------------------------------------
 
-class CDNABasePair {
+class CNABPID {
 public:
     // constructor
-    CDNABasePair(void);      // basic data initialization
+    CNABPID(void);
 
 public:
     int         ID;         // counted from 0
     std::string Name;       // (A-A)
     int         ResIDA;     // local residue index - counted from 0
     int         ResIDB;     // local residue index - counted from 0
+
+    bool operator < (const CNABPID& bp_id) const;
 };
 
 //------------------------------------------------------------------------------
 
-class CDNABasePairStep {
+class CNABPStepID {
 public:
     // constructor
-    CDNABasePairStep(void);      // basic data initialization
+    CNABPStepID(void);
 
 public:
-    int         ID;     // counted from 0
+    int         ID;         // counted from 0
     int         ResIDA;     // local residue index - counted from 0
     int         ResIDB;     // local residue index - counted from 0
     int         ResIDC;     // local residue index - counted from 0
     int         ResIDD;     // local residue index - counted from 0
-    std::string Step;   // (AT/AT)
+    std::string Step;       // (AT/AT)
+
+    bool operator < (const CNABPStepID& bp_id) const;
 };
 
 //------------------------------------------------------------------------------

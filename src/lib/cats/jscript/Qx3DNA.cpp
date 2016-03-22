@@ -284,10 +284,10 @@ QScriptValue Qx3DNA::getNumOfBasePairs(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    if( ReferenceBasePairs.size() > 0 ){
-        return((int)ReferenceBasePairs.size());
+    if( ReferenceBPIDs.size() > 0 ){
+        return((int)ReferenceBPIDs.size());
     } else {
-        return((int)LocalBP.size());
+        return((int)LocalBPPar.size());
     }
 }
 
@@ -309,10 +309,10 @@ QScriptValue Qx3DNA::getNumOfSteps(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    if( ReferenceBasePairSteps.size() > 0 ){
-        return((int)ReferenceBasePairSteps.size());
+    if( ReferenceBPStepIDs.size() > 0 ){
+        return((int)ReferenceBPStepIDs.size());
     } else {
-        return((int)LocalBPStep.size());
+        return((int)LocalBPStepPar.size());
     }
 }
 
@@ -351,12 +351,77 @@ QScriptValue Qx3DNA::getBPIndex(void)
     residA = ResIDMap[residA];
     residB = ResIDMap[residB];
 
-    std::map<int,CDNABasePair>::iterator it = BasePairs.begin();
-    std::map<int,CDNABasePair>::iterator ie = BasePairs.end();
+    std::map<int,CNABPID>::iterator it = BPIDs.begin();
+    std::map<int,CNABPID>::iterator ie = BPIDs.end();
 
     while( it != ie ){
-        if( ((it->second.ResIDA == residA)&&(it->second.ResIDB == residB)) ||
-            ((it->second.ResIDA == residB)&&(it->second.ResIDB == residA)) ){
+        if( (it->second.ResIDA == residA) ||
+            (it->second.ResIDB == residB) ){
+            return( it->first );
+        }
+        it++;
+    }
+
+    return(-1);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::getBPStepIndex(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int x3DNA::getBPStepIndex(residA,residB,residC,residD)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("residA,residB,residC,residD",4);
+    if( value.isError() ) return(value);
+    int residA = -1;
+    int residB = -1;
+    int residC = -1;
+    int residD = -1;
+    value = GetArgAsInt("residA,residB,residC,residD","residA",1,residA);
+    if( value.isError() ) return(value);
+    value = GetArgAsInt("residA,residB,residC,residD","residB",2,residB);
+    if( value.isError() ) return(value);
+    value = GetArgAsInt("residA,residB,residC,residD","residC",3,residB);
+    if( value.isError() ) return(value);
+    value = GetArgAsInt("residA,residB,residC,residD","residD",4,residB);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    if( ResIDMap.find(residA) == ResIDMap.end() ){
+        return( ThrowError("residA,residB,residC,residD","residA was not included in the analysis") );
+    }
+    if( ResIDMap.find(residB) == ResIDMap.end() ){
+        return( ThrowError("residA,residB,residC,residD","residB was not included in the analysis") );
+    }
+    if( ResIDMap.find(residC) == ResIDMap.end() ){
+        return( ThrowError("residA,residB,residC,residD","residC was not included in the analysis") );
+    }
+    if( ResIDMap.find(residD) == ResIDMap.end() ){
+        return( ThrowError("residA,residB,residC,residD","residD was not included in the analysis") );
+    }
+
+    // remap to local indexing
+    residA = ResIDMap[residA];
+    residB = ResIDMap[residB];
+    residC = ResIDMap[residC];
+    residD = ResIDMap[residD];
+
+    std::map<int,CNABPStepID>::iterator it = BPStepIDs.begin();
+    std::map<int,CNABPStepID>::iterator ie = BPStepIDs.end();
+
+    while( it != ie ){
+        if( (it->second.ResIDA == residA) ||
+            (it->second.ResIDB == residB) ||
+            (it->second.ResIDC == residC) ||
+            (it->second.ResIDD == residD) ){
             return( it->first );
         }
         it++;
@@ -387,11 +452,11 @@ QScriptValue Qx3DNA::get##what##param(void)\
     value = GetArgAsInt("index","index",1,index);\
     if( value.isError() ) return(value);\
 \
-    if( (index < 0) || (index >= (int)what.size()) ){\
+    if( (index < 0) || (index >= (int)what##Par.size()) ){\
         return( ThrowError("index", "index is out-of-range") );\
     }\
 \
-    double num = what[index].param; \
+    double num = what##Par[index].param; \
     return(num);\
 }
 
@@ -416,12 +481,12 @@ QScriptValue Qx3DNA::areLocalBPParamsValid(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= (int)LocalBP.size()) ){
+    if( (index < 0) || (index >= (int)LocalBPPar.size()) ){
         return( ThrowError("index", "index is out-of-range") );
     }
 
 // execute ---------------------------------------
-    bool rvalue = LocalBP[index].Valid;
+    bool rvalue = LocalBPPar[index].Valid;
     return(rvalue);
 }
 
@@ -453,12 +518,12 @@ QScriptValue Qx3DNA::areLocalBPStepParamsValid(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= (int)LocalBP.size()) ){
+    if( (index < 0) || (index >= (int)LocalBPPar.size()) ){
         return( ThrowError("index", "index is out-of-range") );
     }
 
 // execute ---------------------------------------
-    bool rvalue = LocalBPStep[index].Valid;
+    bool rvalue = LocalBPStepPar[index].Valid;
     return(rvalue);
 }
 
@@ -490,12 +555,12 @@ QScriptValue Qx3DNA::areLocalBPHelParamsValid(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= (int)LocalBP.size()) ){
+    if( (index < 0) || (index >= (int)LocalBPPar.size()) ){
         return( ThrowError("index", "index is out-of-range") );
     }
 
 // execute ---------------------------------------
-    bool rvalue = LocalBPHel[index].Valid;
+    bool rvalue = LocalBPHelPar[index].Valid;
     return(rvalue);
 }
 
@@ -513,16 +578,16 @@ get(LocalBPHel,Htwist)
 void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
-    BasePairs.clear();
-    BasePairSteps.clear();
-    LocalBP.clear();
-    LocalBPStep.clear();
-    LocalBPHel.clear();
+    BPIDs.clear();
+    BPStepIDs.clear();
+    LocalBPPar.clear();
+    LocalBPStepPar.clear();
+    LocalBPHelPar.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
-        ReferenceBasePairs.clear();
-        ReferenceBasePairSteps.clear();
+        ReferenceBPIDs.clear();
+        ReferenceBPStepIDs.clear();
     }
 
     // data in the temporary directory are removed by QTemporaryDir
@@ -642,7 +707,7 @@ bool Qx3DNA::ParseReferenceData(void)
     getline(ifs,lbuf);
     while( !ifs.eof() ){
         if( lbuf.find("explicit bp numbering/hetero atoms") != string::npos ){
-            if( ReadSectionBP(ifs,ReferenceBasePairs) == false ) return(false);
+            if( ReadSectionBPIDs(ifs,ReferenceBPIDs) == false ) return(false);
         }
 
         getline(ifs,lbuf);
@@ -664,7 +729,7 @@ bool Qx3DNA::ParseReferenceData(void)
     getline(ifs,lbuf);
     while( !ifs.eof() ){
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
-            if( ReadSectionBPStep(ifs,ReferenceBasePairSteps) == false ) return(false);
+            if( ReadSectionBPStepIDs(ifs,ReferenceBPIDs,ReferenceBPStepIDs) == false ) return(false);
         }
 
         getline(ifs,lbuf);
@@ -698,7 +763,7 @@ bool Qx3DNA::ParseOutputData(void)
     getline(ifs,lbuf);
     while( !ifs.eof() ){
         if( lbuf.find("explicit bp numbering/hetero atoms") != string::npos ){
-            if( ReadSectionBP(ifs,BasePairs) == false ) return(false);
+            if( ReadSectionBPIDs(ifs,BPIDs) == false ) return(false);
         }
 
         getline(ifs,lbuf);
@@ -723,25 +788,25 @@ bool Qx3DNA::ParseOutputData(void)
     while( !ifs.eof() ){
 // read steps
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
-            if( ReadSectionBPStep(ifs,BasePairSteps) == false ) return(false);
+            if( ReadSectionBPStepIDs(ifs,BPIDs,BPStepIDs) == false ) return(false);
         }
 //      Local base-pair parameters
 //      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
         if( lbuf.find("Local base-pair parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBP(ifs) == false ) return(false);
+            if( ReadSectionLocalBPPar(ifs) == false ) return(false);
         }
 //      Local base-pair step parameters
 //      step       Shift     Slide      Rise      Tilt      Roll     Twist
         if( lbuf.find("Local base-pair step parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBPStep(ifs) == false ) return(false);
+            if( ReadSectionLocalBPStepPar(ifs) == false ) return(false);
         }
 //      Local base-pair helical parameters
 //      step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
         if( lbuf.find("Local base-pair helical parameters") != string::npos ){
             getline(ifs,lbuf); // skip heading
-            if( ReadSectionLocalBPHel(ifs) == false ) return(false);
+            if( ReadSectionLocalBPHelPar(ifs) == false ) return(false);
         }
         /// ....
         /// ....
@@ -749,20 +814,20 @@ bool Qx3DNA::ParseOutputData(void)
     }
 
 // cross-check number of BP and BP Pairs (steps)
-    if( ReferenceBasePairs.size() > 0 ){
-        if( ReferenceBasePairs.size() != LocalBP.size() ){
+    if( ReferenceBPIDs.size() > 0 ){
+        if( ReferenceBPIDs.size() != LocalBPPar.size() ){
             CSmallString error;
             error << "number of base pairs is not the same as in reference structure";
             ES_ERROR(error);
             return(false);
         }
-        if( ReferenceBasePairSteps.size() != LocalBPStep.size() ){
+        if( ReferenceBPStepIDs.size() != LocalBPStepPar.size() ){
             CSmallString error;
             error << "number of base pair steps is not the same as in reference structure";
             ES_ERROR(error);
             return(false);
         }
-        if( ReferenceBasePairSteps.size() != LocalBPHel.size() ){
+        if( ReferenceBPStepIDs.size() != LocalBPHelPar.size() ){
             CSmallString error;
             error << "number of base pair steps is not the same as in reference structure";
             ES_ERROR(error);
@@ -777,7 +842,7 @@ bool Qx3DNA::ParseOutputData(void)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps)
+bool Qx3DNA::ReadSectionBPIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps)
 {
     string lbuf;
     getline(ifs,lbuf);
@@ -787,7 +852,7 @@ bool Qx3DNA::ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps)
         }
 
         stringstream    str(lbuf);
-        CDNABasePair    params;
+        CNABPID         params;
         string          dummy;
 
         str >> params.ResIDA >> params.ResIDB;
@@ -819,18 +884,19 @@ bool Qx3DNA::ReadSectionBP(std::ifstream& ifs,std::map<int,CDNABasePair>& bps)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>& bpsteps)
+bool Qx3DNA::ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,std::map<int,CNABPStepID>& bpsteps)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("****************************************************************************") != string::npos ){
+
+
             return(true); // end of steps
         }
 
         stringstream        str(lbuf);
-        CDNABasePairStep    params;
-        string              dummy;
+        CNABPStepID         params;
 
         str >> params.ID >> params.Step;
 
@@ -841,8 +907,25 @@ bool Qx3DNA::ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>
             return(false);
         }
 
-        // FIXME? - should we use dedicated counter for ID?
         params.ID--;
+
+        // generate indexes
+        std::map<int,CNABPID>::iterator it = bps.begin();
+        std::map<int,CNABPID>::iterator ie = bps.end();
+
+        while( it != ie ){
+            if( it->second.ID == params.ID ){
+                params.ResIDA = it->second.ResIDA;
+                params.ResIDB = it->second.ResIDB;
+            }
+            if( it->second.ID == params.ID + 1 ){
+                params.ResIDC = it->second.ResIDA;
+                params.ResIDD = it->second.ResIDB;
+            }
+            it++;
+        }
+
+        // insert item
         bpsteps[params.ID] = params;
 
         getline(ifs,lbuf);
@@ -856,16 +939,16 @@ bool Qx3DNA::ReadSectionBPStep(std::ifstream& ifs,std::map<int,CDNABasePairStep>
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPPar(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBP
+            return(true); // end of LocalBPPar
         }
 
-        CLocalBP        params;
+        CNALocalBPPar   params;
         stringstream    str(lbuf);
         // bp
         str >> params.ID >> params.Name;        // this should not fail - but you can test success as well, code is commented below
@@ -890,8 +973,8 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
         }
 
         // check if the current structure has the same pairing as reference structure
-        if( ReferenceBasePairs.size() > 0 ){  // reference pairing is available -> perform test
-            if( ( ReferenceBasePairs[params.ID].Name.substr(0,1) != params.Name.substr(0,1) ) || ( ReferenceBasePairs[params.ID].Name.substr(2,1) != params.Name.substr(2,1) ) ){
+        if( ReferenceBPIDs.size() > 0 ){  // reference pairing is available -> perform test
+            if( ( ReferenceBPIDs[params.ID].Name.substr(0,1) != params.Name.substr(0,1) ) || ( ReferenceBPIDs[params.ID].Name.substr(2,1) != params.Name.substr(2,1) ) ){
                 CSmallString error;
                 error << "base pair (" << params.Name << ") with number (" << params.ID << ") is not the same as in reference structure";
                 ES_ERROR(error);
@@ -899,7 +982,7 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
             }
         }
 
-        LocalBP.push_back(params);
+        LocalBPPar.push_back(params);
 
         getline(ifs,lbuf);
     }
@@ -912,17 +995,17 @@ bool Qx3DNA::ReadSectionLocalBP(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPStepPar(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBPStep
+            return(true); // end of LocalBPStepPar
         }
 
-        stringstream    str(lbuf);
-        CLocalBPStep    params;
+        stringstream        str(lbuf);
+        CNALocalBPStepPar   params;
         // step
         str >> params.ID >> params.Step;        // this should not fail - but you can test success as well, code is commented below
         params.ID--;
@@ -946,8 +1029,8 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
         }
 
         // check if the current structure has the same pairing as reference structure
-        if( ReferenceBasePairSteps.size() > 0 ){  // reference pairing is available -> perform test
-            if( ReferenceBasePairSteps[params.ID].Step != params.Step ){
+        if( ReferenceBPStepIDs.size() > 0 ){  // reference pairing is available -> perform test
+            if( ReferenceBPStepIDs[params.ID].Step != params.Step ){
                 CSmallString error;
                 error << "base pair step (" << params.Step << ") with number (" << params.ID << ") is not the same as in reference structure";
                 ES_ERROR(error);
@@ -955,7 +1038,7 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
             }
         }
 
-        LocalBPStep.push_back(params);
+        LocalBPStepPar.push_back(params);
 
         getline(ifs,lbuf);
     }
@@ -968,17 +1051,17 @@ bool Qx3DNA::ReadSectionLocalBPStep(std::ifstream& ifs)
 
 //------------------------------------------------------------------------------
 
-bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
+bool Qx3DNA::ReadSectionLocalBPHelPar(std::ifstream& ifs)
 {
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
-            return(true); // end of LocalBPHel
+            return(true); // end of LocalBPHelPar
         }
 
         stringstream    str(lbuf);
-        CLocalBPHel     params;
+        CNALocalBPHelPar     params;
         // step
         str >> params.ID >> params.Step;        // this should not fail - but you can test success as well, code is commented below
         params.ID--;
@@ -1001,8 +1084,8 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
         }
 
         // check if the current structure has the same pairing as reference structure
-        if( ReferenceBasePairSteps.size() > 0 ){  // reference pairing is available -> perform test
-            if( ReferenceBasePairSteps[params.ID].Step != params.Step ){
+        if( ReferenceBPStepIDs.size() > 0 ){  // reference pairing is available -> perform test
+            if( ReferenceBPStepIDs[params.ID].Step != params.Step ){
                 CSmallString error;
                 error << "base pair step (" << params.Step << ") with number (" << params.ID << ") is not the same as in reference structure";
                 ES_ERROR(error);
@@ -1010,7 +1093,7 @@ bool Qx3DNA::ReadSectionLocalBPHel(std::ifstream& ifs)
             }
         }
 
-        LocalBPHel.push_back(params);
+        LocalBPHelPar.push_back(params);
 
         getline(ifs,lbuf);
     }

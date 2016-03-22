@@ -1,5 +1,5 @@
-#ifndef Qx3DNAStatisticsH
-#define Qx3DNAStatisticsH
+#ifndef QNAStatH
+#define QNAStatH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -22,8 +22,8 @@
 // =============================================================================
 
 #include <CATsMainHeader.hpp>
-#include <Qx3DNAHelper.hpp>
-#include <Qx3DNAStatisticsHelper.hpp>
+#include <QNAHelper.hpp>
+#include <QNAStatHelper.hpp>
 #include <QCATsScriptable.hpp>
 #include <QScriptable>
 #include <ostream>
@@ -36,26 +36,26 @@ class Qx3DNA;
 
 //------------------------------------------------------------------------------
 
-class Qx3DNAStatistics : public QObject, protected QScriptable, protected QCATsScriptable {
+class QNAStat : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
-    // constructor -----------------------------------------------------------------
-        Qx3DNAStatistics(void);
-        static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
-        static void Register(QScriptEngine& engine);
+// constructor -----------------------------------------------------------------
+    QNAStat(void);
+    static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
+    static void Register(QScriptEngine& engine);
 
 // methods ---------------------------------------------------------------------
 public slots:
     /// register new data
-    /// registerData(x3DNA)
-    QScriptValue registerData(void);
+    /// addSample(x3DNA[,options])
+    QScriptValue addSample(void);
 
     /// clear all data
     /// clear()
     QScriptValue clear(void);
 
     /// print results
-    /// printResults(name)
+    /// printResults(name[,options])
     QScriptValue printResults(void);
 
 private:
@@ -63,19 +63,22 @@ private:
     void ClearAll(void);
 
     /// print results
-    void PrintLocalBPParams(std::ofstream& vout);
-    void PrintLocalBPStepParams(std::ofstream& vout);
-    void PrintLocalBPHelParams(std::ofstream& vout);
+    void PrintBPParams(std::ofstream& vout);
+    void PrintBPStepParams(std::ofstream& vout);
+    void PrintBPHelParams(std::ofstream& vout);
 
     /// register data into the database
-    void RegisterData(Qx3DNA* p_data);
+    void RegisterBPData(Qx3DNA* p_data);
+    void RegisterBPStepData(Qx3DNA* p_data);
+    void RegisterBPHelData(Qx3DNA* p_data);
 
-    std::set<CDNABasePairID>                    BasePairIDs;
-    std::set<CDNABasePairStepID>                BasePairStepIDs;
-
-    std::map<CDNABasePairID,CLocalBPStatPtr>    LocalBPStat;
+    std::set<CNABPID>                           BPIDs;
+    std::set<CNABPStepID>                       BPStepIDs;
 
     int                                         NumOfSnapshots;
+    std::map<CNABPID,CNALocalBPStatPtr>         LocalBPStat;
+    std::map<CNABPStepID,CNALocalBPStepStatPtr> LocalBPStepStat;
+    std::map<CNABPStepID,CNALocalBPHelStatPtr>  LocalBPHelStat;
 };
 
 
