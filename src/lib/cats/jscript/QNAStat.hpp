@@ -36,7 +36,7 @@ class Qx3DNA;
 
 //------------------------------------------------------------------------------
 
-class QNAStat : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QNAStat : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
