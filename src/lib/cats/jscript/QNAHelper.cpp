@@ -27,7 +27,7 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CNALocalBPPar::CNALocalBPPar(void)
+CNABPPar::CNABPPar(void)
 {
     Valid = false;
     ID = -1;
@@ -42,7 +42,7 @@ CNALocalBPPar::CNALocalBPPar(void)
 
 //------------------------------------------------------------------------------
 
-CNALocalBPStepPar::CNALocalBPStepPar(void)
+CNABPStepPar::CNABPStepPar(void)
 {
     Valid = false;
     ID = -1;
@@ -57,7 +57,7 @@ CNALocalBPStepPar::CNALocalBPStepPar(void)
 
 //------------------------------------------------------------------------------
 
-CNALocalBPHelPar::CNALocalBPHelPar(void)
+CNABPHelPar::CNABPHelPar(void)
 {
     Valid = false;
     ID = -1;

@@ -76,9 +76,9 @@ private:
     std::set<CNABPStepID>                       BPStepIDs;
 
     int                                         NumOfSnapshots;
-    std::map<CNABPID,CNALocalBPStatPtr>         LocalBPStat;
-    std::map<CNABPStepID,CNALocalBPStepStatPtr> LocalBPStepStat;
-    std::map<CNABPStepID,CNALocalBPHelStatPtr>  LocalBPHelStat;
+    std::map<CNABPID,CNABPStatPtr>         BPStat;
+    std::map<CNABPStepID,CNABPStepStatPtr> BPStepStat;
+    std::map<CNABPStepID,CNABPHelStatPtr>  BPHelStat;
 };
 
 
