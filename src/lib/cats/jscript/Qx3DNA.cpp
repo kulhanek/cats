@@ -90,13 +90,14 @@ Qx3DNA::Qx3DNA(void)
 {
     // default value
     AutoReferenceMode = false;
+    ParameterType = E3DP_LOCAL;
 }
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QScriptValue Qx3DNA::setAutoReferenceMode(void)
+QScriptValue Qx3DNA::setAutoReferenceMode(const QScriptValue& dummy)
 {
     QScriptValue value;
 
@@ -119,6 +120,97 @@ QScriptValue Qx3DNA::setAutoReferenceMode(void)
     AutoReferenceMode = set;
 
     return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::isAutoReferenceModeSet(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::isAutoReferenceModeSet()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// update value of AutoReferenceMode -------------
+    return( AutoReferenceMode );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::setParameterType(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::setParameterType(type)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("type",1);
+    if( value.isError() ) return(value);
+
+    QString stype;
+    value = GetArgAsString("type","type",1,stype);
+    if( value.isError() ) return(value);
+
+// update value of AutoReferenceMode -------------
+    if( stype == "local" ){
+        ParameterType = E3DP_LOCAL;
+    } else if ( stype == "simple" ){
+        ParameterType = E3DP_SIMPLE;
+    } else {
+        CSmallString error;
+        error << "unrecognized parameter type: " << CSmallString(stype);
+        return( ThrowError("type",error) );
+    }
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QString Qx3DNA::GetParameterTypeString(void) const
+{
+    switch(ParameterType){
+        case E3DP_LOCAL:
+            return("local");
+        case E3DP_SIMPLE:
+            return("simple");
+        default:
+            return("unknown");
+    }
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::getParameterType(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: string x3DNA::getParameterType()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// update value of AutoReferenceMode -------------
+    return( GetParameterTypeString() );
 }
 
 //------------------------------------------------------------------------------
@@ -790,26 +882,30 @@ bool Qx3DNA::ParseOutputData(void)
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
             if( ReadSectionBPStepIDs(ifs,BPIDs,BPStepIDs) == false ) return(false);
         }
-//       base-pair parameters
-//      bp        Shear    Stretch   Stagger    Buckle  Propeller  Opening
-        if( lbuf.find(" base-pair parameters") != string::npos ){
-            getline(ifs,lbuf); // skip heading
-            if( ReadSectionBPPar(ifs) == false ) return(false);
+        if( ParameterType == E3DP_LOCAL ){
+            if( lbuf.find("Local base-pair parameters") != string::npos ){
+                getline(ifs,lbuf); // skip heading
+                if( ReadSectionBPPar(ifs) == false ) return(false);
+            }
+            if( lbuf.find("Local base-pair step parameters") != string::npos ){
+                getline(ifs,lbuf); // skip heading
+                if( ReadSectionBPStepPar(ifs) == false ) return(false);
+            }
+            if( lbuf.find("Local base-pair helical parameters") != string::npos ){
+                getline(ifs,lbuf); // skip heading
+                if( ReadSectionBPHelPar(ifs) == false ) return(false);
+            }
         }
-//       base-pair step parameters
-//      step       Shift     Slide      Rise      Tilt      Roll     Twist
-        if( lbuf.find(" base-pair step parameters") != string::npos ){
-            getline(ifs,lbuf); // skip heading
-            if( ReadSectionBPStepPar(ifs) == false ) return(false);
+        if( ParameterType == E3DP_SIMPLE ){
+            if( lbuf.find("Simple base-pair parameters based on") != string::npos ){
+                getline(ifs,lbuf); // skip heading
+                if( ReadSectionBPPar(ifs) == false ) return(false);
+            }
+            if( lbuf.find("Simple base-pair step parameters based on") != string::npos ){
+                getline(ifs,lbuf); // skip heading
+                if( ReadSectionBPStepPar(ifs) == false ) return(false);
+            }
         }
-//       base-pair helical parameters
-//      step       X-disp    Y-disp   h-Rise     Incl.       Tip   h-Twist
-        if( lbuf.find(" base-pair helical parameters") != string::npos ){
-            getline(ifs,lbuf); // skip heading
-            if( ReadSectionBPHelPar(ifs) == false ) return(false);
-        }
-        /// ....
-        /// ....
         getline(ifs,lbuf);
     }
 

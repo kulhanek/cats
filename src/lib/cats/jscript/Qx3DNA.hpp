@@ -40,7 +40,7 @@
 
 enum EX3DNAParams {
     E3DP_LOCAL=1,
-    E3DP_SIMPLE=1
+    E3DP_SIMPLE=2
 };
 
 //------------------------------------------------------------------------------
@@ -56,14 +56,28 @@ public:
     static void Register(QScriptEngine& engine);
 
 // properties ------------------------------------------------------------------
-    Q_PROPERTY(QScriptValue numOfBasePairs  READ getNumOfBasePairs WRITE setIsNotAllowed)
-    Q_PROPERTY(QScriptValue numOfSteps      READ getNumOfSteps WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue numOfBasePairs      READ getNumOfBasePairs WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue numOfSteps          READ getNumOfSteps WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue parameterType       READ getParameterType WRITE setParameterType)
+    Q_PROPERTY(QScriptValue autoreferenceMode   READ isAutoReferenceModeSet WRITE setAutoReferenceMode)
 
 // methods ---------------------------------------------------------------------
 public slots:   
     /// set autoreference mode
     /// setAutoreferenceMode(set)
-    QScriptValue setAutoReferenceMode(void);
+    QScriptValue setAutoReferenceMode(const QScriptValue& dummy);
+
+    /// get autoreference mode
+    /// bool isAutoReferenceModeSet()
+    QScriptValue isAutoReferenceModeSet(void);
+
+    /// set type of parameters: local, simple
+    /// setParameterType(type)
+    QScriptValue setParameterType(const QScriptValue& dummy);
+
+    /// get type of parameters
+    /// string getParameterType()
+    QScriptValue getParameterType(void);
 
     /// perform analysis on reference structure
     /// analyzeReference(snapshot[,selection])
@@ -130,10 +144,15 @@ public slots:
     QScriptValue getBPHelTip(void);
     QScriptValue getBPHelHtwist(void);
 
+public:
+    /// return current parameter type mode
+    QString GetParameterTypeString(void) const;
+
 // access methods --------------------------------------------------------------
 private:
     CFileName                   WorkDir;            // scratch directory
     bool                        AutoReferenceMode;  // is autoreference mode enabled?
+    EX3DNAParams                ParameterType;
 
     // topology residue index <-> local translation
     std::map<int,int>           ResIDMap;
