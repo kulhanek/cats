@@ -1037,24 +1037,31 @@ bool Qx3DNA::ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,
 
 bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
 {
-    string lbuf;
+    string lbuf,tmp;
+
     getline(ifs,lbuf);
+
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
             return(true); // end of BPPar
         }
 
-        CNABPPar   params;
+        CNABPPar        params;
         stringstream    str(lbuf);
+
         // bp
-        str >> params.ID >> params.Name;        // this should not fail - but you can test success as well, code is commented below
+        str >> tmp;
+        if( tmp == "*" ){
+            str >> params.ID;
+        } else {
+            stringstream    tstr(tmp);
+            tstr >> params.ID;
+        }
+        tmp.clear();
+
+        str >> params.Name;        // this should not fail
         params.ID--;
-//        if( ! str ){
-//            CSmallString error;
-//            error << "unable to read  base-pair parameters in: " << lbuf;
-//            ES_ERROR(error);
-//            return(false);
-//        }
+
         if( ! ( lbuf.find("----") != string::npos ) ){
             // read the rest of parameters
             //        Shear    Stretch   Stagger    Buckle  Propeller  Opening
@@ -1093,8 +1100,10 @@ bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
 
 bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
 {
-    string lbuf;
+    string lbuf,tmp;
+
     getline(ifs,lbuf);
+
     while( ifs ){
         if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
             return(true); // end of BPStepPar
@@ -1102,15 +1111,20 @@ bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
 
         stringstream        str(lbuf);
         CNABPStepPar   params;
+
         // step
-        str >> params.ID >> params.Step;        // this should not fail - but you can test success as well, code is commented below
+        str >> tmp;
+        if( tmp == "*" ){
+            str >> params.ID;
+        } else {
+            stringstream    tstr(tmp);
+            tstr >> params.ID;
+        }
+        tmp.clear();
+
+        str >> params.Step; // this should not fail
         params.ID--;
-        //        if( ! str ){
-        //            CSmallString error;
-        //            error << "unable to read  base-pair parameters in: " << lbuf;
-        //            ES_ERROR(error);
-        //            return(false);
-        //        }
+
         if( ! ( lbuf.find("----") != string::npos ) ){
             // read the rest of parameters
             // step       Shift     Slide      Rise      Tilt      Roll     Twist
