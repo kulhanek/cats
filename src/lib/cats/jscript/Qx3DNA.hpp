@@ -36,6 +36,15 @@
 
 //------------------------------------------------------------------------------
 
+/// type of parameters
+
+enum EX3DNAParams {
+    E3DP_LOCAL=1,
+    E3DP_SIMPLE=1
+};
+
+//------------------------------------------------------------------------------
+
 /// 3D x3DNA
 
 class CATS_PACKAGE Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
@@ -82,11 +91,11 @@ public slots:
     /// int getBPStepIndex(residA,residB,residC,residD)
     QScriptValue getBPStepIndex(void);
 
-    /// get validity of local BP params
+    /// get validity of BP params
     /// bool areBPParamsValid(index)
     QScriptValue areBPParamsValid(void);
 
-    /// get local BP params
+    /// get BP params
     /// double getBPXXX(index)
     QScriptValue getBPShear(void);
     QScriptValue getBPStretch(void);
@@ -95,11 +104,11 @@ public slots:
     QScriptValue getBPPropeller(void);
     QScriptValue getBPOpening(void);
 
-    /// get validity of local BP Step params
+    /// get validity of BP Step params
     /// bool areBPStepParamsValid(index)
     QScriptValue areBPStepParamsValid(void);
 
-    /// get local BP Step params
+    /// get BP Step params
     /// double getBPStepXXX(index)
     QScriptValue getBPStepShift(void);
     QScriptValue getBPStepSlide(void);
@@ -108,11 +117,11 @@ public slots:
     QScriptValue getBPStepRoll(void);
     QScriptValue getBPStepTwist(void);
 
-    /// get validity of local BP Helical params
+    /// get validity of BP Helical params
     /// bool areBPHelParamsValid(index)
     QScriptValue areBPHelParamsValid(void);
 
-    /// get local BP Helical params
+    /// get BP Helical params
     /// double getBPHelXXX(index)
     QScriptValue getBPHelXdisp(void);
     QScriptValue getBPHelYdisp(void);

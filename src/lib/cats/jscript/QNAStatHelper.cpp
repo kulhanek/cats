@@ -29,14 +29,14 @@ using namespace std;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CNALocalBPStat::CNALocalBPStat(void)
+CNABPStat::CNABPStat(void)
 {
     NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNALocalBPStat::RegisterData(const CNALocalBPPar& data)
+void CNABPStat::RegisterData(const CNABPPar& data)
 {
     NumOfSamples++;
 
@@ -59,14 +59,14 @@ void CNALocalBPStat::RegisterData(const CNALocalBPPar& data)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CNALocalBPStepStat::CNALocalBPStepStat(void)
+CNABPStepStat::CNABPStepStat(void)
 {
     NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNALocalBPStepStat::RegisterData(const CNALocalBPStepPar& data)
+void CNABPStepStat::RegisterData(const CNABPStepPar& data)
 {
     NumOfSamples++;
 
@@ -89,14 +89,14 @@ void CNALocalBPStepStat::RegisterData(const CNALocalBPStepPar& data)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-CNALocalBPHelStat::CNALocalBPHelStat(void)
+CNABPHelStat::CNABPHelStat(void)
 {
     NumOfSamples = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNALocalBPHelStat::RegisterData(const CNALocalBPHelPar& data)
+void CNABPHelStat::RegisterData(const CNABPHelPar& data)
 {
     NumOfSamples++;
 
