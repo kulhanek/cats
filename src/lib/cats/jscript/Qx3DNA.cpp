@@ -545,7 +545,9 @@ QScriptValue Qx3DNA::get##what##param(void)\
     if( value.isError() ) return(value);\
 \
     if( (index < 0) || (index >= (int)what##Par.size()) ){\
-        return( ThrowError("index", "index is out-of-range") );\
+        CSmallString error; \
+        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size() << ">"; \
+        return( ThrowError("index", error) );\
     }\
 \
     double num = what##Par[index].param; \
@@ -574,7 +576,9 @@ QScriptValue Qx3DNA::areBPParamsValid(void)
     if( value.isError() ) return(value);
 
     if( (index < 0) || (index >= (int)BPPar.size()) ){
-        return( ThrowError("index", "index is out-of-range") );
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size() << ">";
+        return( ThrowError("index", error) );
     }
 
 // execute ---------------------------------------
@@ -610,8 +614,10 @@ QScriptValue Qx3DNA::areBPStepParamsValid(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= (int)BPPar.size()) ){
-        return( ThrowError("index", "index is out-of-range") );
+    if( (index < 0) || (index >= (int)BPStepPar.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)BPStepPar.size() << ">";
+        return( ThrowError("index", error) );
     }
 
 // execute ---------------------------------------
@@ -647,8 +653,10 @@ QScriptValue Qx3DNA::areBPHelParamsValid(void)
     value = GetArgAsInt("index","index",1,index);
     if( value.isError() ) return(value);
 
-    if( (index < 0) || (index >= (int)BPPar.size()) ){
-        return( ThrowError("index", "index is out-of-range") );
+    if( (index < 0) || (index >= (int)BPHelPar.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)BPHelPar.size() << ">";
+        return( ThrowError("index", error) );
     }
 
 // execute ---------------------------------------
