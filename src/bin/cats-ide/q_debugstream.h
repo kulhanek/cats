@@ -5,7 +5,7 @@
 #include <streambuf>
 #include <string>
 
-#include "QTextEdit.h"
+#include <QTextEdit>
 
 class Q_DebugStream : public std::basic_streambuf<char>
 {
