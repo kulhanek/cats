@@ -132,6 +132,7 @@ SET(PMF_LIB_NAME fpmfdrv_cats fpmf cpmf)
 
 # QT5 =========================
 SET(CMAKE_AUTOMOC ON)
+SET(CMAKE_AUTORCC ON)
 FIND_PACKAGE(Qt5Core REQUIRED)
 FIND_PACKAGE(Qt5Script REQUIRED)
 SET(HAVE_QT5 1)
@@ -152,12 +153,6 @@ SET(CATS_LIBS cats
 		${READLINE_LIB_NAME}
         ${SYSTEM_LIBS}
         )
-        
-# policies ---------------------------------------
-IF(COMMAND cmake_policy)
-    cmake_policy(SET CMP0003 NEW)
-    cmake_policy(SET CMP0020 NEW)
-ENDIF(COMMAND cmake_policy)
 
 # policies ---------------------------------------
 IF(COMMAND cmake_policy)

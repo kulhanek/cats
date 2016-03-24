@@ -28,60 +28,60 @@
 
 //------------------------------------------------------------------------------
 
-class CNALocalBPStat {
+class CNABPStat {
 public:
     // constructor
-    CNALocalBPStat(void);
+    CNABPStat(void);
+
+public:
+    int         NumOfSamples;
+    CNABPPar    Sum;
+    CNABPPar    Sum2;
+
+    void RegisterData(const CNABPPar& data);
+};
+
+//------------------------------------------------------------------------------
+
+typedef boost::shared_ptr<CNABPStat>   CNABPStatPtr;
+
+//------------------------------------------------------------------------------
+
+class CNABPStepStat {
+public:
+    // constructor
+    CNABPStepStat(void);
 
 public:
     int             NumOfSamples;
-    CNALocalBPPar   Sum;
-    CNALocalBPPar   Sum2;
+    CNABPStepPar    Sum;
+    CNABPStepPar    Sum2;
 
-    void RegisterData(const CNALocalBPPar& data);
+    void RegisterData(const CNABPStepPar& data);
 };
 
 //------------------------------------------------------------------------------
 
-typedef boost::shared_ptr<CNALocalBPStat>   CNALocalBPStatPtr;
+typedef boost::shared_ptr<CNABPStepStat>   CNABPStepStatPtr;
 
 //------------------------------------------------------------------------------
 
-class CNALocalBPStepStat {
+class CNABPHelStat {
 public:
     // constructor
-    CNALocalBPStepStat(void);
+    CNABPHelStat(void);
 
 public:
-    int                 NumOfSamples;
-    CNALocalBPStepPar   Sum;
-    CNALocalBPStepPar   Sum2;
+    int             NumOfSamples;
+    CNABPHelPar     Sum;
+    CNABPHelPar     Sum2;
 
-    void RegisterData(const CNALocalBPStepPar& data);
+    void RegisterData(const CNABPHelPar& data);
 };
 
 //------------------------------------------------------------------------------
 
-typedef boost::shared_ptr<CNALocalBPStepStat>   CNALocalBPStepStatPtr;
-
-//------------------------------------------------------------------------------
-
-class CNALocalBPHelStat {
-public:
-    // constructor
-    CNALocalBPHelStat(void);
-
-public:
-    int                 NumOfSamples;
-    CNALocalBPHelPar    Sum;
-    CNALocalBPHelPar    Sum2;
-
-    void RegisterData(const CNALocalBPHelPar& data);
-};
-
-//------------------------------------------------------------------------------
-
-typedef boost::shared_ptr<CNALocalBPHelStat>   CNALocalBPHelStatPtr;
+typedef boost::shared_ptr<CNABPHelStat>   CNABPHelStatPtr;
 
 //------------------------------------------------------------------------------
 

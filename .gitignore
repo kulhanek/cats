@@ -2,6 +2,7 @@
 *.cmake
 moc_*
 *.moc
+*.qrc.depends
 *automoc*
 CMakeCache.txt
 CMakeFiles

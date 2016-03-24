@@ -36,6 +36,15 @@
 
 //------------------------------------------------------------------------------
 
+/// type of parameters
+
+enum EX3DNAParams {
+    E3DP_LOCAL=1,
+    E3DP_SIMPLE=2
+};
+
+//------------------------------------------------------------------------------
+
 /// 3D x3DNA
 
 class CATS_PACKAGE Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
@@ -47,14 +56,28 @@ public:
     static void Register(QScriptEngine& engine);
 
 // properties ------------------------------------------------------------------
-    Q_PROPERTY(QScriptValue numOfBasePairs  READ getNumOfBasePairs WRITE setIsNotAllowed)
-    Q_PROPERTY(QScriptValue numOfSteps      READ getNumOfSteps WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue numOfBasePairs      READ getNumOfBasePairs WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue numOfSteps          READ getNumOfSteps WRITE setIsNotAllowed)
+    Q_PROPERTY(QScriptValue parameterType       READ getParameterType WRITE setParameterType)
+    Q_PROPERTY(QScriptValue autoreferenceMode   READ isAutoReferenceModeSet WRITE setAutoReferenceMode)
 
 // methods ---------------------------------------------------------------------
 public slots:   
     /// set autoreference mode
     /// setAutoreferenceMode(set)
-    QScriptValue setAutoReferenceMode(void);
+    QScriptValue setAutoReferenceMode(const QScriptValue& dummy);
+
+    /// get autoreference mode
+    /// bool isAutoReferenceModeSet()
+    QScriptValue isAutoReferenceModeSet(void);
+
+    /// set type of parameters: local, simple
+    /// setParameterType(type)
+    QScriptValue setParameterType(const QScriptValue& dummy);
+
+    /// get type of parameters
+    /// string getParameterType()
+    QScriptValue getParameterType(void);
 
     /// perform analysis on reference structure
     /// analyzeReference(snapshot[,selection])
@@ -82,63 +105,68 @@ public slots:
     /// int getBPStepIndex(residA,residB,residC,residD)
     QScriptValue getBPStepIndex(void);
 
-    /// get validity of local BP params
-    /// bool areLocalBPParamsValid(index)
-    QScriptValue areLocalBPParamsValid(void);
+    /// get validity of BP params
+    /// bool areBPParamsValid(index)
+    QScriptValue areBPParamsValid(void);
 
-    /// get local BP params
-    /// double getLocalBPXXX(index)
-    QScriptValue getLocalBPShear(void);
-    QScriptValue getLocalBPStretch(void);
-    QScriptValue getLocalBPStagger(void);
-    QScriptValue getLocalBPBuckle(void);
-    QScriptValue getLocalBPPropeller(void);
-    QScriptValue getLocalBPOpening(void);
+    /// get BP params
+    /// double getBPXXX(index)
+    QScriptValue getBPShear(void);
+    QScriptValue getBPStretch(void);
+    QScriptValue getBPStagger(void);
+    QScriptValue getBPBuckle(void);
+    QScriptValue getBPPropeller(void);
+    QScriptValue getBPOpening(void);
 
-    /// get validity of local BP Step params
-    /// bool areLocalBPStepParamsValid(index)
-    QScriptValue areLocalBPStepParamsValid(void);
+    /// get validity of BP Step params
+    /// bool areBPStepParamsValid(index)
+    QScriptValue areBPStepParamsValid(void);
 
-    /// get local BP Step params
-    /// double getLocalBPStepXXX(index)
-    QScriptValue getLocalBPStepShift(void);
-    QScriptValue getLocalBPStepSlide(void);
-    QScriptValue getLocalBPStepRise(void);
-    QScriptValue getLocalBPStepTilt(void);
-    QScriptValue getLocalBPStepRoll(void);
-    QScriptValue getLocalBPStepTwist(void);
+    /// get BP Step params
+    /// double getBPStepXXX(index)
+    QScriptValue getBPStepShift(void);
+    QScriptValue getBPStepSlide(void);
+    QScriptValue getBPStepRise(void);
+    QScriptValue getBPStepTilt(void);
+    QScriptValue getBPStepRoll(void);
+    QScriptValue getBPStepTwist(void);
 
-    /// get validity of local BP Helical params
-    /// bool areLocalBPHelParamsValid(index)
-    QScriptValue areLocalBPHelParamsValid(void);
+    /// get validity of BP Helical params
+    /// bool areBPHelParamsValid(index)
+    QScriptValue areBPHelParamsValid(void);
 
-    /// get local BP Helical params
-    /// double getLocalBPHelXXX(index)
-    QScriptValue getLocalBPHelXdisp(void);
-    QScriptValue getLocalBPHelYdisp(void);
-    QScriptValue getLocalBPHelHrise(void);
-    QScriptValue getLocalBPHelIncl(void);
-    QScriptValue getLocalBPHelTip(void);
-    QScriptValue getLocalBPHelHtwist(void);
+    /// get BP Helical params
+    /// double getBPHelXXX(index)
+    QScriptValue getBPHelXdisp(void);
+    QScriptValue getBPHelYdisp(void);
+    QScriptValue getBPHelHrise(void);
+    QScriptValue getBPHelIncl(void);
+    QScriptValue getBPHelTip(void);
+    QScriptValue getBPHelHtwist(void);
+
+public:
+    /// return current parameter type mode
+    QString GetParameterTypeString(void) const;
 
 // access methods --------------------------------------------------------------
 private:
-    CFileName                       WorkDir;            // scratch directory
-    bool                            AutoReferenceMode;  // is autoreference mode enabled?
+    CFileName                   WorkDir;            // scratch directory
+    bool                        AutoReferenceMode;  // is autoreference mode enabled?
+    EX3DNAParams                ParameterType;
 
     // topology residue index <-> local translation
-    std::map<int,int>               ResIDMap;
+    std::map<int,int>           ResIDMap;
 
     // these two items are set by analyzeReference()
-    std::map<int,CNABPID>           ReferenceBPIDs;     // list of base pairs from find_pairs
-    std::map<int,CNABPStepID>       ReferenceBPStepIDs; // list of base pair steps from analyze
+    std::map<int,CNABPID>       ReferenceBPIDs;     // list of base pairs from find_pairs
+    std::map<int,CNABPStepID>   ReferenceBPStepIDs; // list of base pair steps from analyze
 
     // data from analyzed snapshot
-    std::map<int,CNABPID>           BPIDs;              // list of base pairs from find_pairs
-    std::map<int,CNABPStepID>       BPStepIDs;          // list of base pair steps from analyze
-    std::vector<CNALocalBPPar>      LocalBPPar;
-    std::vector<CNALocalBPStepPar>  LocalBPStepPar;
-    std::vector<CNALocalBPHelPar>   LocalBPHelPar;
+    std::map<int,CNABPID>       BPIDs;              // list of base pairs from find_pairs
+    std::map<int,CNABPStepID>   BPStepIDs;          // list of base pair steps from analyze
+    std::vector<CNABPPar>       BPPar;
+    std::vector<CNABPStepPar>   BPStepPar;
+    std::vector<CNABPHelPar>    BPHelPar;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -173,14 +201,14 @@ private:
     /// read reference BP Step
     bool ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,std::map<int,CNABPStepID>& bpsteps);
 
-    /// read Local BP
-    bool ReadSectionLocalBPPar(std::ifstream& ifs);
+    /// read  BP
+    bool ReadSectionBPPar(std::ifstream& ifs);
 
-    /// read Local BP Step
-    bool ReadSectionLocalBPStepPar(std::ifstream& ifs);
+    /// read  BP Step
+    bool ReadSectionBPStepPar(std::ifstream& ifs);
 
-    /// read Local BP Helical
-    bool ReadSectionLocalBPHelPar(std::ifstream& ifs);
+    /// read  BP Helical
+    bool ReadSectionBPHelPar(std::ifstream& ifs);
 
     friend class QNAStat;
 };

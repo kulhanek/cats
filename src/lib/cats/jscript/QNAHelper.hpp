@@ -28,10 +28,10 @@
 // nucleic acid parameters
 //------------------------------------------------------------------------------
 
-class CNALocalBPPar {
+class CNABPPar {
 public:
     // constructor
-    CNALocalBPPar(void);
+    CNABPPar(void);
 
 public:
     bool        Valid;      // determine if data are valid - if reference snapshot is activated
@@ -47,10 +47,10 @@ public:
 
 //------------------------------------------------------------------------------
 
-class CNALocalBPStepPar {
+class CNABPStepPar {
 public:
     // constructor
-    CNALocalBPStepPar(void);
+    CNABPStepPar(void);
 
 public:
     bool        Valid;      // determine if data are valid - if reference snapshot is activated
@@ -66,10 +66,10 @@ public:
 
 //------------------------------------------------------------------------------
 
-class CNALocalBPHelPar {
+class CNABPHelPar {
 public:
     // constructor
-    CNALocalBPHelPar(void);
+    CNABPHelPar(void);
 
 public:
     bool        Valid;      // determine if data are valid - if reference snapshot is activated

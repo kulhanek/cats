@@ -229,6 +229,8 @@ void MainWindow::debugScript()
     ui->stackedWidget->addWidget(debugger->standardWindow());
     ui->stackedWidget->setCurrentWidget(debugger->standardWindow());
 
+    RegisterAllCATsClasses(JSEngine); // ?? added by kulhanek
+
     debugger->attachTo(&JSEngine);
     debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
 

@@ -26,51 +26,10 @@
 #include <ErrorSystem.hpp>
 #include <SmallTimeAndDate.hpp>
 #include <Terminal.hpp>
-
-#include "CATs.hpp"
-
 #include <QTextStream>
 #include <QFile>
-
 #include <QCATs.hpp>
-
-// core support -------------------------------
-#include <QTopology.hpp>
-#include <QSnapshot.hpp>
-#include <QSelection.hpp>
-#include <QRSelection.hpp>
-#include <QTrajectory.hpp>
-#include <QTrajPool.hpp>
-#include <QOBMol.hpp>
-#include <QAtom.hpp>
-#include <QResidue.hpp>
-
-// network support ----------------------------
-#include <QNetTrajectory.hpp>
-#include <QNetResults.hpp>
-
-// geometry support ---------------------------
-#include <QAverageSnapshot.hpp>
-#include <QPoint.hpp>
-#include <QSimpleVector.hpp>
-#include <QTransformation.hpp>
-#include <QGeometry.hpp>
-#include <QPMFLib.hpp>
-#include <QCovarMatrix.hpp>
-
-// data analysis ------------------------------
-#include <QPropSum.hpp>
-#include <QLinStat.hpp>
-#include <QMinMax.hpp>
-#include <QHistogram.hpp>
-#include <QVolumeData.hpp>
-#include <QThermoIG.hpp>
-#include <Qx3DNA.hpp>
-#include <QNAStat.hpp>
-#include <QMolSurf.hpp>
-
-// i/o suuport --------------------------------
-#include <QOFile.hpp>
+#include "CATs.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -121,47 +80,7 @@ int CCATs::Init(int argc,char* argv[])
 
 bool CCATs::Run(void)
 {
-    // register objects --------------------------
-    QCATs::Register(Engine);
-
-    // core support -------------------------------
-    QTopology::Register(Engine);
-    QSnapshot::Register(Engine);
-    QSelection::Register(Engine);
-    QRSelection::Register(Engine);
-    QTrajectory::Register(Engine);
-    QTrajPool::Register(Engine);
-    QOBMol::Register(Engine);
-    QAtom::Register(Engine);
-    QResidue::Register(Engine);
-
-    // network support ----------------------------
-    QNetTrajectory::Register(Engine);
-    QNetResults::Register(Engine);
-
-    // geometry support ---------------------------
-    QAverageSnapshot::Register(Engine);
-    QPoint::Register(Engine);
-    QSimpleVector::Register(Engine);
-    QTransformation::Register(Engine);
-    QGeometry::Register(Engine);
-    QPMFLib::Register(Engine);
-    QCovarMatrix::Register(Engine);
-
-    // data analysis ------------------------------
-    QPropSum::Register(Engine);
-    QLinStat::Register(Engine);
-    QMinMax::Register(Engine);
-    QHistogram::Register(Engine);
-    QVolumeData::Register(Engine);
-    QThermoIG::Register(Engine);
-    Qx3DNA::Register(Engine);
-    //Qx3DNAStatistics::Register(Engine);
-    QNAStat::Register(Engine);
-    QMolSurf::Register(Engine);
-
-    // i/o suuport --------------------------------
-    QOFile::Register(Engine);
+    RegisterAllCATsClasses(Engine);
 
     PrintWelcomeText();
 

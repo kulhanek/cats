@@ -193,27 +193,27 @@ void QNAStat::ClearAll(void)
     BPStepIDs.clear();
 
     NumOfSnapshots = 0;
-    LocalBPStat.clear();
-    LocalBPStepStat.clear();
-    LocalBPHelStat.clear();
+    BPStat.clear();
+    BPStepStat.clear();
+    BPHelStat.clear();
 }
 
 //------------------------------------------------------------------------------
 
 void QNAStat::PrintBPParams(ofstream& vout)
 {
-    vout << "# Local Base Pair Parameters" << endl;
+    vout << "#  Base Pair Parameters" << endl;
     vout << "# index ResIDA ResIDB BasePair Abundance <shear> s(shear) <stretch> s(stretch) <stagger> s(stagger) <buckle> s(buckle) <propeller> s(propeller) <opening> s(opening)" << endl;
     vout << "#   1      2      3      4         5        6       7         8         9         10         11        12        13        14           15          16        17    " << endl;
     vout << "#------ ------ ------ -------- --------- ------- -------- --------- ---------- --------- ---------- -------- --------- ----------- ------------ --------- ----------" << endl;
 
-    std::map<CNABPID,CNALocalBPStatPtr>::iterator  it = LocalBPStat.begin();
-    std::map<CNABPID,CNALocalBPStatPtr>::iterator  ie = LocalBPStat.end();
+    std::map<CNABPID,CNABPStatPtr>::iterator  it = BPStat.begin();
+    std::map<CNABPID,CNABPStatPtr>::iterator  ie = BPStat.end();
 
     int i = 1;
     while( it != ie ){
         CNABPID  bp_id = it->first;
-        CNALocalBPStatPtr bp_stat = it->second;
+        CNABPStatPtr bp_stat = it->second;
         // index
         vout << right << setw(7) << i << " ";
         // ResIDA ResIDB BasePair
@@ -250,19 +250,20 @@ void QNAStat::PrintBPParams(ofstream& vout)
 
 void QNAStat::PrintBPStepParams(ofstream& vout)
 {
-    vout << "# Local Base Pair Step Parameters" << endl;
+    vout << "#  Base Pair Step Parameters" << endl;
     vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <shift> s(shift) <slide> s(slide)  <rise> s(rise)  <tilt> s(tilt)  <roll> s(roll) <twist> s(twist)" << endl;
     vout << "#   1      2      3      4      5       6        7        8        9       10      11       12     13       14     15       16     17       18      19   " << endl;
     vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- ------- ------- ------- ------- ------- ------- --------" << endl;
 
-    std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  it = LocalBPStepStat.begin();
-    std::map<CNABPStepID,CNALocalBPStepStatPtr>::iterator  ie = LocalBPStepStat.end();
+    std::map<CNABPStepID,CNABPStepStatPtr>::iterator  it = BPStepStat.begin();
+    std::map<CNABPStepID,CNABPStepStatPtr>::iterator  ie = BPStepStat.end();
 
     int i = 1;
     while( it != ie ){
         CNABPStepID  bpstep_id = it->first;
-        CNALocalBPStepStatPtr bpstep_stat = it->second;
-        // index
+
+        CNABPStepStatPtr bpstep_stat = it->second;
+
         vout << right << setw(7) << i << " ";
         // ResIDA ResIDB ResIDC ResIDD  BPStep
         vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
@@ -301,18 +302,18 @@ void QNAStat::PrintBPStepParams(ofstream& vout)
 
 void QNAStat::PrintBPHelParams(ofstream& vout)
 {
-    vout << "# Local Base Pair Helical Parameters" << endl;
+    vout << "#  Base Pair Helical Parameters" << endl;
     vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance <xdisp> s(xdisp) <ydisp> s(ydisp) <hrise> s(hrise)  <incl> s(incl)  <tip>   s(tip) <htwist> s(htwist)" << endl;
     vout << "#   1      2      3      4      5       6        7        8        9       10      11       12      13       14      15      16      17      18        19   " << endl;
     vout << "#------ ------ ------ ------ ------ -------- --------- ------- -------- ------- -------- ------- -------- ------- ------- ------- ------- -------- ---------" << endl;
 
-    std::map<CNABPStepID,CNALocalBPHelStatPtr>::iterator  it = LocalBPHelStat.begin();
-    std::map<CNABPStepID,CNALocalBPHelStatPtr>::iterator  ie = LocalBPHelStat.end();
+    std::map<CNABPStepID,CNABPHelStatPtr>::iterator  it = BPHelStat.begin();
+    std::map<CNABPStepID,CNABPHelStatPtr>::iterator  ie = BPHelStat.end();
 
     int i = 1;
     while( it != ie ){
         CNABPStepID  bpstep_id = it->first;
-        CNALocalBPHelStatPtr bphel_stat = it->second;
+        CNABPHelStatPtr bphel_stat = it->second;
         // index
         vout << right << setw(7) << i << " ";
         // ResIDA ResIDB ResIDC ResIDD  BPStep
@@ -357,20 +358,20 @@ void QNAStat::RegisterBPData(Qx3DNA* p_data)
     if( p_data == NULL ) return;    // no valid input
 
 // local bp parameters
-    std::vector<CNALocalBPPar>::iterator  it = p_data->LocalBPPar.begin();
-    std::vector<CNALocalBPPar>::iterator  ie = p_data->LocalBPPar.end();
+    std::vector<CNABPPar>::iterator  it = p_data->BPPar.begin();
+    std::vector<CNABPPar>::iterator  ie = p_data->BPPar.end();
 
     while( it != ie ){
-        CNALocalBPPar local_bp = *it;
+        CNABPPar local_bp = *it;
         if( local_bp.Valid ){
             CNABPID bp_id(p_data->BPIDs[local_bp.ID]);
-            if (LocalBPStat.find(bp_id) == LocalBPStat.end() ){
+            if (BPStat.find(bp_id) == BPStat.end() ){
                 // new data
-                CNALocalBPStatPtr data(new CNALocalBPStat);
-                LocalBPStat[bp_id] = data;
+                CNABPStatPtr data(new CNABPStat);
+                BPStat[bp_id] = data;
             }
             BPIDs.insert(bp_id);
-            CNALocalBPStatPtr data = LocalBPStat[bp_id];
+            CNABPStatPtr data = BPStat[bp_id];
             if( data ){
                 data->RegisterData(local_bp);
             }
@@ -386,20 +387,20 @@ void QNAStat::RegisterBPStepData(Qx3DNA* p_data)
     if( p_data == NULL ) return;    // no valid input
 
 // local step parameters
-    std::vector<CNALocalBPStepPar>::iterator  it = p_data->LocalBPStepPar.begin();
-    std::vector<CNALocalBPStepPar>::iterator  ie = p_data->LocalBPStepPar.end();
+    std::vector<CNABPStepPar>::iterator  it = p_data->BPStepPar.begin();
+    std::vector<CNABPStepPar>::iterator  ie = p_data->BPStepPar.end();
 
     while( it != ie ){
-        CNALocalBPStepPar local_bpstep = *it;
+        CNABPStepPar local_bpstep = *it;
         if( local_bpstep.Valid ){
             CNABPStepID bpstep_id(p_data->BPStepIDs[local_bpstep.ID]);
-            if (LocalBPStepStat.find(bpstep_id) == LocalBPStepStat.end() ){
+            if (BPStepStat.find(bpstep_id) == BPStepStat.end() ){
                 // new data
-                CNALocalBPStepStatPtr data(new CNALocalBPStepStat);
-                LocalBPStepStat[bpstep_id] = data;
+                CNABPStepStatPtr data(new CNABPStepStat);
+                BPStepStat[bpstep_id] = data;
             }
             BPStepIDs.insert(bpstep_id);
-            CNALocalBPStepStatPtr data = LocalBPStepStat[bpstep_id];
+            CNABPStepStatPtr data = BPStepStat[bpstep_id];
             if( data ){
                 data->RegisterData(local_bpstep);
             }
@@ -415,20 +416,20 @@ void QNAStat::RegisterBPHelData(Qx3DNA* p_data)
     if( p_data == NULL ) return;    // no valid input
 
 // local helical parameters
-    std::vector<CNALocalBPHelPar>::iterator  it = p_data->LocalBPHelPar.begin();
-    std::vector<CNALocalBPHelPar>::iterator  ie = p_data->LocalBPHelPar.end();
+    std::vector<CNABPHelPar>::iterator  it = p_data->BPHelPar.begin();
+    std::vector<CNABPHelPar>::iterator  ie = p_data->BPHelPar.end();
 
     while( it != ie ){
-        CNALocalBPHelPar local_bphel = *it;
+        CNABPHelPar local_bphel = *it;
         if( local_bphel.Valid ){
             CNABPStepID bpstep_id(p_data->BPStepIDs[local_bphel.ID]);
-            if (LocalBPHelStat.find(bpstep_id) == LocalBPHelStat.end() ){
+            if (BPHelStat.find(bpstep_id) == BPHelStat.end() ){
                 // new data
-                CNALocalBPHelStatPtr data(new CNALocalBPHelStat);
-                LocalBPHelStat[bpstep_id] = data;
+                CNABPHelStatPtr data(new CNABPHelStat);
+                BPHelStat[bpstep_id] = data;
             }
             BPStepIDs.insert(bpstep_id);
-            CNALocalBPHelStatPtr data = LocalBPHelStat[bpstep_id];
+            CNABPHelStatPtr data = BPHelStat[bpstep_id];
             if( data ){
                 data->RegisterData(local_bphel);
             }

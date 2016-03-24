@@ -32,6 +32,11 @@
 
 //------------------------------------------------------------------------------
 
+// main registrator handler
+void RegisterAllCATsClasses(QScriptEngine& engine);
+
+//------------------------------------------------------------------------------
+
 /// expose internal methods
 
 class CATS_PACKAGE QCATs : public QObject, protected QScriptable, protected QCATsScriptable {

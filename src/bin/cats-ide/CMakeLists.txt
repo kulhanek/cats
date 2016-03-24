@@ -7,10 +7,13 @@ SET(CATS_IDE_SRC
         main.cpp
 	mainwindow.cpp
 	highlighter.cpp
+        resources.qrc
         )
 
 # final build ------------------------------------------------------------------
-ADD_EXECUTABLE(cats_ide_inter ${CATS_IDE_SRC} ${MOC_LIST})
+ADD_EXECUTABLE(cats_ide_inter ${CATS_IDE_SRC})
+ADD_DEPENDENCIES(cats_ide_inter cats_shared)
+
 QT5_USE_MODULES(cats_ide_inter Core Widgets Script ScriptTools)
 SET_TARGET_PROPERTIES(cats_ide_inter PROPERTIES
                         OUTPUT_NAME cats-ide
