@@ -33,7 +33,7 @@
 //------------------------------------------------------------------------------
 
 // main registrator handler
-void RegisterAllCATsClasses(QScriptEngine& engine);
+void CATS_PACKAGE RegisterAllCATsClasses(QScriptEngine& engine);
 
 //------------------------------------------------------------------------------
 

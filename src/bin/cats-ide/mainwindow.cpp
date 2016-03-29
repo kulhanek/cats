@@ -23,12 +23,6 @@ MainWindow::MainWindow(QWidget *parent)
     //setWindowTitle(tr("CATs"));
 }
 
-/*
-MainWindow::~MainWindow()
-{
-    delete ui;
-}*/
-
 void MainWindow::setupMenu()
 {
     connect(ui->action_Open, SIGNAL(triggered()), this, SLOT(loadFile()));
@@ -42,10 +36,7 @@ void MainWindow::setupMenu()
     connect(ui->actionSwitch_to_Debugger, SIGNAL(triggered()), this, SLOT(switchToDebugger()));
     connect(ui->tabWidget, SIGNAL(currentChanged(int)), this, SLOT(refreshTabs()));
 
-    connect(&st, SIGNAL(finished()), this, SLOT(printResults()));
-
-    //ui->tab_3->setVisible(0);
-    //ui->tab_4->setVisible(0);
+    connect(&st, SIGNAL(finished()), this, SLOT(deleteAuxFile()));
 }
 
 void MainWindow::setupEditor()
@@ -166,11 +157,40 @@ void MainWindow::runScript()
     output_content = "";
     ui->textBrowser->clear();
 
+    std::ofstream o("D:\\programy\\Git\\cats-build\\src\\projects\\cats\\2.0\\src\\bin\\cats-ide\\cats-output.txt");
+    o << std::endl;
+
+    // check if file changed
+    watcher = new QFileSystemWatcher(this);
+    watcher->addPath("D:\\programy\\Git\\cats-build\\src\\projects\\cats\\2.0\\src\\bin\\cats-ide\\cats-output.txt");
+    connect(watcher,SIGNAL(fileChanged(QString)),this, SLOT(HandleFileChange(QString)));
+
+
     st.setCode(ui->plainTextEdit->toPlainText());
 
     st.registerCATs();
 
     st.start();
+}
+
+void MainWindow::deleteAuxFile()
+{
+    if (st.getEngine()->hasUncaughtException())
+    {
+        int line = st.getEngine()->uncaughtExceptionLineNumber();
+        QString err = st.getResult().toString();
+        QString msg = QString("Error at line %1: %2").arg(line).arg(err);
+
+        ui->textBrowser->setPlainText(msg);
+
+        ui->tabWidget->setCurrentIndex(0);
+
+        console_content = msg;
+
+        refreshTabs();
+    }
+
+    std::remove("D:\\programy\\Git\\cats-build\\src\\projects\\cats\\2.0\\src\\bin\\cats-ide\\cats-output.txt");
 }
 
 void MainWindow::printResults()
@@ -274,6 +294,26 @@ void MainWindow::switchToDebugger()
     ui->stackedWidget->setCurrentIndex(ui->stackedWidget->count()-1);
     ui->actionSwitch_to_Editor->setChecked(false);
     ui->actionSwitch_to_Debugger->setChecked(true);
+}
+
+void MainWindow::HandleFileChange(QString change)
+{
+    QString fileName = "D:\\programy\\Git\\cats-build\\src\\projects\\cats\\2.0\\src\\bin\\cats-ide\\cats-output.txt";//QFileDialog::getOpenFileName(this, tr("Load File..."), QString::fromStdString(workingDir), tr("All Files (*.*)"));
+
+    QFile file(fileName);
+
+    if (!file.open(QIODevice::ReadOnly))
+        return;
+
+    QTextStream in(&file);
+
+    output_content = in.readAll();
+
+    ui->tabWidget->setCurrentIndex(1);
+
+    refreshTabs();
+
+    //ui->plainTextEdit->setPlainText(in.readAll());
 }
 
 void MainWindow::refreshTabs()
