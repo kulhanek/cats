@@ -8,6 +8,8 @@
 #include <QTextStream>
 #include <QFileDialog>
 #include <fstream>
+#include <iostream>
+#include <string>
 #include <QtScript/QtScript>
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptable>
@@ -50,7 +52,9 @@ public slots:
     void switchToEditor();
     void switchToDebugger();
     void refreshTabs();
+    void deleteAuxFile();
     void printResults();
+    void HandleFileChange(QString change);
     //QScriptValue printToWindow(QScriptContext *context, QScriptEngine *engine);
     //void about();
     //void newFile();
@@ -68,6 +72,9 @@ private:
     QString debugger_tools_content;
     QString stack_view_content;
     ScriptThread st;
+
+    QFile auxFile;
+    QFileSystemWatcher *watcher;
 
     QPlainTextEdit *editor;
     Highlighter *highlighter;
