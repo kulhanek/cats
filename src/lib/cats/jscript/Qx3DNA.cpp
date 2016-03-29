@@ -1020,11 +1020,11 @@ bool Qx3DNA::ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,
         while( it != ie ){
             if( it->second.ID == params.ID ){
                 params.ResIDA = it->second.ResIDA;
-                params.ResIDB = it->second.ResIDB;
+                params.ResIDD = it->second.ResIDB;
             }
             if( it->second.ID == params.ID + 1 ){
-                params.ResIDC = it->second.ResIDA;
-                params.ResIDD = it->second.ResIDB;
+                params.ResIDB = it->second.ResIDA;
+                params.ResIDC = it->second.ResIDB;
             }
             it++;
         }

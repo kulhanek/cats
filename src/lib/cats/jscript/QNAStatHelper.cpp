@@ -32,25 +32,35 @@ using namespace std;
 CNABPStat::CNABPStat(void)
 {
     NumOfSamples = 0;
+    RevertedCases = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNABPStat::RegisterData(const CNABPPar& data)
+void CNABPStat::RegisterData(const CNABPPar& data,bool flipped)
 {
     NumOfSamples++;
 
-    Sum.Shear += data.Shear;
+    double shear = data.Shear;
+    double buckle = data.Buckle;
+
+    if( flipped ){
+        shear *= -1.0;
+        buckle *= -1.0;
+        RevertedCases++;
+    }
+
+    Sum.Shear += shear;
     Sum.Stretch += data.Stretch;
     Sum.Stagger += data.Stagger;
-    Sum.Buckle += data.Buckle;
+    Sum.Buckle += buckle;
     Sum.Propeller += data.Propeller;
     Sum.Opening += data.Opening;
 
-    Sum2.Shear += data.Shear*data.Shear;
+    Sum2.Shear += shear*shear;
     Sum2.Stretch += data.Stretch*data.Stretch;
     Sum2.Stagger += data.Stagger*data.Stagger;
-    Sum2.Buckle += data.Buckle*data.Buckle;
+    Sum2.Buckle += buckle*buckle;
     Sum2.Propeller += data.Propeller*data.Propeller;
     Sum2.Opening += data.Opening*data.Opening;
 }
@@ -62,25 +72,35 @@ void CNABPStat::RegisterData(const CNABPPar& data)
 CNABPStepStat::CNABPStepStat(void)
 {
     NumOfSamples = 0;
+    RevertedCases = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNABPStepStat::RegisterData(const CNABPStepPar& data)
+void CNABPStepStat::RegisterData(const CNABPStepPar& data,bool flipped)
 {
     NumOfSamples++;
 
-    Sum.Shift += data.Shift;
+    double shift = data.Shift;
+    double tilt = data.Tilt;
+
+    if( flipped ){
+        shift *= -1.0;
+        tilt *= -1.0;
+        RevertedCases++;
+    }
+
+    Sum.Shift += shift;
     Sum.Slide += data.Slide;
     Sum.Rise += data.Rise;
-    Sum.Tilt += data.Tilt;
+    Sum.Tilt += tilt;
     Sum.Roll += data.Roll;
     Sum.Twist += data.Twist;
 
-    Sum2.Shift += data.Shift*data.Shift;
+    Sum2.Shift += shift*shift;
     Sum2.Slide += data.Slide*data.Slide;
     Sum2.Rise += data.Rise*data.Rise;
-    Sum2.Tilt += data.Tilt*data.Tilt;
+    Sum2.Tilt += tilt*tilt;
     Sum2.Roll += data.Roll*data.Roll;
     Sum2.Twist += data.Twist*data.Twist;
 }
@@ -92,26 +112,36 @@ void CNABPStepStat::RegisterData(const CNABPStepPar& data)
 CNABPHelStat::CNABPHelStat(void)
 {
     NumOfSamples = 0;
+    RevertedCases = 0;
 }
 
 //------------------------------------------------------------------------------
 
-void CNABPHelStat::RegisterData(const CNABPHelPar& data)
+void CNABPHelStat::RegisterData(const CNABPHelPar& data,bool flipped)
 {
     NumOfSamples++;
 
+    double ydisp = data.Ydisp;
+    double tip = data.Tip;
+
+    if( flipped ){
+        ydisp *= -1.0;
+        tip *= -1.0;
+        RevertedCases++;
+    }
+
     Sum.Xdisp += data.Xdisp;
-    Sum.Ydisp += data.Ydisp;
+    Sum.Ydisp += ydisp;
     Sum.Hrise += data.Hrise;
     Sum.Incl += data.Incl;
-    Sum.Tip += data.Tip;
+    Sum.Tip += tip;
     Sum.Htwist += data.Htwist;
 
     Sum2.Xdisp += data.Xdisp*data.Xdisp;
-    Sum2.Ydisp += data.Ydisp*data.Ydisp;
+    Sum2.Ydisp += ydisp*ydisp;
     Sum2.Hrise += data.Hrise*data.Hrise;
     Sum2.Incl += data.Incl*data.Incl;
-    Sum2.Tip += data.Tip*data.Tip;
+    Sum2.Tip += tip*tip;
     Sum2.Htwist += data.Htwist*data.Htwist;
 }
 
