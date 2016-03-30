@@ -35,10 +35,11 @@ public:
 
 public:
     int         NumOfSamples;
+    int         RevertedCases;
     CNABPPar    Sum;
     CNABPPar    Sum2;
 
-    void RegisterData(const CNABPPar& data);
+    void RegisterData(const CNABPPar& data,bool flipped=false);
 };
 
 //------------------------------------------------------------------------------
@@ -54,10 +55,11 @@ public:
 
 public:
     int             NumOfSamples;
+    int             RevertedCases;
     CNABPStepPar    Sum;
     CNABPStepPar    Sum2;
 
-    void RegisterData(const CNABPStepPar& data);
+    void RegisterData(const CNABPStepPar& data,bool flipped=false);
 };
 
 //------------------------------------------------------------------------------
@@ -73,10 +75,11 @@ public:
 
 public:
     int             NumOfSamples;
+    int             RevertedCases;
     CNABPHelPar     Sum;
     CNABPHelPar     Sum2;
 
-    void RegisterData(const CNABPHelPar& data);
+    void RegisterData(const CNABPHelPar& data,bool flipped=false);
 };
 
 //------------------------------------------------------------------------------
