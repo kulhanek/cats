@@ -12,7 +12,7 @@ class CJSEngineThread : public QThread
 {
 private:
     QString         JSCode;
-    QScriptEngine   JSEngine;
+    QScriptEngine   *JSEngine;
     QScriptValue    Result;
     virtual void run();
 public:

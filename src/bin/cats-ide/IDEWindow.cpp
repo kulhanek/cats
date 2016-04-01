@@ -12,6 +12,8 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 {
     JSEngineThread = new CJSEngineThread(this);
 
+    //JSEngineThread = 0;
+
     ui.setupUi(this);
     setupMenu();
     //setupHelpMenu();
@@ -198,7 +200,7 @@ while (!st.wait())
 }
 
 void CIDEWindow::deleteAuxFile()
-{
+{/*
     if (QCATsScriptable::CATsEngine->hasUncaughtException())
     {
         int line = QCATsScriptable::CATsEngine->uncaughtExceptionLineNumber();
@@ -217,7 +219,7 @@ void CIDEWindow::deleteAuxFile()
     QByteArray ba = auxFilePath.toLatin1();
     const char *c_str = ba.data();
 
-    std::remove(c_str);
+    std::remove(c_str);*/
 }
 
 void CIDEWindow::printResults()
