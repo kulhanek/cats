@@ -58,6 +58,14 @@ public slots:
     /// printResults(name[,options])
     QScriptValue printResults(void);
 
+    /// set detection of flipped helical axis
+    /// enableFlipHelAxis(set)
+    QScriptValue enableFlipHelAxis(void);
+
+    /// is flipped helical axis detected?
+    /// bool isFlipHelAxisEnabled()
+    QScriptValue isFlipHelAxisEnabled(void);
+
 private:
     /// clear all data
     void ClearAll(void);
@@ -72,13 +80,14 @@ private:
     void RegisterBPStepData(Qx3DNA* p_data);
     void RegisterBPHelData(Qx3DNA* p_data);
 
-    std::set<CNABPID>                           BPIDs;
-    std::set<CNABPStepID>                       BPStepIDs;
+    bool                                    FlipHelAxisEnabled;   // handle flipped axis cases
+    std::set<CNABPID>                       BPIDs;
+    std::set<CNABPStepID>                   BPStepIDs;
 
-    int                                         NumOfSnapshots;
-    std::map<CNABPID,CNABPStatPtr>         BPStat;
-    std::map<CNABPStepID,CNABPStepStatPtr> BPStepStat;
-    std::map<CNABPStepID,CNABPHelStatPtr>  BPHelStat;
+    int                                     NumOfSnapshots;
+    std::map<CNABPID,CNABPStatPtr>          BPStat;
+    std::map<CNABPStepID,CNABPStepStatPtr>  BPStepStat;
+    std::map<CNABPStepID,CNABPHelStatPtr>   BPHelStat;
 };
 
 

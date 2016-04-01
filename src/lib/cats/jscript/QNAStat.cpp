@@ -82,6 +82,7 @@ QNAStat::QNAStat(void)
     : QCATsScriptable("NAStat")
 {
     NumOfSnapshots = 0;
+    FlipHelAxisEnabled = true;
 }
 
 //==============================================================================
@@ -181,6 +182,53 @@ QScriptValue QNAStat::printResults(void)
     ofs.close();
 
     return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QNAStat::enableFlipHelAxis(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: NAStat::enableFlipHelAxis(set)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("set",1);
+    if( value.isError() ) return(value);
+
+    bool set;
+    value = GetArgAsBool("set","set",1,set);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    FlipHelAxisEnabled = set;
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QNAStat::isFlipHelAxisEnabled(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool NAStat::isFlipHelAxisEnabled()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(FlipHelAxisEnabled);
 }
 
 //==============================================================================
@@ -365,6 +413,10 @@ void QNAStat::RegisterBPData(Qx3DNA* p_data)
         CNABPPar local_bp = *it;
         if( local_bp.Valid ){
             CNABPID bp_id(p_data->BPIDs[local_bp.ID]);
+            bool flipped = false;
+            if( FlipHelAxisEnabled ){
+                flipped = bp_id.MakeCanonical();
+            }
             if (BPStat.find(bp_id) == BPStat.end() ){
                 // new data
                 CNABPStatPtr data(new CNABPStat);
@@ -373,7 +425,7 @@ void QNAStat::RegisterBPData(Qx3DNA* p_data)
             BPIDs.insert(bp_id);
             CNABPStatPtr data = BPStat[bp_id];
             if( data ){
-                data->RegisterData(local_bp);
+                data->RegisterData(local_bp,flipped);
             }
         }
         it++;
@@ -394,6 +446,10 @@ void QNAStat::RegisterBPStepData(Qx3DNA* p_data)
         CNABPStepPar local_bpstep = *it;
         if( local_bpstep.Valid ){
             CNABPStepID bpstep_id(p_data->BPStepIDs[local_bpstep.ID]);
+            bool flipped = false;
+            if( FlipHelAxisEnabled ){
+                flipped = bpstep_id.MakeCanonical();
+            }
             if (BPStepStat.find(bpstep_id) == BPStepStat.end() ){
                 // new data
                 CNABPStepStatPtr data(new CNABPStepStat);
@@ -402,7 +458,7 @@ void QNAStat::RegisterBPStepData(Qx3DNA* p_data)
             BPStepIDs.insert(bpstep_id);
             CNABPStepStatPtr data = BPStepStat[bpstep_id];
             if( data ){
-                data->RegisterData(local_bpstep);
+                data->RegisterData(local_bpstep,flipped);
             }
         }
         it++;
@@ -423,6 +479,10 @@ void QNAStat::RegisterBPHelData(Qx3DNA* p_data)
         CNABPHelPar local_bphel = *it;
         if( local_bphel.Valid ){
             CNABPStepID bpstep_id(p_data->BPStepIDs[local_bphel.ID]);
+            bool flipped = false;
+            if( FlipHelAxisEnabled ){
+                flipped = bpstep_id.MakeCanonical();
+            }
             if (BPHelStat.find(bpstep_id) == BPHelStat.end() ){
                 // new data
                 CNABPHelStatPtr data(new CNABPHelStat);
@@ -431,7 +491,7 @@ void QNAStat::RegisterBPHelData(Qx3DNA* p_data)
             BPStepIDs.insert(bpstep_id);
             CNABPHelStatPtr data = BPHelStat[bpstep_id];
             if( data ){
-                data->RegisterData(local_bphel);
+                data->RegisterData(local_bphel,flipped);
             }
         }
         it++;

@@ -90,11 +90,14 @@ public:
     // constructor
     CNABPID(void);
 
-public:
-    int         ID;         // counted from 0
-    std::string Name;       // (A-A)
-    int         ResIDA;     // local residue index - counted from 0
-    int         ResIDB;     // local residue index - counted from 0
+    // make ID canonical (e.g. ResIDA < ResIDB), return true if helical axis is flipped
+    bool MakeCanonical(void);   // e.g. ResIDA < ResIDB
+
+public: 
+    int         ID;                 // counted from 0
+    std::string Name;               // (A-A) -> (ResIDA-ResIDB)
+    int         ResIDA;             // local residue index - counted from 0
+    int         ResIDB;             // local residue index - counted from 0
 
     bool operator < (const CNABPID& bp_id) const;
 };
@@ -106,13 +109,16 @@ public:
     // constructor
     CNABPStepID(void);
 
+    // make ID canonical (e.g. ResIDA < ResIDD), return true if helical axis is flipped
+    bool MakeCanonical(void);
+
 public:
     int         ID;         // counted from 0
     int         ResIDA;     // local residue index - counted from 0
     int         ResIDB;     // local residue index - counted from 0
     int         ResIDC;     // local residue index - counted from 0
     int         ResIDD;     // local residue index - counted from 0
-    std::string Step;       // (AT/AT)
+    std::string Step;       // (AT/AT) -> (ResIDA.ResIDB/ResIDC.ResIDD)
 
     bool operator < (const CNABPStepID& bp_id) const;
 };

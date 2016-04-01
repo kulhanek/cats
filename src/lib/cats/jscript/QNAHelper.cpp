@@ -20,8 +20,17 @@
 // =============================================================================
 
 #include <QNAHelper.hpp>
+#include <algorithm>
+#include <vector>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/classification.hpp>
+
+//------------------------------------------------------------------------------
 
 using namespace std;
+using namespace boost;
+using namespace boost::algorithm;
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -84,6 +93,24 @@ CNABPID::CNABPID(void)
 
 //------------------------------------------------------------------------------
 
+bool CNABPID::MakeCanonical(void)
+{
+    if( ResIDA < ResIDB ) return(false); // already canonical
+
+    // revert order
+    int tmp = ResIDB;
+    ResIDB = ResIDA;
+    ResIDA = tmp;
+
+    // reverse string
+    std::reverse(Name.begin(), Name.end());
+
+    // helical axis is flipped
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
 bool CNABPID::operator < (const CNABPID& bp_id) const
 {
     if (ResIDA < bp_id.ResIDA)  return(true);
@@ -107,6 +134,31 @@ CNABPStepID::CNABPStepID(void)
     ResIDB = -1;
     ResIDC = -1;
     ResIDD = -1;
+}
+
+//------------------------------------------------------------------------------
+
+bool CNABPStepID::MakeCanonical(void)
+{
+    if( ResIDA < ResIDD ) return(false); // already canonical
+
+    // revert order
+    int tmp = ResIDA;
+    ResIDA = ResIDC;
+    ResIDC = tmp;
+
+    tmp = ResIDB;
+    ResIDB = ResIDD;
+    ResIDD = tmp;
+
+    // reverse string
+    vector<string> list;
+    split(list,Step,is_any_of("/"));
+    reverse(list.begin(), list.end());
+    Step = join(list,"/");
+
+    // helical axis is flipped
+    return(true);
 }
 
 //------------------------------------------------------------------------------
