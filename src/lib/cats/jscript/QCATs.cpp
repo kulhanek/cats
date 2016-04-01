@@ -79,6 +79,8 @@ QStringList QCATs::ScriptArguments;
 
 void RegisterAllCATsClasses(QScriptEngine& engine)
 {
+    QCATsScriptable::CATsEngine = &engine;
+
     // register objects --------------------------
     QCATs::Register(engine);
 

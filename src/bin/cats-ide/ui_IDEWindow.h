@@ -1,13 +1,13 @@
 /********************************************************************************
-** Form generated from reading UI file 'CATsProjectWindow.ui'
+** Form generated from reading UI file 'IDEWindow.ui'
 **
 ** Created by: Qt User Interface Compiler version 5.5.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
 
-#ifndef UI_MAINWINDOW_H
-#define UI_MAINWINDOW_H
+#ifndef UI_IDEWINDOW_H
+#define UI_IDEWINDOW_H
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
@@ -30,7 +30,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Ui_MainWindow
+class Ui_IDEWindow
 {
 public:
     QAction *action_Open;
@@ -50,7 +50,6 @@ public:
     QPlainTextEdit *plainTextEdit;
     QTabWidget *tabWidget;
     QWidget *tab;
-    QWidget *tab_2;
     QTextBrowser *textBrowser;
     QWidget *page_6;
     QGridLayout *gridLayout_6;
@@ -64,53 +63,53 @@ public:
     QStatusBar *statusBar;
     QToolBar *mainToolBar;
 
-    void setupUi(QMainWindow *MainWindow)
+    void setupUi(QMainWindow *IDEWindow)
     {
-        if (MainWindow->objectName().isEmpty())
-            MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(1126, 634);
+        if (IDEWindow->objectName().isEmpty())
+            IDEWindow->setObjectName(QStringLiteral("IDEWindow"));
+        IDEWindow->resize(1126, 634);
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(1);
         sizePolicy.setVerticalStretch(1);
-        sizePolicy.setHeightForWidth(MainWindow->sizePolicy().hasHeightForWidth());
-        MainWindow->setSizePolicy(sizePolicy);
-        action_Open = new QAction(MainWindow);
+        sizePolicy.setHeightForWidth(IDEWindow->sizePolicy().hasHeightForWidth());
+        IDEWindow->setSizePolicy(sizePolicy);
+        action_Open = new QAction(IDEWindow);
         action_Open->setObjectName(QStringLiteral("action_Open"));
-        action_Save_script = new QAction(MainWindow);
+        action_Save_script = new QAction(IDEWindow);
         action_Save_script->setObjectName(QStringLiteral("action_Save_script"));
-        action_Exit = new QAction(MainWindow);
+        action_Exit = new QAction(IDEWindow);
         action_Exit->setObjectName(QStringLiteral("action_Exit"));
-        actionSwitch_to_Editor = new QAction(MainWindow);
+        actionSwitch_to_Editor = new QAction(IDEWindow);
         actionSwitch_to_Editor->setObjectName(QStringLiteral("actionSwitch_to_Editor"));
         actionSwitch_to_Editor->setCheckable(true);
         actionSwitch_to_Editor->setChecked(true);
         QIcon icon;
         icon.addFile(QStringLiteral(":/icons/editor_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionSwitch_to_Editor->setIcon(icon);
-        actionSwitch_to_Debugger = new QAction(MainWindow);
+        actionSwitch_to_Debugger = new QAction(IDEWindow);
         actionSwitch_to_Debugger->setObjectName(QStringLiteral("actionSwitch_to_Debugger"));
         actionSwitch_to_Debugger->setCheckable(true);
         QIcon icon1;
         icon1.addFile(QStringLiteral(":/icons/debugger_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionSwitch_to_Debugger->setIcon(icon1);
-        actionChange_working_directory = new QAction(MainWindow);
+        actionChange_working_directory = new QAction(IDEWindow);
         actionChange_working_directory->setObjectName(QStringLiteral("actionChange_working_directory"));
         QIcon icon2;
         icon2.addFile(QStringLiteral(":/icons/working_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionChange_working_directory->setIcon(icon2);
-        actionRun_script = new QAction(MainWindow);
+        actionRun_script = new QAction(IDEWindow);
         actionRun_script->setObjectName(QStringLiteral("actionRun_script"));
         QIcon icon3;
         icon3.addFile(QStringLiteral(":/icons/run_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionRun_script->setIcon(icon3);
-        actionDebug = new QAction(MainWindow);
+        actionDebug = new QAction(IDEWindow);
         actionDebug->setObjectName(QStringLiteral("actionDebug"));
         QIcon icon4;
         icon4.addFile(QStringLiteral(":/icons/debug_icon.png"), QSize(), QIcon::Normal, QIcon::Off);
         actionDebug->setIcon(icon4);
-        actionSave_script_as = new QAction(MainWindow);
+        actionSave_script_as = new QAction(IDEWindow);
         actionSave_script_as->setObjectName(QStringLiteral("actionSave_script_as"));
-        centralWidget = new QWidget(MainWindow);
+        centralWidget = new QWidget(IDEWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         QSizePolicy sizePolicy1(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy1.setHorizontalStretch(1);
@@ -147,31 +146,24 @@ public:
 
         tabWidget = new QTabWidget(page_5);
         tabWidget->setObjectName(QStringLiteral("tabWidget"));
-        tab = new QWidget();
-        tab->setObjectName(QStringLiteral("tab"));
-        tabWidget->addTab(tab, QString());
-        plainTextEdit->raise();
-        tab_2 = new QWidget();
-        tab_2->setObjectName(QStringLiteral("tab_2"));
-        tabWidget->addTab(tab_2, QString());
-
-        gridLayout->addWidget(tabWidget, 1, 0, 1, 1);
-
-        textBrowser = new QTextBrowser(page_5);
-        textBrowser->setObjectName(QStringLiteral("textBrowser"));
         QSizePolicy sizePolicy3(QSizePolicy::Expanding, QSizePolicy::Expanding);
         sizePolicy3.setHorizontalStretch(2);
         sizePolicy3.setVerticalStretch(1);
+        sizePolicy3.setHeightForWidth(tabWidget->sizePolicy().hasHeightForWidth());
+        tabWidget->setSizePolicy(sizePolicy3);
+        tab = new QWidget();
+        tab->setObjectName(QStringLiteral("tab"));
+        tab->setEnabled(true);
+        textBrowser = new QTextBrowser(tab);
+        textBrowser->setObjectName(QStringLiteral("textBrowser"));
+        textBrowser->setGeometry(QRect(-20, -90, 1063, 277));
         sizePolicy3.setHeightForWidth(textBrowser->sizePolicy().hasHeightForWidth());
         textBrowser->setSizePolicy(sizePolicy3);
+        tabWidget->addTab(tab, QString());
 
-        gridLayout->addWidget(textBrowser, 2, 0, 1, 1);
+        gridLayout->addWidget(tabWidget, 1, 0, 1, 1);
 
         stackedWidget->addWidget(page_5);
-        tabWidget->raise();
-        plainTextEdit->raise();
-        tabWidget->raise();
-        textBrowser->raise();
         page_6 = new QWidget();
         page_6->setObjectName(QStringLiteral("page_6"));
         sizePolicy1.setHeightForWidth(page_6->sizePolicy().hasHeightForWidth());
@@ -195,8 +187,8 @@ public:
 
         verticalLayout->addWidget(stackedWidget);
 
-        MainWindow->setCentralWidget(centralWidget);
-        menuBar = new QMenuBar(MainWindow);
+        IDEWindow->setCentralWidget(centralWidget);
+        menuBar = new QMenuBar(IDEWindow);
         menuBar->setObjectName(QStringLiteral("menuBar"));
         menuBar->setGeometry(QRect(0, 0, 1126, 26));
         menu_File = new QMenu(menuBar);
@@ -209,13 +201,13 @@ public:
         menu_Setup->setObjectName(QStringLiteral("menu_Setup"));
         menu_Run = new QMenu(menuBar);
         menu_Run->setObjectName(QStringLiteral("menu_Run"));
-        MainWindow->setMenuBar(menuBar);
-        statusBar = new QStatusBar(MainWindow);
+        IDEWindow->setMenuBar(menuBar);
+        statusBar = new QStatusBar(IDEWindow);
         statusBar->setObjectName(QStringLiteral("statusBar"));
-        MainWindow->setStatusBar(statusBar);
-        mainToolBar = new QToolBar(MainWindow);
+        IDEWindow->setStatusBar(statusBar);
+        mainToolBar = new QToolBar(IDEWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
-        MainWindow->addToolBar(Qt::LeftToolBarArea, mainToolBar);
+        IDEWindow->addToolBar(Qt::LeftToolBarArea, mainToolBar);
 
         menuBar->addAction(menu_File->menuAction());
         menuBar->addAction(menu_View->menuAction());
@@ -238,51 +230,50 @@ public:
         mainToolBar->addAction(actionRun_script);
         mainToolBar->addAction(actionDebug);
 
-        retranslateUi(MainWindow);
+        retranslateUi(IDEWindow);
 
         stackedWidget->setCurrentIndex(0);
-        tabWidget->setCurrentIndex(1);
+        tabWidget->setCurrentIndex(0);
 
 
-        QMetaObject::connectSlotsByName(MainWindow);
+        QMetaObject::connectSlotsByName(IDEWindow);
     } // setupUi
 
-    void retranslateUi(QMainWindow *MainWindow)
+    void retranslateUi(QMainWindow *IDEWindow)
     {
-        MainWindow->setWindowTitle(QApplication::translate("MainWindow", "MainWindow", 0));
-        action_Open->setText(QApplication::translate("MainWindow", "&Load script...", 0));
-        action_Save_script->setText(QApplication::translate("MainWindow", "&Save script...", 0));
-        action_Save_script->setShortcut(QApplication::translate("MainWindow", "Ctrl+S", 0));
-        action_Exit->setText(QApplication::translate("MainWindow", "&Exit", 0));
-        actionSwitch_to_Editor->setText(QApplication::translate("MainWindow", "Editor", 0));
+        IDEWindow->setWindowTitle(QApplication::translate("IDEWindow", "MainWindow", 0));
+        action_Open->setText(QApplication::translate("IDEWindow", "&Load script...", 0));
+        action_Save_script->setText(QApplication::translate("IDEWindow", "&Save script...", 0));
+        action_Save_script->setShortcut(QApplication::translate("IDEWindow", "Ctrl+S", 0));
+        action_Exit->setText(QApplication::translate("IDEWindow", "&Exit", 0));
+        actionSwitch_to_Editor->setText(QApplication::translate("IDEWindow", "Editor", 0));
 #ifndef QT_NO_TOOLTIP
-        actionSwitch_to_Editor->setToolTip(QApplication::translate("MainWindow", "Switch to Editor", 0));
+        actionSwitch_to_Editor->setToolTip(QApplication::translate("IDEWindow", "Switch to Editor", 0));
 #endif // QT_NO_TOOLTIP
-        actionSwitch_to_Debugger->setText(QApplication::translate("MainWindow", "Debugger", 0));
+        actionSwitch_to_Debugger->setText(QApplication::translate("IDEWindow", "Debugger", 0));
 #ifndef QT_NO_TOOLTIP
-        actionSwitch_to_Debugger->setToolTip(QApplication::translate("MainWindow", "Switch to Debugger", 0));
+        actionSwitch_to_Debugger->setToolTip(QApplication::translate("IDEWindow", "Switch to Debugger", 0));
 #endif // QT_NO_TOOLTIP
-        actionChange_working_directory->setText(QApplication::translate("MainWindow", "Change working directory...", 0));
-        actionRun_script->setText(QApplication::translate("MainWindow", "Run", 0));
-        actionRun_script->setShortcut(QApplication::translate("MainWindow", "Ctrl+R", 0));
-        actionDebug->setText(QApplication::translate("MainWindow", "Debug", 0));
-        actionSave_script_as->setText(QApplication::translate("MainWindow", "Save script as...", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("MainWindow", "Console", 0));
-        tabWidget->setTabText(tabWidget->indexOf(tab_2), QApplication::translate("MainWindow", "Output", 0));
-        label->setText(QApplication::translate("MainWindow", "No debugger has been launched yet.", 0));
-        menu_File->setTitle(QApplication::translate("MainWindow", "&File", 0));
-        menu_About->setTitle(QApplication::translate("MainWindow", "&About", 0));
-        menu_View->setTitle(QApplication::translate("MainWindow", "&View", 0));
-        menu_Setup->setTitle(QApplication::translate("MainWindow", "&Settings", 0));
-        menu_Run->setTitle(QApplication::translate("MainWindow", "&Run", 0));
+        actionChange_working_directory->setText(QApplication::translate("IDEWindow", "Change working directory...", 0));
+        actionRun_script->setText(QApplication::translate("IDEWindow", "Run", 0));
+        actionRun_script->setShortcut(QApplication::translate("IDEWindow", "Ctrl+R", 0));
+        actionDebug->setText(QApplication::translate("IDEWindow", "Debug", 0));
+        actionSave_script_as->setText(QApplication::translate("IDEWindow", "Save script as...", 0));
+        tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("IDEWindow", "Output", 0));
+        label->setText(QApplication::translate("IDEWindow", "No debugger has been launched yet.", 0));
+        menu_File->setTitle(QApplication::translate("IDEWindow", "&File", 0));
+        menu_About->setTitle(QApplication::translate("IDEWindow", "&About", 0));
+        menu_View->setTitle(QApplication::translate("IDEWindow", "&View", 0));
+        menu_Setup->setTitle(QApplication::translate("IDEWindow", "&Settings", 0));
+        menu_Run->setTitle(QApplication::translate("IDEWindow", "&Run", 0));
     } // retranslateUi
 
 };
 
 namespace Ui {
-    class MainWindow: public Ui_MainWindow {};
+    class IDEWindow: public Ui_IDEWindow {};
 } // namespace Ui
 
 QT_END_NAMESPACE
 
-#endif // UI_MAINWINDOW_H
+#endif // UI_IDEWINDOW_H
