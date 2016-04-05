@@ -5,12 +5,16 @@
 # program objects --------------------------------------------------------------
 SET(CATS_IDE_SRC
         main.cpp
-	mainwindow.cpp
-	highlighter.cpp
+	IDEWindow.cpp
+	SyntaxHighlighter.cpp
+	JSEngineThread.cpp
+	StdoutWatcher.cpp
         resources.qrc
         )
 
 # final build ------------------------------------------------------------------
+QT5_WRAP_UI(CATS_IDE_SRC IDEWindow.ui)
+
 ADD_EXECUTABLE(cats_ide_inter ${CATS_IDE_SRC})
 ADD_DEPENDENCIES(cats_ide_inter cats_shared)
 

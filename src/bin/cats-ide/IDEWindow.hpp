@@ -1,5 +1,5 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#ifndef IDEWINDOW_HPP
+#define IDEWINDOW_HPP
 
 #include <QMainWindow>
 #include <QPlainTextEdit>
@@ -7,6 +7,7 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileDialog>
+#include <QDir>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -14,31 +15,17 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptable>
 #include <unistd.h>
-#include "highlighter.h"
-#include "q_debugstream.h"
-#include "scriptthread.hpp"
+#include "SyntaxHighlighter.hpp"
+#include "StdoutWatcher.hpp"
+#include "JSEngineThread.hpp"
+#include "ui_IDEWindow.h"
 
-namespace Ui {
-class MainWindow;
-}
-/*
-class MainWindow : public QMainWindow
+class CIDEWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    explicit MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-private:
-    Ui::MainWindow *ui;
-};*/
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
-
-public:
-    MainWindow(QWidget *parent = 0);
+    CIDEWindow(QWidget *parent = 0);
 
 public slots:
     void loadFile();
@@ -55,6 +42,7 @@ public slots:
     void deleteAuxFile();
     void printResults();
     void HandleFileChange(QString change);
+    //void Test();
     //QScriptValue printToWindow(QScriptContext *context, QScriptEngine *engine);
     //void about();
     //void newFile();
@@ -64,20 +52,22 @@ private:
     void setupEditor();
     void setupMenu();
     //void setupHelpMenu();
-    Ui::MainWindow *ui;
+    Ui::IDEWindow ui;
     std::string workingDir;
     std::string currentFile;
     QString console_content;
     QString output_content;
     QString debugger_tools_content;
     QString stack_view_content;
-    ScriptThread st;
+    CJSEngineThread *JSEngineThread;
 
-    QFile auxFile;
+    QString auxFilePath;
+    QTextStream auxFileStream;
+    QFile *auxFile;
     QFileSystemWatcher *watcher;
 
     QPlainTextEdit *editor;
-    Highlighter *highlighter;
+    CSyntaxHighlighter *highlighter;
 };
 
-#endif // MAINWINDOW_H
+#endif // IDEWINDOW_HPP

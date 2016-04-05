@@ -1,6 +1,6 @@
-#include "highlighter.h"
+#include "SyntaxHighlighter.hpp"
 
-Highlighter::Highlighter(QTextDocument *parent)
+CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
     : QSyntaxHighlighter(parent)
 {
     HighlightingRule rule;
@@ -64,7 +64,7 @@ Highlighter::Highlighter(QTextDocument *parent)
 }
 
 
-void Highlighter::highlightBlock(const QString &text)
+void CSyntaxHighlighter::highlightBlock(const QString &text)
 {
     foreach (const HighlightingRule &rule, highlightingRules) {
         QRegExp expression(rule.pattern);

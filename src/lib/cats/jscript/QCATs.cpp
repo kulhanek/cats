@@ -82,7 +82,7 @@ void RegisterAllCATsClasses(QScriptEngine& engine)
 {
     // register engine for QCATsScriptable
     QCATsScriptable::CATsEngine = &engine;
-    
+
     // register objects --------------------------
     QCATs::Register(engine);
 

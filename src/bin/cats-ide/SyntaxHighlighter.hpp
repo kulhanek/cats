@@ -1,14 +1,14 @@
-#ifndef HIGHLIGHTER_H
-#define HIGHLIGHTER_H
+#ifndef SYNTAXHIGHLIGHTER_HPP
+#define SYNTAXHIGHLIGHTER_HPP
 
 #include <QSyntaxHighlighter>
 
-class Highlighter : public QSyntaxHighlighter
+class CSyntaxHighlighter : public QSyntaxHighlighter
 {
     Q_OBJECT
 
 public:
-    Highlighter(QTextDocument *parent = 0);
+    CSyntaxHighlighter(QTextDocument *parent = 0);
 
 protected:
     void highlightBlock(const QString &text) Q_DECL_OVERRIDE;
@@ -32,4 +32,4 @@ private:
     QTextCharFormat functionFormat;
 };
 
-#endif // HIGHLIGHTER_H
+#endif // SYNTAXHIGHLIGHTER_HPP
