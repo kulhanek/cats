@@ -26,6 +26,8 @@
 #include <QSnapshot.hpp>
 #include <TerminalStr.hpp>
 #include <PMFCATsDriver.hpp>
+#include <QTemporaryFile>
+#include <QTextStream>
 
 using namespace std;
 
@@ -61,7 +63,7 @@ QScriptValue QPMFLib::init(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool init(snapshot,ctrlname)" << endl;
+        sout << "usage: bool PMFLib::init(snapshot,ctrlname)" << endl;
         return(false);
     }
 
@@ -133,6 +135,95 @@ QScriptValue QPMFLib::init(void)
 
 //------------------------------------------------------------------------------
 
+QScriptValue QPMFLib::initByString(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool PMFLib::initByString(snapshot,ctrlstring)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("snapshot,ctrlstring",2);
+    if( value.isError() ) return(value);
+
+    QSnapshot* p_snap;
+    value = GetArgAsObject<QSnapshot*>("snapshot,ctrlstring","snapshot","Snapshot",1,p_snap);
+    if( value.isError() ) return(value);
+
+    QString ctrlstring;
+    value = GetArgAsString("snapshot,ctrlstring","ctrlstring",2,ctrlstring);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    if( Initialized ){
+        return( ThrowError("snapshot,ctrlstring","already initialized") );
+    }
+
+    if( p_snap->Restart.GetNumberOfAtoms() == 0 ){
+        return( ThrowError("snapshot,ctrlstring","no atoms in snapshot") );
+    }
+
+    CAmberTopology* p_top = p_snap->Restart.GetTopology();
+    int box_type = 0;
+    switch(p_top->BoxInfo.GetType()){
+        case AMBER_BOX_NONE: box_type = 0;
+            break;
+        case AMBER_BOX_STANDARD: box_type = 1;
+            break;
+        case AMBER_BOX_OCTAHEDRAL: box_type = 2;
+            break;
+    }
+
+    CPoint bdimm =  p_snap->Restart.GetBox();
+    CPoint angles =  p_snap->Restart.GetAngles();
+    
+// create control file with control data
+    QTemporaryFile ctrlfile;
+    if ( ! ctrlfile.open() ) {
+        return( ThrowError("snapshot,ctrlstring","unable to create a temporary file with control data") );
+    }  
+    QTextStream dstr(&ctrlfile);
+    dstr << ctrlstring << endl;
+    dstr << flush;
+    ctrlfile.flush();
+    
+    CPMFCATsDriver::BeginInit(ctrlfile.fileName(),p_top->AtomList.GetNumberOfAtoms(),p_top->ResidueList.GetNumberOfResidues(),
+                           box_type,bdimm.x,bdimm.y,bdimm.z,angles.x,angles.y,angles.z);
+
+    for(int i=0; i < p_top->ResidueList.GetNumberOfResidues(); i++){
+        CAmberResidue* p_res = p_top->ResidueList.GetResidue(i);
+        CPMFCATsDriver::SetResidue(i,p_res->GetName(),p_res->GetFirstAtomIndex());
+    }
+
+    std::vector<double> masses;
+    std::vector<double> xyz;
+
+    masses.reserve(p_top->AtomList.GetNumberOfAtoms());
+    xyz.reserve(p_top->AtomList.GetNumberOfAtoms()*3);
+
+    for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++){
+        CAmberAtom* p_atm = p_top->AtomList.GetAtom(i);
+        CPMFCATsDriver::SetAtom(i,p_atm->GetName(),p_atm->GetType());
+        masses.push_back(p_snap->Restart.GetMass(i));
+        CPoint pos = p_snap->Restart.GetPosition(i);
+        xyz.push_back(pos.x);
+        xyz.push_back(pos.y);
+        xyz.push_back(pos.z);
+    }
+
+    CPMFCATsDriver::EndInit(p_top->AtomList.GetNumberOfAtoms(),masses,xyz);
+
+    Initialized = true;
+
+    return( value );
+}
+
+//------------------------------------------------------------------------------
+
 QScriptValue QPMFLib::setCoordinates(void)
 {
     QScriptValue value;
@@ -140,7 +231,7 @@ QScriptValue QPMFLib::setCoordinates(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: setCoordinates(snapshot)" << endl;
+        sout << "usage: PMFLib::setCoordinates(snapshot)" << endl;
         return(false);
     }
 
@@ -173,7 +264,7 @@ QScriptValue QPMFLib::getNumOfCVs(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: int getNumOfCVs()" << endl;
+        sout << "usage: int PMFLib::getNumOfCVs()" << endl;
         return(false);
     }
 
@@ -195,7 +286,7 @@ QScriptValue QPMFLib::getCVValue(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: double getCVValue(name/index)" << endl;
+        sout << "usage: double PMFLib::getCVValue(name/index)" << endl;
         return(false);
     }
 
@@ -239,7 +330,7 @@ QScriptValue QPMFLib::getCVName(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: string getCVName(index)" << endl;
+        sout << "usage: string PMFLib::getCVName(index)" << endl;
         return(false);
     }
 
@@ -269,7 +360,7 @@ QScriptValue QPMFLib::getCVType(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: string getCVType(name/index)" << endl;
+        sout << "usage: string PMFLib::getCVType(name/index)" << endl;
         return(false);
     }
 

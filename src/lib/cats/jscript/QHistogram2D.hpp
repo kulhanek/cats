@@ -1,9 +1,10 @@
-#ifndef QPMFLibH
-#define QPMFLibH
+#ifndef QHistogram2DH
+#define QHistogram2DH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+//    Copyright (C) 2016 Viktor Illík
+//    Copyright (C) 2012 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -25,61 +26,39 @@
 #include <QScriptValue>
 #include <QScriptContext>
 #include <QScriptable>
-#include <AmberRestart.hpp>
+#include <vector>
+#include <iostream>
 #include <QCATsScriptable.hpp>
 
 //------------------------------------------------------------------------------
 
-class QTopology;
-class QSnapshot;
+/// histogram analysis
 
-//------------------------------------------------------------------------------
-
-/// PMFLib bridge - only one instance
-
-class CATS_PACKAGE QPMFLib : public QObject, protected QScriptable, protected QCATsScriptable {
-    Q_OBJECT
+class CATS_PACKAGE QHistogram2D : public QObject, protected QScriptable, protected QCATsScriptable {
+Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
-    QPMFLib(void);
+    QHistogram2D(void);
+    static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
-    static void SetScriptArgument(const QString& arg);
+
+// properties ------------------------------------------------------------------
+
 
 // methods ---------------------------------------------------------------------
 public slots:
-    /// load PMFLib control file
-    /// bool init(snapshot,ctrlname)
-    QScriptValue init(void);
-    
-    /// load PMFLib control from string
-    /// bool init(snapshot,ctrlstr)
-    QScriptValue initByString(void);    
 
-    /// set coordinates
-    /// void setCoordinates(snapshot)
-    QScriptValue setCoordinates(void);
 
-    /// get number of CVs
-    /// int getNumOfCVs();
-    QScriptValue getNumOfCVs(void);
+// manipulation methods --------------------------------------------------------
+public:
 
-    /// get CV value
-    /// double getCVValue(name/index);
-    QScriptValue getCVValue(void);
-
-    /// get CV name
-    /// double getCVName(index);
-    QScriptValue getCVName(void);
-
-    /// get CV type
-    /// double getCVType(name/index);
-    QScriptValue getCVType(void);
 
 // section of private data -----------------------------------------------------
 private:
-    bool    Initialized;
+
 };
 
 //------------------------------------------------------------------------------
 
 #endif
+

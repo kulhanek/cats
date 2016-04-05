@@ -56,6 +56,7 @@
 #include <QLinStat.hpp>
 #include <QMinMax.hpp>
 #include <QHistogram.hpp>
+#include <QHistogram2D.hpp>
 #include <QVolumeData.hpp>
 #include <QThermoIG.hpp>
 #include <Qx3DNA.hpp>
@@ -79,6 +80,9 @@ QStringList QCATs::ScriptArguments;
 
 void RegisterAllCATsClasses(QScriptEngine& engine)
 {
+    // register engine for QCATsScriptable
+    QCATsScriptable::CATsEngine = &engine;
+    
     // register objects --------------------------
     QCATs::Register(engine);
 
@@ -111,6 +115,7 @@ void RegisterAllCATsClasses(QScriptEngine& engine)
     QLinStat::Register(engine);
     QMinMax::Register(engine);
     QHistogram::Register(engine);
+    QHistogram2D::Register(engine);
     QVolumeData::Register(engine);
     QThermoIG::Register(engine);
     Qx3DNA::Register(engine);

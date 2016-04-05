@@ -57,6 +57,7 @@ SET(CATS_JSCRIPT_SRC
         jscript/QLinStat.cpp
         jscript/QMinMax.cpp
         jscript/QHistogram.cpp
+        jscript/QHistogram2D.cpp
         jscript/QVolumeData.cpp
         jscript/QThermoIG.cpp
         jscript/QNAHelper.cpp

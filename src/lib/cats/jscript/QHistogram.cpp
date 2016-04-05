@@ -92,8 +92,6 @@ QScriptValue QHistogram::New(QScriptContext *context,QScriptEngine *engine)
         p_hist->MinValue = p_src->MinValue;
         p_hist->MaxValue = p_src->MaxValue;
         p_hist->NBins = p_src->NBins;
-        p_hist->NumOfSamples = p_src->NumOfSamples;
-        p_hist->NumOfSamplesWithin = p_src->NumOfSamplesWithin;
         p_hist->allocateInternal();
     }
 
