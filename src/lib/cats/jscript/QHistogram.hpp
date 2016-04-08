@@ -110,6 +110,10 @@ public slots:
     /// calculate integral within interval from;to rounded to given bins
     /// double getIntegral(from,to)
     QScriptValue getIntegral(void);
+    
+    /// return max value of occupancy
+    /// double getMaxOccupancy()
+    QScriptValue getMaxOccupancy(void);    
 
 // i/o methods -----------------------------------------------------------------
     /// save histogram

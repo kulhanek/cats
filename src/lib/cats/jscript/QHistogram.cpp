@@ -670,6 +670,35 @@ QScriptValue QHistogram::getIntegral(void)
     return(intval);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram::getMaxOccupancy(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getMaxOccupancy()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+
+// execute ---------------------------------------
+    double maxoccu = 0;
+    for(size_t i=0; i <= Histogram.size(); i++){
+        if( maxoccu < Histogram[i] ){
+            maxoccu = Histogram[i];
+        }
+    }
+
+    return(maxoccu);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
