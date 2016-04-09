@@ -75,8 +75,16 @@ public slots:
     QScriptValue initSpline(void);
     
     /// init spline from atom coordinates
-    /// bool initSplineFromAtoms(snapshot[,selection])    
-    QScriptValue initSplineFromAtoms(void);    
+    /// void initSplineFromAtoms(snapshot[,selection])
+    QScriptValue initSplineFromAtoms(void);
+
+    /// init spline from 3DNA BP origins
+    /// void initSplineFrom3DNABPOrigins(x3dna)
+    QScriptValue initSplineFrom3DNABPOrigins(void);
+
+    /// init spline from 3DNA helical axis
+    /// void initSplineFrom3DNAHelAxis(x3dna)
+    QScriptValue initSplineFrom3DNAHelAxis(void);
     
     /// set control point
     /// bool setCtrlPointValue(index,value,dim)
@@ -87,8 +95,12 @@ public slots:
     QScriptValue getNumOfCtrlPoints(void);      
         
     /// write geometry of curve
-    /// bool writeXYZ(name[,density[,symbol]])
+    /// writeXYZ(name[,density[,symbol]])
     QScriptValue writeXYZ(void);
+
+    /// write curvature of curve
+    /// writeCurvature(name[,density])
+    QScriptValue writeCurvature(void);
     
 // access methods --------------------------------------------------------------
 public:   

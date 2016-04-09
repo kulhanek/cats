@@ -25,12 +25,15 @@
 #include <QSnapshot.hpp>
 #include <QTopology.hpp>
 #include <QSelection.hpp>
+#include <Qx3DNA.hpp>
 #include <fstream>
+#include <boost/format.hpp>
 
 //------------------------------------------------------------------------------
 
 #include <QCurve.moc>
 using namespace std;
+using boost::format;
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -333,6 +336,7 @@ QScriptValue QCurve::initSplineFromAtoms(void)
     ts_bspline_free(&TSpline);     
     
     if( GetArgumentCount() == 1 ){
+
         int nctrlpts = p_snap->Restart.GetNumberOfAtoms();
         tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
         if( retcode != TS_SUCCESS ){
@@ -366,9 +370,15 @@ QScriptValue QCurve::initSplineFromAtoms(void)
             error << "inconsistent number of atoms, selection topology (" << p_sel->Mask.GetNumberOfTopologyAtoms() << "), source (" << p_snap->Restart.GetNumberOfAtoms() << ")";
             return(ThrowError("snapshot,selection",error));
         }  
+
+        int nctrlpts = p_sel->Mask.GetNumberOfSelectedAtoms();
+        tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
+        if( retcode != TS_SUCCESS ){
+            return(ThrowError("snapshot[,selection]","unable to init spline"));
+        }
         
         CAmberRestart* p_src = &p_snap->Restart;
-        for(int i=0; i < p_sel->Mask.GetNumberOfTopologyAtoms(); i++ ){
+        for(int i=0; i < p_sel->Mask.GetNumberOfSelectedAtoms(); i++ ){
             int j = p_sel->Mask.GetSelectedAtomCondensed(i)->GetAtomIndex();
             CPoint pos = p_src->GetPosition(j);
             int lindex;
@@ -386,6 +396,114 @@ QScriptValue QCurve::initSplineFromAtoms(void)
         
         return(value);
     }
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCurve::initSplineFrom3DNABPOrigins(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Curve::initSplineFrom3DNABPOrigins(x3dna)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("x3dna",1);
+    if( value.isError() ) return(value);
+
+    Qx3DNA* p_x3dna;
+    GetArgAsObject("x3dna","x3dna","x3DNA",1,p_x3dna);
+    if( value.isError() ) return(value);
+
+    if( ! ((Dimension == 3) || (Dimension == 4)) ){
+        return(ThrowError("x3dna","spline dimension must be either 3 or 4"));
+    }
+
+// execute ---------------------------------------
+    ts_bspline_free(&SSpline);
+    ts_bspline_free(&DSpline);
+    ts_bspline_free(&TSpline);
+
+    int nctrlpts = p_x3dna->BPOrigins.size();
+    tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
+    if( retcode != TS_SUCCESS ){
+        return(ThrowError("x3dna","unable to init spline"));
+    }
+
+    for(int i = 0; i < nctrlpts; i++){
+        CPoint pos = p_x3dna->BPOrigins[i];
+        int lindex;
+        lindex = i * SSpline.dim + 0;
+        SSpline.ctrlp[lindex] = pos.x;
+        lindex = i * SSpline.dim + 1;
+        SSpline.ctrlp[lindex] = pos.y;
+        lindex = i * SSpline.dim + 2;
+        SSpline.ctrlp[lindex] = pos.z;
+        if( SSpline.dim == 4 ){
+            lindex = i * SSpline.dim + 3;
+            SSpline.ctrlp[lindex] = 1.0;
+        }
+    }
+
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCurve::initSplineFrom3DNAHelAxis(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Curve::initSplineFrom3DNAHelAxis(x3dna)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("x3dna",1);
+    if( value.isError() ) return(value);
+
+    Qx3DNA* p_x3dna;
+    GetArgAsObject("x3dna","x3dna","x3DNA",1,p_x3dna);
+    if( value.isError() ) return(value);
+
+    if( ! ((Dimension == 3) || (Dimension == 4)) ){
+        return(ThrowError("x3dna","spline dimension must be either 3 or 4"));
+    }
+
+// execute ---------------------------------------
+    ts_bspline_free(&SSpline);
+    ts_bspline_free(&DSpline);
+    ts_bspline_free(&TSpline);
+
+    int nctrlpts = p_x3dna->HelAxisPositions.size();
+    tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
+    if( retcode != TS_SUCCESS ){
+        return(ThrowError("x3dna","unable to init spline"));
+    }
+
+    for(int i = 0; i < nctrlpts; i++){
+        CPoint pos = p_x3dna->HelAxisPositions[i];
+        int lindex;
+        lindex = i * SSpline.dim + 0;
+        SSpline.ctrlp[lindex] = pos.x;
+        lindex = i * SSpline.dim + 1;
+        SSpline.ctrlp[lindex] = pos.y;
+        lindex = i * SSpline.dim + 2;
+        SSpline.ctrlp[lindex] = pos.z;
+        if( SSpline.dim == 4 ){
+            lindex = i * SSpline.dim + 3;
+            SSpline.ctrlp[lindex] = 1.0;
+        }
+    }
+
+    return(value);
 }
 
 //------------------------------------------------------------------------------
@@ -470,14 +588,14 @@ QScriptValue QCurve::writeXYZ(void)
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("index,value,dim",1,3);
+    value = CheckNumberOfArguments("name[,density[,symbol]]",1,3);
     if( value.isError() ) return(value);
 
     QString name;
-    value = GetArgAsString("name[,density[,symbol]]","type",1,name);
+    value = GetArgAsString("name[,density[,symbol]]","name",1,name);
     if( value.isError() ) return(value); 
     
-    int density = 100;
+    int density = 200;
     if( GetArgumentCount() > 1 ){
         value = GetArgAsInt("name,density[,symbol]","density",2,density);
         if( value.isError() ) return(value);
@@ -486,7 +604,7 @@ QScriptValue QCurve::writeXYZ(void)
         return(ThrowError("name[,density[,symbol]]","density must be larger than 0"));
     }
     
-    QString symbol("H");
+    QString symbol("O");
     if( GetArgumentCount() > 2 ){    
         value = GetArgAsString("name,density,symbol","symbol",3,symbol);
         if( value.isError() ) return(value);
@@ -506,17 +624,103 @@ QScriptValue QCurve::writeXYZ(void)
     ofs << "curve" << endl;
 
     for(int i=0; i <= density; i++){
-        ofs << symbol.toStdString() << " ";
         double u = (double)i/((double)density);
         tsDeBoorNet net;
         ts_bspline_evaluate(&SSpline, u, &net);
-        ofs << net.result[0] << " " << net.result[1] << " " << net.result[2] << endl;
+        ofs << format("%2s %14.3f %14.3f %14.3f\n")%symbol.toStdString()%net.result[0]%net.result[1]%net.result[2];
         ts_deboornet_free(&net);
     }
     
     ofs.close();
     
     return(value);    
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCurve::writeCurvature(void)
+{
+        QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Curve::writeCurvature(name[,density])" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("name[,density]",1,2);
+    if( value.isError() ) return(value);
+
+    QString name;
+    value = GetArgAsString("name[,density]","name",1,name);
+    if( value.isError() ) return(value);
+
+    int density = 200;
+    if( GetArgumentCount() > 1 ){
+        value = GetArgAsInt("name[,density]","density",2,density);
+        if( value.isError() ) return(value);
+    }
+    if( density <= 0 ){
+        return(ThrowError("name[,density]","density must be larger than 0"));
+    }
+
+    if( ! ((SSpline.dim == 2) || (SSpline.dim == 3) || (SSpline.dim == 4)) ){
+        return(ThrowError("name[,density]","dimension must be 2, 3, or 4"));
+    }
+
+// execute ---------------------------------------
+
+    // prepare spline derivatives
+    ts_bspline_free(&DSpline);
+    ts_bspline_free(&TSpline);
+    if( ts_bspline_derive(&SSpline,&DSpline) != TS_SUCCESS ){
+        return(ThrowError("name[,density]","unable to calculate first derivatives"));
+    }
+    if( ts_bspline_derive(&DSpline,&TSpline) != TS_SUCCESS ){
+        return(ThrowError("name[,density]","unable to calculate second derivatives"));
+    }
+
+    ofstream ofs;
+    ofs.open(name.toStdString().c_str());
+    if( ! ofs ){
+        return(ThrowError("name[,density]","unable to open output file"));
+    }
+
+    ofs << "# alpha curvature" << endl;
+    ofs << "# ----- ---------" << endl;
+
+    for(int i=0; i <= density; i++){
+        double u = (double)i/((double)density);
+        tsDeBoorNet net1;
+        tsDeBoorNet net2;
+        ts_bspline_evaluate(&DSpline, u, &net1);
+        ts_bspline_evaluate(&TSpline, u, &net2);
+
+        double kappa = 0.0;
+
+        if( SSpline.dim == 2 ){
+            kappa = fabs(net1.result[0]*net2.result[1] - net1.result[1]*net2.result[0]) /
+                    pow(net1.result[0]*net1.result[0] + net1.result[1]*net1.result[1],1.5);
+
+        } else {
+            // SSpline.dim == 3 or higher
+            kappa = sqrt( pow((net2.result[2]*net1.result[1] - net2.result[1]*net1.result[2]),2.0) +
+                          pow((net2.result[0]*net1.result[2] - net2.result[2]*net1.result[0]),2.0) +
+                          pow((net2.result[1]*net1.result[0] - net2.result[0]*net1.result[1]),2.0) ) /
+                    pow(net1.result[0]*net1.result[0] + net1.result[1]*net1.result[1] + net1.result[2]*net1.result[2],1.5);
+        }
+
+        ts_deboornet_free(&net1);
+        ts_deboornet_free(&net2);
+
+        ofs << format("%7.5f %20.6f\n")%u%kappa;
+    }
+
+    ofs.close();
+
+    return(value);
 }
 
 //==============================================================================

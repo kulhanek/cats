@@ -32,6 +32,7 @@
 #include <QSelection.hpp>
 #include <FileName.hpp>
 #include <QNAHelper.hpp>
+#include <Point.hpp>
 #include <map>
 
 //------------------------------------------------------------------------------
@@ -167,6 +168,8 @@ private:
     std::vector<CNABPPar>       BPPar;
     std::vector<CNABPStepPar>   BPStepPar;
     std::vector<CNABPHelPar>    BPHelPar;
+    std::vector<CPoint>         BPOrigins;
+    std::vector<CPoint>         HelAxisPositions;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -210,7 +213,14 @@ private:
     /// read  BP Helical
     bool ReadSectionBPHelPar(std::ifstream& ifs);
 
+    /// read  BP origins
+    bool ReadSectionBPOrigins(std::ifstream& ifs);
+
+    /// read  helical axis position
+    bool ReadSectionHelPos(std::ifstream& ifs);
+
     friend class QNAStat;
+    friend class QCurve;
 };
 
 //------------------------------------------------------------------------------

@@ -683,6 +683,8 @@ void Qx3DNA::ClearAll(void)
     BPPar.clear();
     BPStepPar.clear();
     BPHelPar.clear();
+    BPOrigins.clear();
+    HelAxisPositions.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
@@ -886,10 +888,19 @@ bool Qx3DNA::ParseOutputData(void)
 
     getline(ifs,lbuf);
     while( !ifs.eof() ){
-// read steps
+
+        if( lbuf.find("bp        Ox        Oy        Oz        Nx        Ny        Nz") != string::npos ){
+            if( ReadSectionBPOrigins(ifs) == false ) return(false);
+        }
+
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
             if( ReadSectionBPStepIDs(ifs,BPIDs,BPStepIDs) == false ) return(false);
         }
+
+        if( lbuf.find("step       Px        Py        Pz        Hx        Hy        Hz") != string::npos ){
+            if( ReadSectionHelPos(ifs) == false ) return(false);
+        }
+
         if( ParameterType == E3DP_LOCAL ){
             if( lbuf.find("Local base-pair parameters") != string::npos ){
                 getline(ifs,lbuf); // skip heading
@@ -904,6 +915,7 @@ bool Qx3DNA::ParseOutputData(void)
                 if( ReadSectionBPHelPar(ifs) == false ) return(false);
             }
         }
+
         if( ParameterType == E3DP_SIMPLE ){
             if( lbuf.find("Simple base-pair parameters based on") != string::npos ){
                 getline(ifs,lbuf); // skip heading
@@ -914,6 +926,7 @@ bool Qx3DNA::ParseOutputData(void)
                 if( ReadSectionBPStepPar(ifs) == false ) return(false);
             }
         }
+
         getline(ifs,lbuf);
     }
 
@@ -1220,6 +1233,76 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
     error << "unable to read  base-pair helical parameters section";
     ES_ERROR(error);
     return(false);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionBPOrigins(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.find("****************************************************************************") != string::npos ){
+            return(true); // end of BPOrigins
+        }
+
+        stringstream    str(lbuf);
+        CPoint          origin;
+        int             id;
+        string          bp;
+        // step
+        str >> id >> bp >> origin.x >> origin.y >> origin.z;
+
+        if( ! str ){
+            CSmallString error;
+            error << "unable to read  base-pair origin parameters in: " << lbuf;
+            ES_ERROR(error);
+            return(false);
+        }
+
+        BPOrigins.push_back(origin);
+
+        getline(ifs,lbuf);
+    }
+
+    CSmallString error;
+    error << "unable to read base-pair origin parameters section";
+    ES_ERROR(error);
+    return(false);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.empty() ){
+            return(true); // end of HelPos
+        }
+
+        stringstream    str(lbuf);
+        CPoint          pos;
+        int             id;
+        string          step;
+        // step
+        str >> id >> step >> pos.x >> pos.y >> pos.z;
+
+        if( ! str ){
+            CSmallString error;
+            error << "unable to read  helical axis position parameters in: " << lbuf;
+            ES_ERROR(error);
+            return(false);
+        }
+
+        HelAxisPositions.push_back(pos);
+
+        getline(ifs,lbuf);
+    }
+
+    // this is the final section
+    return(true);
 }
 
 
