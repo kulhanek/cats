@@ -1282,21 +1282,27 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
             return(true); // end of HelPos
         }
 
-        stringstream    str(lbuf);
+        stringstream    str1(lbuf);
+        stringstream    str2(lbuf);
         CPoint          pos;
         int             id;
         string          step;
-        // step
-        str >> id >> step >> pos.x >> pos.y >> pos.z;
+        string          test;
 
-        if( ! str ){
-            CSmallString error;
-            error << "unable to read  helical axis position parameters in: " << lbuf;
-            ES_ERROR(error);
-            return(false);
+        str1 >> id >> step >> test;
+        if( test != "----" ){
+            // step
+            str2 >> id >> step >> pos.x >> pos.y >> pos.z;
+
+            if( ! str2 ){
+                CSmallString error;
+                error << "unable to read  helical axis position parameters in: " << lbuf;
+                ES_ERROR(error);
+                return(false);
+            }
+
+            HelAxisPositions.push_back(pos);
         }
-
-        HelAxisPositions.push_back(pos);
 
         getline(ifs,lbuf);
     }
