@@ -92,14 +92,18 @@ public slots:
     
     /// get number of control points
     /// int getNumOfCtrlPoints()    
-    QScriptValue getNumOfCtrlPoints(void);      
+    QScriptValue getNumOfCtrlPoints(void);
+
+    /// get curvature
+    /// double getCurvature(u)
+    QScriptValue getCurvature(void);
         
     /// write geometry of curve
-    /// writeXYZ(name[,density[,symbol]])
+    /// writeXYZ(name/ofile[,density[,symbol]])
     QScriptValue writeXYZ(void);
 
     /// write curvature of curve
-    /// writeCurvature(name[,density])
+    /// writeCurvature(name/ofile[,density])
     QScriptValue writeCurvature(void);
     
 // access methods --------------------------------------------------------------

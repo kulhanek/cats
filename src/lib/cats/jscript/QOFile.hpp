@@ -57,6 +57,8 @@ private:
 
     /// open file
     bool openInternal(const QString& name);
+
+    friend class QCurve;
 };
 
 //------------------------------------------------------------------------------

@@ -26,6 +26,7 @@
 #include <QTopology.hpp>
 #include <QSelection.hpp>
 #include <Qx3DNA.hpp>
+#include <QOFile.hpp>
 #include <fstream>
 #include <boost/format.hpp>
 
@@ -576,63 +577,137 @@ QScriptValue QCurve::getNumOfCtrlPoints(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::writeXYZ(void)
+QScriptValue QCurve::getCurvature(void)
 {
-        QScriptValue value;
+    QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::writeXYZ(name[,density[,symbol]])" << endl;
+        sout << "usage: double Curve::getCurvature(u)" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("name[,density[,symbol]]",1,3);
+    value = CheckNumberOfArguments("u",1);
     if( value.isError() ) return(value);
 
-    QString name;
-    value = GetArgAsString("name[,density[,symbol]]","name",1,name);
-    if( value.isError() ) return(value); 
+    double u;
+    value = GetArgAsRNumber("u","u",1,u);
+    if( value.isError() ) return(value);
+
+    if( (u < 0.0) || (u > 1.0 ) ){
+        return(ThrowError("u","parameter u is not in <0;1> interval"));
+    }
+
+    if( ! ((SSpline.dim == 3) || (SSpline.dim == 4)) ){
+        return(ThrowError("u","spline dimension must be either 3 or 4"));
+    }
+
+// execute ---------------------------------------
+    // prepare spline derivatives
+    ts_bspline_free(&DSpline);
+    ts_bspline_free(&TSpline);
+    if( ts_bspline_derive(&SSpline,&DSpline) != TS_SUCCESS ){
+        return(ThrowError("u","unable to calculate first derivatives"));
+    }
+    if( ts_bspline_derive(&DSpline,&TSpline) != TS_SUCCESS ){
+        return(ThrowError("u","unable to calculate second derivatives"));
+    }
+
+    tsDeBoorNet net1;
+    tsDeBoorNet net2;
+    ts_bspline_evaluate(&DSpline, u, &net1);
+    ts_bspline_evaluate(&TSpline, u, &net2);
+
+    double kappa = 0.0;
+
+    if( SSpline.dim == 2 ){
+        kappa = fabs(net1.result[0]*net2.result[1] - net1.result[1]*net2.result[0]) /
+                pow(net1.result[0]*net1.result[0] + net1.result[1]*net1.result[1],1.5);
+
+    } else {
+        // SSpline.dim == 3 or higher
+        kappa = sqrt( pow((net2.result[2]*net1.result[1] - net2.result[1]*net1.result[2]),2.0) +
+                      pow((net2.result[0]*net1.result[2] - net2.result[2]*net1.result[0]),2.0) +
+                      pow((net2.result[1]*net1.result[0] - net2.result[0]*net1.result[1]),2.0) ) /
+                pow(net1.result[0]*net1.result[0] + net1.result[1]*net1.result[1] + net1.result[2]*net1.result[2],1.5);
+    }
+
+    ts_deboornet_free(&net1);
+    ts_deboornet_free(&net2);
+
+    return(kappa);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCurve::writeXYZ(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Curve::writeXYZ(name/ofile[,density[,symbol]])" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("name/ofile[,density[,symbol]]",1,3);
+    if( value.isError() ) return(value);
+
+    ofstream  ofs;
+    ofstream* p_ofs = NULL;
+    if( IsArgumentObject<QOFile*>(1) ){
+        QOFile* p_ofile;
+        GetArgAsObject("name/ofile[,density[,symbol]]","ofile","OFile",1,p_ofile);
+        if( value.isError() ) return(value);
+        p_ofs = &p_ofile->vout;
+    } else {
+        QString name;
+        value = GetArgAsString("name/ofile[,density[,symbol]]","name",1,name);
+        if( value.isError() ) return(value);
+
+        ofs.open(name.toStdString().c_str());
+        if( ! ofs ){
+            return(ThrowError("name/ofile[,density[,symbol]]","unable to open output file"));
+        }
+        p_ofs = &ofs;
+    }
     
     int density = 200;
     if( GetArgumentCount() > 1 ){
-        value = GetArgAsInt("name,density[,symbol]","density",2,density);
+        value = GetArgAsInt("name/ofile,density[,symbol]","density",2,density);
         if( value.isError() ) return(value);
     }
     if( density <= 0 ){
-        return(ThrowError("name[,density[,symbol]]","density must be larger than 0"));
+        return(ThrowError("name/ofile[,density[,symbol]]","density must be larger than 0"));
     }
     
     QString symbol("O");
     if( GetArgumentCount() > 2 ){    
-        value = GetArgAsString("name,density,symbol","symbol",3,symbol);
+        value = GetArgAsString("name/ofile,density,symbol","symbol",3,symbol);
         if( value.isError() ) return(value);
     }
     
     if( ! ((SSpline.dim == 3) || (SSpline.dim == 4)) ){
-        return(ThrowError("name[,density[,symbol]]","spline dimension must be either 3 or 4"));        
+        return(ThrowError("name/ofile[,density[,symbol]]","spline dimension must be either 3 or 4"));
     }
             
 // execute ---------------------------------------
-    ofstream ofs;
-    ofs.open(name.toStdString().c_str());
-    if( ! ofs ){
-        return(ThrowError("name[,density[,symbol]]","unable to open output file"));
-    }
-    ofs << density + 1 <<  endl;
-    ofs << "curve" << endl;
+
+    *p_ofs << density + 1 <<  endl;
+    *p_ofs << "curve" << endl;
 
     for(int i=0; i <= density; i++){
         double u = (double)i/((double)density);
         tsDeBoorNet net;
         ts_bspline_evaluate(&SSpline, u, &net);
-        ofs << format("%2s %14.3f %14.3f %14.3f\n")%symbol.toStdString()%net.result[0]%net.result[1]%net.result[2];
+        *p_ofs << format("%2s %14.3f %14.3f %14.3f\n")%symbol.toStdString()%net.result[0]%net.result[1]%net.result[2];
         ts_deboornet_free(&net);
     }
-    
-    ofs.close();
-    
+        
     return(value);    
 }
 
@@ -640,34 +715,49 @@ QScriptValue QCurve::writeXYZ(void)
 
 QScriptValue QCurve::writeCurvature(void)
 {
-        QScriptValue value;
+    QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::writeCurvature(name[,density])" << endl;
+        sout << "usage: Curve::writeCurvature(name/ofile[,density])" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments("name[,density]",1,2);
+    value = CheckNumberOfArguments("name/ofile[,density]",1,2);
     if( value.isError() ) return(value);
 
-    QString name;
-    value = GetArgAsString("name[,density]","name",1,name);
-    if( value.isError() ) return(value);
+    ofstream  ofs;
+    ofstream* p_ofs = NULL;
+    if( IsArgumentObject<QOFile*>(1) ){
+        QOFile* p_ofile;
+        GetArgAsObject("name/ofile[,density]","ofile","OFile",1,p_ofile);
+        if( value.isError() ) return(value);
+        p_ofs = &p_ofile->vout;
+    } else {
+        QString name;
+        value = GetArgAsString("name/ofile[,density]","name",1,name);
+        if( value.isError() ) return(value);
+
+        ofs.open(name.toStdString().c_str());
+        if( ! ofs ){
+            return(ThrowError("name/ofile[,density]","unable to open output file"));
+        }
+        p_ofs = &ofs;
+    }
 
     int density = 200;
     if( GetArgumentCount() > 1 ){
-        value = GetArgAsInt("name[,density]","density",2,density);
+        value = GetArgAsInt("name/ofile[,density]","density",2,density);
         if( value.isError() ) return(value);
     }
     if( density <= 0 ){
-        return(ThrowError("name[,density]","density must be larger than 0"));
+        return(ThrowError("name/ofile[,density]","density must be larger than 0"));
     }
 
     if( ! ((SSpline.dim == 2) || (SSpline.dim == 3) || (SSpline.dim == 4)) ){
-        return(ThrowError("name[,density]","dimension must be 2, 3, or 4"));
+        return(ThrowError("name/ofile[,density]","dimension must be 2, 3, or 4"));
     }
 
 // execute ---------------------------------------
@@ -676,20 +766,14 @@ QScriptValue QCurve::writeCurvature(void)
     ts_bspline_free(&DSpline);
     ts_bspline_free(&TSpline);
     if( ts_bspline_derive(&SSpline,&DSpline) != TS_SUCCESS ){
-        return(ThrowError("name[,density]","unable to calculate first derivatives"));
+        return(ThrowError("name/ofile[,density]","unable to calculate first derivatives"));
     }
     if( ts_bspline_derive(&DSpline,&TSpline) != TS_SUCCESS ){
-        return(ThrowError("name[,density]","unable to calculate second derivatives"));
+        return(ThrowError("name/ofile[,density]","unable to calculate second derivatives"));
     }
 
-    ofstream ofs;
-    ofs.open(name.toStdString().c_str());
-    if( ! ofs ){
-        return(ThrowError("name[,density]","unable to open output file"));
-    }
-
-    ofs << "# alpha curvature" << endl;
-    ofs << "# ----- ---------" << endl;
+    *p_ofs << "# alpha curvature" << endl;
+    *p_ofs << "# ----- ---------" << endl;
 
     for(int i=0; i <= density; i++){
         double u = (double)i/((double)density);
@@ -715,10 +799,10 @@ QScriptValue QCurve::writeCurvature(void)
         ts_deboornet_free(&net1);
         ts_deboornet_free(&net2);
 
-        ofs << format("%7.5f %20.6f\n")%u%kappa;
+        *p_ofs << format("%7.5f %20.6f\n")%u%kappa;
     }
 
-    ofs.close();
+    *p_ofs << endl;
 
     return(value);
 }
