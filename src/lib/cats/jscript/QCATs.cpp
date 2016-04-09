@@ -62,6 +62,7 @@
 #include <Qx3DNA.hpp>
 #include <QNAStat.hpp>
 #include <QMolSurf.hpp>
+#include <QCurve.hpp>
 
 // i/o suuport --------------------------------
 #include <QOFile.hpp>
@@ -121,6 +122,7 @@ void RegisterAllCATsClasses(QScriptEngine& engine)
     Qx3DNA::Register(engine);
     QNAStat::Register(engine);
     QMolSurf::Register(engine);
+    QCurve::Register(engine);
 
     // i/o suuport --------------------------------
     QOFile::Register(engine);

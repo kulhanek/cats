@@ -65,9 +65,13 @@ SET(CATS_JSCRIPT_SRC
         jscript/QNAStatHelper.cpp
         jscript/QNAStat.cpp
         jscript/QMolSurf.cpp
+        jscript/QCurve.cpp
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp
+
+    # helpers ------------------------------------
+        jscript/tinyspline/tinyspline.c
     )
 
 SET(CATS_LIB_SRC ${CATS_LIB_SRC} ${CATS_JSCRIPT_SRC})
