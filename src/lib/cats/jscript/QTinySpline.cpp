@@ -20,19 +20,20 @@
 
 #include <iostream>
 #include <QScriptEngine>
-#include <QCurve.hpp>
+#include <QTinySpline.hpp>
 #include <TerminalStr.hpp>
 #include <QSnapshot.hpp>
 #include <QTopology.hpp>
 #include <QSelection.hpp>
 #include <Qx3DNA.hpp>
+#include <QCurvesP.hpp>
 #include <QOFile.hpp>
 #include <fstream>
 #include <boost/format.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QCurve.moc>
+#include <QTinySpline.moc>
 using namespace std;
 using boost::format;
 
@@ -40,28 +41,28 @@ using boost::format;
 //------------------------------------------------------------------------------
 //==============================================================================
 
-void QCurve::Register(QScriptEngine& engine)
+void QTinySpline::Register(QScriptEngine& engine)
 {
-    QScriptValue ctor = engine.newFunction(QCurve::New);
-    QScriptValue metaObject = engine.newQMetaObject(&QCurve::staticMetaObject, ctor);
-    engine.globalObject().setProperty("Curve", metaObject);
+    QScriptValue ctor = engine.newFunction(QTinySpline::New);
+    QScriptValue metaObject = engine.newQMetaObject(&QTinySpline::staticMetaObject, ctor);
+    engine.globalObject().setProperty("TinySpline", metaObject);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::New(QScriptContext *context,
+QScriptValue QTinySpline::New(QScriptContext *context,
                          QScriptEngine *engine)
 {
-    QCATsScriptable scriptable("Curve");
+    QCATsScriptable scriptable("TinySpline");
     QScriptValue    value;
 
 // print help ------------------------------------
     if( scriptable.IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "Curve object" << endl;
+        sout << "TinySpline object" << endl;
         sout << endl;
         sout << "Constructors:" << endl;
-        sout << "   new Curve()" << endl;
+        sout << "   new TinySpline()" << endl;
         return(scriptable.GetUndefinedValue());
     }
 
@@ -73,7 +74,7 @@ QScriptValue QCurve::New(QScriptContext *context,
     if( value.isError() ) return(value);
 
 // create pbject
-    QCurve* p_obj = new QCurve();
+    QTinySpline* p_obj = new QTinySpline();
     return(engine->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
 
@@ -81,8 +82,8 @@ QScriptValue QCurve::New(QScriptContext *context,
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QCurve::QCurve(void)
-    : QCATsScriptable("Curve")
+QTinySpline::QTinySpline(void)
+    : QCATsScriptable("TinySpline")
 {
     ts_bspline_default(&SSpline);
     ts_bspline_default(&DSpline);
@@ -96,14 +97,14 @@ QCurve::QCurve(void)
 //------------------------------------------------------------------------------
 //==============================================================================
   
-QScriptValue QCurve::setDegree(const QScriptValue& dummy)
+QScriptValue QTinySpline::setDegree(const QScriptValue& dummy)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::setDegree(degree)" << endl;
+        sout << "usage: TinySpline::setDegree(degree)" << endl;
         return(false);
     }
 
@@ -126,14 +127,14 @@ QScriptValue QCurve::setDegree(const QScriptValue& dummy)
  
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::getDegree(void)
+QScriptValue QTinySpline::getDegree(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: int Curve::getDegree()" << endl;
+        sout << "usage: int TinySpline::getDegree()" << endl;
         return(false);
     }
 
@@ -147,14 +148,14 @@ QScriptValue QCurve::getDegree(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::setDimension(const QScriptValue& dummy)
+QScriptValue QTinySpline::setDimension(const QScriptValue& dummy)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::setDimension(dim)" << endl;
+        sout << "usage: TinySpline::setDimension(dim)" << endl;
         return(false);
     }
 
@@ -177,14 +178,14 @@ QScriptValue QCurve::setDimension(const QScriptValue& dummy)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::getDimension(void)
+QScriptValue QTinySpline::getDimension(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: int Curve::getDimension()" << endl;
+        sout << "usage: int TinySpline::getDimension()" << endl;
         return(false);
     }
 
@@ -198,14 +199,14 @@ QScriptValue QCurve::getDimension(void)
 
 //------------------------------------------------------------------------------
   
-QScriptValue QCurve::setType(const QScriptValue& dummy)
+QScriptValue QTinySpline::setType(const QScriptValue& dummy)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::setType(type)" << endl;
+        sout << "usage: TinySpline::setType(type)" << endl;
         return(false);
     }
 
@@ -238,14 +239,14 @@ QScriptValue QCurve::setType(const QScriptValue& dummy)
   
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::getType(void)
+QScriptValue QTinySpline::getType(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: string Curve::getType()" << endl;
+        sout << "usage: string TinySpline::getType()" << endl;
         return(false);
     }
 
@@ -271,14 +272,14 @@ QScriptValue QCurve::getType(void)
 //------------------------------------------------------------------------------
 //==============================================================================    
 
-QScriptValue QCurve::initSpline(void)
+QScriptValue QTinySpline::initSpline(void)
 {
         QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::initSpline(nctrlpts)" << endl;
+        sout << "usage: TinySpline::initSpline(nctrlpts)" << endl;
         return(false);
     }
 
@@ -301,21 +302,23 @@ QScriptValue QCurve::initSpline(void)
     
     tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
     if( retcode != TS_SUCCESS ){
-        return(ThrowError("nctrlpts","unable to init spline"));
+        CSmallString error;
+        error << "unable to init spline, number of points: " << nctrlpts;
+        return(ThrowError("nctrlpts",error));
     }
     return(value);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::initSplineFromAtoms(void)
+QScriptValue QTinySpline::initSplineFromAtoms(void)
 {       
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::initSplineFromAtoms(snapshot[,selection])" << endl;
+        sout << "usage: TinySpline::initSplineFromAtoms(snapshot[,selection])" << endl;
         return(value);
     }
 
@@ -341,7 +344,9 @@ QScriptValue QCurve::initSplineFromAtoms(void)
         int nctrlpts = p_snap->Restart.GetNumberOfAtoms();
         tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
         if( retcode != TS_SUCCESS ){
-            return(ThrowError("snapshot[,selection]","unable to init spline"));
+            CSmallString error;
+            error << "unable to init spline, number of points: " << nctrlpts;
+            return(ThrowError("snapshot[,selection]",error));
         }
         
         CAmberRestart* p_src = &p_snap->Restart;
@@ -375,7 +380,9 @@ QScriptValue QCurve::initSplineFromAtoms(void)
         int nctrlpts = p_sel->Mask.GetNumberOfSelectedAtoms();
         tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
         if( retcode != TS_SUCCESS ){
-            return(ThrowError("snapshot[,selection]","unable to init spline"));
+            CSmallString error;
+            error << "unable to init spline, number of points: " << nctrlpts;
+            return(ThrowError("snapshot,selection",error));
         }
         
         CAmberRestart* p_src = &p_snap->Restart;
@@ -401,14 +408,14 @@ QScriptValue QCurve::initSplineFromAtoms(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::initSplineFrom3DNABPOrigins(void)
+QScriptValue QTinySpline::initSplineFrom3DNABPOrigins(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::initSplineFrom3DNABPOrigins(x3dna)" << endl;
+        sout << "usage: TinySpline::initSplineFrom3DNABPOrigins(x3dna)" << endl;
         return(value);
     }
 
@@ -432,7 +439,9 @@ QScriptValue QCurve::initSplineFrom3DNABPOrigins(void)
     int nctrlpts = p_x3dna->BPOrigins.size();
     tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
     if( retcode != TS_SUCCESS ){
-        return(ThrowError("x3dna","unable to init spline"));
+        CSmallString error;
+        error << "unable to init spline, number of points: " << nctrlpts;
+        return(ThrowError("x3dna",error));
     }
 
     for(int i = 0; i < nctrlpts; i++){
@@ -455,14 +464,14 @@ QScriptValue QCurve::initSplineFrom3DNABPOrigins(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::initSplineFrom3DNAHelAxis(void)
+QScriptValue QTinySpline::initSplineFrom3DNAHelAxis(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::initSplineFrom3DNAHelAxis(x3dna)" << endl;
+        sout << "usage: TinySpline::initSplineFrom3DNAHelAxis(x3dna)" << endl;
         return(value);
     }
 
@@ -486,7 +495,9 @@ QScriptValue QCurve::initSplineFrom3DNAHelAxis(void)
     int nctrlpts = p_x3dna->HelAxisPositions.size();
     tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
     if( retcode != TS_SUCCESS ){
-        return(ThrowError("x3dna","unable to init spline"));
+        CSmallString error;
+        error << "unable to init spline, number of points: " << nctrlpts;
+        return(ThrowError("x3dna",error));
     }
 
     for(int i = 0; i < nctrlpts; i++){
@@ -509,14 +520,70 @@ QScriptValue QCurve::initSplineFrom3DNAHelAxis(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::setCtrlPointValue(void)
+QScriptValue QTinySpline::initSplineFromCurvesPHelAxis(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: TinySpline::initSplineFromCurvesPHelAxis(curvesp)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("curvesp",1);
+    if( value.isError() ) return(value);
+
+    QCurvesP* p_curvesp;
+    GetArgAsObject("curvesp","curvesp","CurvesP",1,p_curvesp);
+    if( value.isError() ) return(value);
+
+    if( ! ((Dimension == 3) || (Dimension == 4)) ){
+        return(ThrowError("curvesp","spline dimension must be either 3 or 4"));
+    }
+
+// execute ---------------------------------------
+    ts_bspline_free(&SSpline);
+    ts_bspline_free(&DSpline);
+    ts_bspline_free(&TSpline);
+
+    int nctrlpts = p_curvesp->HelAxisPositions.size();
+    tsError retcode = ts_bspline_new(Degree, Dimension, nctrlpts, Type, &SSpline);
+    if( retcode != TS_SUCCESS ){
+        CSmallString error;
+        error << "unable to init spline, number of points: " << nctrlpts;
+        return(ThrowError("curvesp",error));
+    }
+
+    for(int i = 0; i < nctrlpts; i++){
+        CPoint pos = p_curvesp->HelAxisPositions[i];
+        int lindex;
+        lindex = i * SSpline.dim + 0;
+        SSpline.ctrlp[lindex] = pos.x;
+        lindex = i * SSpline.dim + 1;
+        SSpline.ctrlp[lindex] = pos.y;
+        lindex = i * SSpline.dim + 2;
+        SSpline.ctrlp[lindex] = pos.z;
+        if( SSpline.dim == 4 ){
+            lindex = i * SSpline.dim + 3;
+            SSpline.ctrlp[lindex] = 1.0;
+        }
+    }
+
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QTinySpline::setCtrlPointValue(void)
 {
         QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::setCtrlPointValue(index,value,dim)" << endl;
+        sout << "usage: TinySpline::setCtrlPointValue(index,value,dim)" << endl;
         return(false);
     }
 
@@ -556,14 +623,14 @@ QScriptValue QCurve::setCtrlPointValue(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::getNumOfCtrlPoints(void)
+QScriptValue QTinySpline::getNumOfCtrlPoints(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: int Curve::getNumOfCtrlPoints()" << endl;
+        sout << "usage: int TinySpline::getNumOfCtrlPoints()" << endl;
         return(false);
     }
 
@@ -577,14 +644,14 @@ QScriptValue QCurve::getNumOfCtrlPoints(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::getCurvature(void)
+QScriptValue QTinySpline::getCurvature(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: double Curve::getCurvature(u)" << endl;
+        sout << "usage: double TinySpline::getCurvature(u)" << endl;
         return(false);
     }
 
@@ -642,14 +709,14 @@ QScriptValue QCurve::getCurvature(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::writeXYZ(void)
+QScriptValue QTinySpline::writeXYZ(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::writeXYZ(name/ofile[,density[,symbol]])" << endl;
+        sout << "usage: TinySpline::writeXYZ(name/ofile[,density[,symbol]])" << endl;
         return(false);
     }
 
@@ -713,14 +780,14 @@ QScriptValue QCurve::writeXYZ(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QCurve::writeCurvature(void)
+QScriptValue QTinySpline::writeCurvature(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Curve::writeCurvature(name/ofile[,density])" << endl;
+        sout << "usage: TinySpline::writeCurvature(name/ofile[,density])" << endl;
         return(false);
     }
 
