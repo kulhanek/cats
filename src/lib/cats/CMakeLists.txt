@@ -62,10 +62,11 @@ SET(CATS_JSCRIPT_SRC
         jscript/QThermoIG.cpp
         jscript/QNAHelper.cpp
         jscript/Qx3DNA.cpp
+        jscript/QCurvesP.cpp
         jscript/QNAStatHelper.cpp
         jscript/QNAStat.cpp
         jscript/QMolSurf.cpp
-        jscript/QCurve.cpp
+        jscript/QTinySpline.cpp
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp

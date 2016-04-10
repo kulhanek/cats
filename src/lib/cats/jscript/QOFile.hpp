@@ -43,13 +43,16 @@ public:
 // methods ---------------------------------------------------------------------
 public slots:
     /// open file
-    bool open(const QString& name);
+    /// open(name)
+    QScriptValue open(void);
 
     /// close file
-    void close(void);
+    /// close()
+    QScriptValue close(void);
 
     /// print to file
-    bool printf(const QString& format);
+    /// printf(format,...)
+    QScriptValue printf(void);
 
 // section of private data -----------------------------------------------------
 private:
@@ -58,7 +61,7 @@ private:
     /// open file
     bool openInternal(const QString& name);
 
-    friend class QCurve;
+    friend class QTinySpline;
 };
 
 //------------------------------------------------------------------------------

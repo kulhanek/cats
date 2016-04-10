@@ -1,8 +1,9 @@
-#ifndef Qx3DNAH
-#define Qx3DNAH
+#ifndef QCurvesPH
+#define QCurvesPH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
+//    Copyright (C) 2016 Petr Kulhanek, kulhanek@chemi.muni.cz
 //    Copyright (C) 2015 Michal Ruzicka, michalruz@mail.muni.cz
 //    Copyright (C) 2015 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -37,53 +38,21 @@
 
 //------------------------------------------------------------------------------
 
-/// type of parameters
+/// interface to Curves+
 
-enum EX3DNAParams {
-    E3DP_LOCAL=1,
-    E3DP_SIMPLE=2
-};
-
-//------------------------------------------------------------------------------
-
-/// 3D x3DNA
-
-class CATS_PACKAGE Qx3DNA : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QCurvesP : public QObject, protected QScriptable, protected QCATsScriptable {
     Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
-    Qx3DNA(void);
+    QCurvesP(void);
     static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
 
 // properties ------------------------------------------------------------------
     Q_PROPERTY(QScriptValue numOfBasePairs      READ getNumOfBasePairs WRITE setIsNotAllowed)
-    Q_PROPERTY(QScriptValue numOfSteps          READ getNumOfSteps WRITE setIsNotAllowed)
-    Q_PROPERTY(QScriptValue parameterType       READ getParameterType WRITE setParameterType)
-    Q_PROPERTY(QScriptValue autoreferenceMode   READ isAutoReferenceModeSet WRITE setAutoReferenceMode)
 
 // methods ---------------------------------------------------------------------
 public slots:   
-    /// set autoreference mode
-    /// setAutoreferenceMode(set)
-    QScriptValue setAutoReferenceMode(const QScriptValue& dummy);
-
-    /// get autoreference mode
-    /// bool isAutoReferenceModeSet()
-    QScriptValue isAutoReferenceModeSet(void);
-
-    /// set type of parameters: local, simple
-    /// setParameterType(type)
-    QScriptValue setParameterType(const QScriptValue& dummy);
-
-    /// get type of parameters
-    /// string getParameterType()
-    QScriptValue getParameterType(void);
-
-    /// perform analysis on reference structure
-    /// analyzeReference(snapshot[,selection])
-    QScriptValue analyzeReference(void);
-
     /// perform core analysis
     /// analyze(snapshot[,selection])
     QScriptValue analyze(void);
@@ -92,19 +61,10 @@ public slots:
     /// int getNumOfBasePairs()
     QScriptValue getNumOfBasePairs(void);
 
-    /// get number of steps
-    /// int getNumOfSteps()
-    QScriptValue getNumOfSteps(void);
-
     /// get index from residA and residB - it returns -1 if the BP was not analyzed
     /// residA-residB
     /// int getBPIndex(residA,residB)
     QScriptValue getBPIndex(void);
-
-    /// get index from residA, residB and residC, residD - it returns -1 if the BP Step was not analyzed
-    /// (residA-residB)/(residC-residD)
-    /// int getBPStepIndex(residA,residB,residC,residD)
-    QScriptValue getBPStepIndex(void);
 
     /// get validity of BP params
     /// bool areBPParamsValid(index)
@@ -119,56 +79,16 @@ public slots:
     QScriptValue getBPPropeller(void);
     QScriptValue getBPOpening(void);
 
-    /// get validity of BP Step params
-    /// bool areBPStepParamsValid(index)
-    QScriptValue areBPStepParamsValid(void);
-
-    /// get BP Step params
-    /// double getBPStepXXX(index)
-    QScriptValue getBPStepShift(void);
-    QScriptValue getBPStepSlide(void);
-    QScriptValue getBPStepRise(void);
-    QScriptValue getBPStepTilt(void);
-    QScriptValue getBPStepRoll(void);
-    QScriptValue getBPStepTwist(void);
-
-    /// get validity of BP Helical params
-    /// bool areBPHelParamsValid(index)
-    QScriptValue areBPHelParamsValid(void);
-
-    /// get BP Helical params
-    /// double getBPHelXXX(index)
-    QScriptValue getBPHelXdisp(void);
-    QScriptValue getBPHelYdisp(void);
-    QScriptValue getBPHelHrise(void);
-    QScriptValue getBPHelIncl(void);
-    QScriptValue getBPHelTip(void);
-    QScriptValue getBPHelHtwist(void);
-
-public:
-    /// return current parameter type mode
-    QString GetParameterTypeString(void) const;
-
 // access methods --------------------------------------------------------------
 private:
     CFileName                   WorkDir;            // scratch directory
-    bool                        AutoReferenceMode;  // is autoreference mode enabled?
-    EX3DNAParams                ParameterType;
 
     // topology residue index <-> local translation
     std::map<int,int>           ResIDMap;
 
-    // these two items are set by analyzeReference()
-    std::map<int,CNABPID>       ReferenceBPIDs;     // list of base pairs from find_pairs
-    std::map<int,CNABPStepID>   ReferenceBPStepIDs; // list of base pair steps from analyze
-
     // data from analyzed snapshot
     std::map<int,CNABPID>       BPIDs;              // list of base pairs from find_pairs
-    std::map<int,CNABPStepID>   BPStepIDs;          // list of base pair steps from analyze
     std::vector<CNABPPar>       BPPar;
-    std::vector<CNABPStepPar>   BPStepPar;
-    std::vector<CNABPHelPar>    BPHelPar;
-    std::vector<CPoint>         BPOrigins;
     std::vector<CPoint>         HelAxisPositions;
 
     /// clear all parsed results
@@ -180,8 +100,8 @@ private:
     /// run analysis
     bool RunAnalysis(void);
 
-    /// parse reference data
-    bool ParseReferenceData(void);
+    /// parse find_pairs output data
+    bool ParseFindPairOutputData(void);
 
     /// parse output data
     bool ParseOutputData(void);
@@ -191,21 +111,6 @@ private:
 
     /// read BP indexes
     bool ReadSectionBPIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps);
-
-    /// read BP Step indexes
-    bool ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,std::map<int,CNABPStepID>& bpsteps);
-
-    /// read  BP
-    bool ReadSectionBPPar(std::ifstream& ifs);
-
-    /// read  BP Step
-    bool ReadSectionBPStepPar(std::ifstream& ifs);
-
-    /// read  BP Helical
-    bool ReadSectionBPHelPar(std::ifstream& ifs);
-
-    /// read  BP origins
-    bool ReadSectionBPOrigins(std::ifstream& ifs);
 
     /// read  helical axis position
     bool ReadSectionHelPos(std::ifstream& ifs);

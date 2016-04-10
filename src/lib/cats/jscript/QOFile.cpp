@@ -23,6 +23,7 @@
 #include <QOFile.hpp>
 #include <QOFile.moc>
 #include <SmallString.hpp>
+#include <TerminalStr.hpp>
 #include <iomanip>
 #include <boost/format.hpp>
 
@@ -85,15 +86,33 @@ QOFile::QOFile(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-bool QOFile::open(const QString& name)
+QScriptValue QOFile::open(void)
 {
-    if( argumentCount() != 1 ) {
-        context()->throwError("OFile::open(name) - illegal number of arguments, one is expected");
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: OFile::open(name)" << endl;
         return(false);
     }
 
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("name",1);
+    if( value.isError() ) return(value);
+
+    QString name;
+    value = GetArgAsString("name","name",1,name);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
     vout.close();
-    return( openInternal(name) );
+    if( openInternal(name) == false ){
+        CSmallString error;
+        error << "unable to open specified file '" << name << "'";
+        return(ThrowError("name",error));
+    }
+    return(value);
 }
 
 //------------------------------------------------------------------------------
@@ -106,44 +125,66 @@ bool QOFile::openInternal(const QString& name)
 
 //------------------------------------------------------------------------------
 
-void QOFile::close(void)
+QScriptValue QOFile::close(void)
 {
-    if( argumentCount() != 0 ) {
-        context()->throwError("OFile::close() - illegal number of arguments, none is expected");
-        return;
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: OFile::close()" << endl;
+        return(false);
     }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
     vout.close();
+    return(value);
 }
 
 //------------------------------------------------------------------------------
 
-bool QOFile::printf(const QString& format)
+QScriptValue QOFile::printf(void)
 {
-    if( argumentCount() < 1 ) {
-        context()->throwError("OFile::printf(format[,value1,value2,..]) - illegal number of arguments, at least one is expected");
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: OFile::printf(format,...)" << endl;
         return(false);
     }
+
+    value = CheckMinimumNumberOfArguments("format,...",1);
+    if( value.isError() ) return(value);
+
+    QString format;
+    value = GetArgAsString("format,...","format",1,format);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
 
     // prepare format
     boost::format my_format;
     try {
         my_format.parse(format.toStdString());
     } catch(...) {
-        context()->throwError("OFile::printf(format[,value1,value2,..]) - unable to parse format");
-        return(false);
+        return(ThrowError("format,...","unable to parse format"));
     }
 
-    if( my_format.expected_args() != (argumentCount() - 1) ){
+    if( my_format.expected_args() != (GetArgumentCount() - 1) ){
         CSmallString error;
-        error << "OFile::printf(format[,value1,value2,..]) - format requires different number of values (";
-        error << my_format.expected_args() << ") than it is provided (" << (argumentCount() - 1) << ")";
-        context()->throwError(QString(error));
-        return(false);
+        error << "format requires different number of values (";
+        error << my_format.expected_args() << ") than it is provided (" << (GetArgumentCount() - 1) << ")";
+        return(ThrowError("format,...",error));
     }
 
     // parse individual arguments
     for(int i=0; i < my_format.expected_args(); i++ ){
-        QScriptValue val = argument(i+1);
+        QScriptValue val = GetArgument(i+1);
 
         try {
             if( val.isNumber() ){
@@ -155,18 +196,20 @@ bool QOFile::printf(const QString& format)
             }
         } catch(...){
             CSmallString error;
-            error << "OFile::printf(format[,value1,value2,..]) - unable to process argument (";
+            error << "unable to process argument (";
             error << i + 1 << ")";
-            context()->throwError(QString(error));
-            return(false);
+            return(ThrowError("format,...",error));
         }
     }
 
     // write string to file
     vout << my_format;
 
-    // was it OK?
-    return( vout.good() );
+    if( ! vout ){
+        return(ThrowError("format,...","unable to write formated data to the file"));
+    }
+
+    return( value );
 }
 
 //==============================================================================

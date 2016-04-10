@@ -1,5 +1,5 @@
-#ifndef QCurveH
-#define QCurveH
+#ifndef QTinySplineH
+#define QTinySplineH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -29,12 +29,12 @@
 
 //------------------------------------------------------------------------------
 
-/// Curve
-class CATS_PACKAGE QCurve : public QObject, protected QScriptable, protected QCATsScriptable {
+/// TinySpline
+class CATS_PACKAGE QTinySpline : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
-    QCurve(void);
+    QTinySpline(void);
     static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
 
@@ -85,6 +85,10 @@ public slots:
     /// init spline from 3DNA helical axis
     /// void initSplineFrom3DNAHelAxis(x3dna)
     QScriptValue initSplineFrom3DNAHelAxis(void);
+
+    /// init spline from curves+ helical axis
+    /// void initSplineFromCurvesPHelAxis(x3dna)
+    QScriptValue initSplineFromCurvesPHelAxis(void);
     
     /// set control point
     /// bool setCtrlPointValue(index,value,dim)
