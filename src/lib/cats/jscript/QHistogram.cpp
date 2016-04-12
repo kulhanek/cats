@@ -699,6 +699,38 @@ QScriptValue QHistogram::getMaxOccupancy(void)
     return(maxoccu);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram::getBinPosition(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getBinPosition(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= NBins) ){
+        return( ThrowError("index","index out-of-legal range"));
+    }
+
+// execute ---------------------------------------
+    double dch = (MaxValue - MinValue)/NBins;
+    double bpos = (index + 0.5)*dch + MinValue;
+
+    return(bpos);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

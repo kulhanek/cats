@@ -678,11 +678,14 @@ get(BPHel,Htwist)
 void Qx3DNA::ClearAll(void)
 {
     // destroy all previous data
+    ResIDMap.clear();
     BPIDs.clear();
     BPStepIDs.clear();
     BPPar.clear();
     BPStepPar.clear();
     BPHelPar.clear();
+    BPOrigins.clear();
+    HelAxisPositions.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
@@ -846,7 +849,7 @@ bool Qx3DNA::ParseOutputData(void)
 {
     ifstream ifs;
 
-// parse BP  -----------------------------------
+// parse BP indexes -----------------------------------
     // open file
     CFileName fileName = WorkDir / "Qx3DNA.inp";
     ifs.open( fileName );
@@ -871,8 +874,7 @@ bool Qx3DNA::ParseOutputData(void)
 
     ifs.close();
 
-
-// parse BP Step -------------------------------
+// parse the other data -------------------------------
     // open file
     fileName = WorkDir / "Qx3DNA.out";
     ifs.open( fileName );
@@ -886,10 +888,19 @@ bool Qx3DNA::ParseOutputData(void)
 
     getline(ifs,lbuf);
     while( !ifs.eof() ){
-// read steps
+
+        if( lbuf.find("bp        Ox        Oy        Oz        Nx        Ny        Nz") != string::npos ){
+            if( ReadSectionBPOrigins(ifs) == false ) return(false);
+        }
+
         if( lbuf.find("step      i1-i2        i1-j2        j1-i2        j1-j2        sum") != string::npos ){
             if( ReadSectionBPStepIDs(ifs,BPIDs,BPStepIDs) == false ) return(false);
         }
+
+        if( lbuf.find("step       Px        Py        Pz        Hx        Hy        Hz") != string::npos ){
+            if( ReadSectionHelPos(ifs) == false ) return(false);
+        }
+
         if( ParameterType == E3DP_LOCAL ){
             if( lbuf.find("Local base-pair parameters") != string::npos ){
                 getline(ifs,lbuf); // skip heading
@@ -904,6 +915,7 @@ bool Qx3DNA::ParseOutputData(void)
                 if( ReadSectionBPHelPar(ifs) == false ) return(false);
             }
         }
+
         if( ParameterType == E3DP_SIMPLE ){
             if( lbuf.find("Simple base-pair parameters based on") != string::npos ){
                 getline(ifs,lbuf); // skip heading
@@ -914,6 +926,7 @@ bool Qx3DNA::ParseOutputData(void)
                 if( ReadSectionBPStepPar(ifs) == false ) return(false);
             }
         }
+
         getline(ifs,lbuf);
     }
 
@@ -1222,6 +1235,82 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
     return(false);
 }
 
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionBPOrigins(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.find("****************************************************************************") != string::npos ){
+            return(true); // end of BPOrigins
+        }
+
+        stringstream    str(lbuf);
+        CPoint          origin;
+        int             id;
+        string          bp;
+        // step
+        str >> id >> bp >> origin.x >> origin.y >> origin.z;
+
+        if( ! str ){
+            CSmallString error;
+            error << "unable to read  base-pair origin parameters in: " << lbuf;
+            ES_ERROR(error);
+            return(false);
+        }
+
+        BPOrigins.push_back(origin);
+
+        getline(ifs,lbuf);
+    }
+
+    CSmallString error;
+    error << "unable to read base-pair origin parameters section";
+    ES_ERROR(error);
+    return(false);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
+{
+    string lbuf;
+    getline(ifs,lbuf);
+    while( ifs ){
+        if( lbuf.empty() ){
+            return(true); // end of HelPos
+        }
+
+        stringstream    str1(lbuf);
+        stringstream    str2(lbuf);
+        CPoint          pos;
+        int             id;
+        string          step;
+        string          test;
+
+        str1 >> id >> step >> test;
+        if( test != "----" ){
+            // step
+            str2 >> id >> step >> pos.x >> pos.y >> pos.z;
+
+            if( ! str2 ){
+                CSmallString error;
+                error << "unable to read  helical axis position parameters in: " << lbuf;
+                ES_ERROR(error);
+                return(false);
+            }
+
+            HelAxisPositions.push_back(pos);
+        }
+
+        getline(ifs,lbuf);
+    }
+
+    // this is the final section
+    return(true);
+}
+
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -1237,7 +1326,7 @@ bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms
     p_top->InitMoleculeIndexes();
 
     // write header
-    WritePDBRemark(p_fout,"File generated with CATS for 3DNA analysis");
+    fprintf(p_fout,"REMARK File generated with CATS for 3DNA analysis\n");
 
     int last_mol_id = -1;
     int resid = 0;
@@ -1246,6 +1335,8 @@ bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms
     double occ=1.0;
     double tfac=0.0;
     int seg_id = 1;
+    char aname[5];
+    char rname[5];
 
     for(int i=0; i < p_top->AtomList.GetNumberOfAtoms(); i++ ) {
         CAmberAtom* p_atom = p_mask->GetSelectedAtom(i);
@@ -1277,8 +1368,16 @@ bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms
             if( resid > 9999 ){
                 resid = 1;
             }
+
+            // setup names
+            memset(aname,0,5);
+            memcpy(aname,p_atom->GetName(),4);
+
+            memset(rname,0,5);
+            memcpy(rname,p_atom->GetResidue()->GetName(),4);
+
             fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
-                    atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
+                    atid,aname,rname,
                     chain_id,
                     resid,
                     p_crd->GetPosition(i).x,p_crd->GetPosition(i).y,p_crd->GetPosition(i).z,
@@ -1290,53 +1389,6 @@ bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms
     fprintf(p_fout,"TER\n");
 
     return(true);
-}
-
-//------------------------------------------------------------------------------
-
-bool Qx3DNA::WritePDBRemark(FILE* p_file,const CSmallString& string)
-{
-    int end = string.GetLength();
-    int start = 0;
-
-    while( start < end ) {
-        CSmallString substr;
-        int len = 73;
-        if( end - start < 73 ) len = end - start;
-        substr = string.GetSubString(start,len);
-        fprintf(p_file,"REMARK %s\n",(const char*)substr);
-        start += len;
-    }
-
-    return(true);
-}
-
-//------------------------------------------------------------------------------
-
-const char* Qx3DNA::GetPDBResName(CAmberAtom* p_atom,CAmberResidue* p_res)
-{
-    static char name[5];
-
-    // clear name
-    memset(name,0,5);
-
-    // no change
-    memcpy(name,p_res->GetName(),4);
-    return(name);
-}
-
-//------------------------------------------------------------------------------
-
-const char* Qx3DNA::GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res)
-{
-    static char name[5];
-
-    // clear name
-    memset(name,0,5);
-
-    // direct use
-    memcpy(name,p_atom->GetName(),4);
-    return(name);
 }
 
 //------------------------------------------------------------------------------

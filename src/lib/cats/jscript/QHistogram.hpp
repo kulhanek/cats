@@ -113,7 +113,11 @@ public slots:
     
     /// return max value of occupancy
     /// double getMaxOccupancy()
-    QScriptValue getMaxOccupancy(void);    
+    QScriptValue getMaxOccupancy(void);
+
+    /// return middle position of a given bin
+    /// double getBinPosition(index)
+    QScriptValue getBinPosition(void);
 
 // i/o methods -----------------------------------------------------------------
     /// save histogram

@@ -169,6 +169,8 @@ private:
     friend class QPMFLib;
     friend class Qx3DNA;
     friend class QMolSurf;
+    friend class QTinySpline;
+    friend class QCurvesP;
 
     /// clear object data if topology is cleaned - only weak objects
     virtual void CleanData(void);

@@ -60,8 +60,10 @@
 #include <QVolumeData.hpp>
 #include <QThermoIG.hpp>
 #include <Qx3DNA.hpp>
+#include <QCurvesP.hpp>
 #include <QNAStat.hpp>
 #include <QMolSurf.hpp>
+#include <QTinySpline.hpp>
 
 // i/o suuport --------------------------------
 #include <QOFile.hpp>
@@ -119,8 +121,10 @@ void RegisterAllCATsClasses(QScriptEngine& engine)
     QVolumeData::Register(engine);
     QThermoIG::Register(engine);
     Qx3DNA::Register(engine);
+    QCurvesP::Register(engine);
     QNAStat::Register(engine);
     QMolSurf::Register(engine);
+    QTinySpline::Register(engine);
 
     // i/o suuport --------------------------------
     QOFile::Register(engine);
