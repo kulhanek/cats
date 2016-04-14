@@ -1,3 +1,21 @@
+/* =====================================================================
+ * This file is part of CATs - Conversion and Analysis Tools.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * =====================================================================
+ */
+
 #include "SyntaxHighlighter.hpp"
 
 CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
@@ -5,8 +23,8 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
-    keywordFormat.setForeground(Qt::darkBlue);
-    keywordFormat.setFontWeight(QFont::Bold);
+    KeywordFormat.setForeground(Qt::darkBlue);
+    KeywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
     keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
                     << "\\bdouble\\b" << "\\benum\\b" << "\\bexplicit\\b"
@@ -19,32 +37,30 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
                     << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
                     << "\\bvoid\\b" << "\\bvolatile\\b";
     foreach (const QString &pattern, keywordPatterns) {
-        rule.pattern = QRegExp(pattern);
-        rule.format = keywordFormat;
-        highlightingRules.append(rule);
+        rule.Pattern = QRegExp(pattern);
+        rule.Format = KeywordFormat;
+        HighlightingRules.append(rule);
     }
-
-
-
-
-
-
-    classFormat.setFontWeight(QFont::Bold);
-       classFormat.setForeground(Qt::darkMagenta);
-       rule.pattern = QRegExp("\\bQ[A-Za-z]+\\b");
-       rule.format = classFormat;
-       highlightingRules.append(rule);
-
-       quotationFormat.setForeground(Qt::darkGreen);
-       rule.pattern = QRegExp("\".*\"");
-       rule.format = quotationFormat;
-       highlightingRules.append(rule);
-
-       functionFormat.setFontItalic(true);
-       functionFormat.setForeground(Qt::blue);
-       rule.pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
-       rule.format = functionFormat;
-       highlightingRules.append(rule);
+/*
+    KeywordFormat.setForeground(Qt::darkMagenta);
+    KeywordFormat.setFontWeight(QFont::Bold);
+    QStringList CATsKeywords;
+    CATsKeywords << "\\bAtom\\b" << "\\bAverageSnapshot\\b" << "\\bCATs\\b"
+                    << "\\bCATsScriptable\\b" << "\\bCovarMatrix\\b" << "\\bGeometry\\b"
+                    << "\\bHistogram\\b" << "\\bLinStat\\b" << "\\bMinMax\\b"
+                    << "\\bMolSurf\\b" << "\\bNAHelper\\b" << "\\bNAStat\\b"
+                    << "\\bNAStatHelper\\b" << "\\bNetResults\\b" << "\\bNetTrajectory\\b"
+                    << "\\bOBMol\\b" << "\\bOFile\\b" << "\\bPMFLib\\b"
+                    << "\\bPoint\\b" << "\\bPropSum\\b" << "\\bResidue\\b"
+                    << "\\bRSelection\\b" << "\\bSelection\\b" << "\\bSimpleVector\\b"
+                    << "\\bSnapshot\\b" << "\\bThermoIG\\b" << "\\bTopology\\b"
+                    << "\\bTrajectory\\b" << "\\bTrajPool\\b" << "\\bTransformation\\b"
+                    << "\\bVolumeData\\b" << "\\bx3DNA\\b";
+    foreach (const QString &pattern, CATsKeywords) {
+        rule.Pattern = QRegExp(pattern);
+        rule.Format = KeywordFormat;
+        HighlightingRules.append(rule);
+    }*/
 
 
 
@@ -52,26 +68,73 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 
 
 
-       singleLineCommentFormat.setForeground(Qt::red);
-           rule.pattern = QRegExp("//[^\n]*");
-           rule.format = singleLineCommentFormat;
-           highlightingRules.append(rule);
+    ClassFormat.setFontWeight(QFont::Bold);
+       ClassFormat.setForeground(Qt::darkMagenta);
+       rule.Pattern = QRegExp("\\bQ[A-Za-z]+\\b");
+       rule.Format = ClassFormat;
+       HighlightingRules.append(rule);
 
-           multiLineCommentFormat.setForeground(Qt::red);
 
-           commentStartExpression = QRegExp("/\\*");
-           commentEndExpression = QRegExp("\\*/");
+
+       FunctionFormat.setFontItalic(true);
+       FunctionFormat.setForeground(Qt::blue);
+       rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+       rule.Format = FunctionFormat;
+       HighlightingRules.append(rule);
+
+
+
+
+
+       KeywordFormat.setForeground(Qt::darkMagenta);
+       KeywordFormat.setFontItalic(true);
+       QStringList CATsKeywords;
+       CATsKeywords << "\\bAtom\\b" << "\\bAverageSnapshot\\b" << "\\bCATs\\b"
+                       << "\\bCATsScriptable\\b" << "\\bCovarMatrix\\b" << "\\bGeometry\\b"
+                       << "\\bHistogram\\b" << "\\bLinStat\\b" << "\\bMinMax\\b"
+                       << "\\bMolSurf\\b" << "\\bNAHelper\\b" << "\\bNAStat\\b"
+                       << "\\bNAStatHelper\\b" << "\\bNetResults\\b" << "\\bNetTrajectory\\b"
+                       << "\\bOBMol\\b" << "\\bOFile\\b" << "\\bPMFLib\\b"
+                       << "\\bPoint\\b" << "\\bPropSum\\b" << "\\bResidue\\b"
+                       << "\\bRSelection\\b" << "\\bSelection\\b" << "\\bSimpleVector\\b"
+                       << "\\bSnapshot\\b" << "\\bThermoIG\\b" << "\\bTopology\\b"
+                       << "\\bTrajectory\\b" << "\\bTrajPool\\b" << "\\bTransformation\\b"
+                       << "\\bVolumeData\\b" << "\\bx3DNA\\b";
+       foreach (const QString &pattern, CATsKeywords) {
+           rule.Pattern = QRegExp(pattern);
+           rule.Format = KeywordFormat;
+           HighlightingRules.append(rule);
+       }
+
+
+       QuotationFormat.setForeground(Qt::darkGreen);
+       //rule.Pattern = QRegExp("\".*\"");
+       rule.Pattern = QRegExp("\"[^\"]*\"");
+       rule.Format = QuotationFormat;
+       HighlightingRules.append(rule);
+
+
+       SingleLineCommentFormat.setForeground(Qt::red);
+           rule.Pattern = QRegExp("//[^\n]*");
+           rule.Format = SingleLineCommentFormat;
+           HighlightingRules.append(rule);
+
+           MultiLineCommentFormat.setForeground(Qt::red);
+
+           CommentStartExpression = QRegExp("/\\*");
+           CommentEndExpression = QRegExp("\\*/");
+
 }
 
 
 void CSyntaxHighlighter::highlightBlock(const QString &text)
 {
-    foreach (const HighlightingRule &rule, highlightingRules) {
-        QRegExp expression(rule.pattern);
+    foreach (const HighlightingRule &rule, HighlightingRules) {
+        QRegExp expression(rule.Pattern);
         int index = expression.indexIn(text);
         while (index >= 0) {
             int length = expression.matchedLength();
-            setFormat(index, length, rule.format);
+            setFormat(index, length, rule.Format);
             index = expression.indexIn(text, index + length);
         }
     }
@@ -80,19 +143,19 @@ void CSyntaxHighlighter::highlightBlock(const QString &text)
 
     int startIndex = 0;
         if (previousBlockState() != 1)
-            startIndex = commentStartExpression.indexIn(text);
+            startIndex = CommentStartExpression.indexIn(text);
 
         while (startIndex >= 0) {
-                int endIndex = commentEndExpression.indexIn(text, startIndex);
+                int endIndex = CommentEndExpression.indexIn(text, startIndex);
                 int commentLength;
                 if (endIndex == -1) {
                     setCurrentBlockState(1);
                     commentLength = text.length() - startIndex;
                 } else {
                     commentLength = endIndex - startIndex
-                                    + commentEndExpression.matchedLength();
+                                    + CommentEndExpression.matchedLength();
                 }
-                setFormat(startIndex, commentLength, multiLineCommentFormat);
-                startIndex = commentStartExpression.indexIn(text, startIndex + commentLength);
+                setFormat(startIndex, commentLength, MultiLineCommentFormat);
+                startIndex = CommentStartExpression.indexIn(text, startIndex + commentLength);
             }
 }

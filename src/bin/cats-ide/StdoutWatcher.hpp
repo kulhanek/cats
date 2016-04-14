@@ -1,26 +1,46 @@
 #ifndef STDOUTWATCHER_HPP
 #define STDOUTWATCHER_HPP
+/* =====================================================================
+ * This file is part of CATs - Conversion and Analysis Tools.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * =====================================================================
+ */
 
 #include <iostream>
 #include <streambuf>
 #include <string>
+#include <QTextStream>
+#include <QFile>
+#include <QThread>
 
-#include <QTextEdit>
-
-class CStdoutWatcher : public std::basic_streambuf<char>
+class CStdoutWatcher : public QThread
 {
+    Q_OBJECT
+
 public:
-    CStdoutWatcher(std::ostream &stream, QTextEdit* text_edit);
-    ~CStdoutWatcher();
-    static void registerQDebugMessageHandler();
+    CStdoutWatcher(QObject *parent, QString fileName);
+    void StartOutputRedirection();
+    void StopOutputRedirection();
+    bool Terminated;
+
+signals:
+    void LineRead(QString line);
 
 private:
-    static void myQDebugMessageHandler(QtMsgType, const QMessageLogContext &, const QString &msg);
-
-private:
-    std::ostream &m_stream;
-    std::streambuf *m_old_buf;
-    QTextEdit* log_window;
+    QString RedirectFileName;
+    virtual void run();
 };
 
 

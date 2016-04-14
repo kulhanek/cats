@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1126</width>
-    <height>634</height>
+    <width>1137</width>
+    <height>735</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -42,7 +42,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>0</number>
+       <number>1</number>
       </property>
       <widget class="QWidget" name="page_5">
        <property name="sizePolicy">
@@ -51,88 +51,96 @@
          <verstretch>1</verstretch>
         </sizepolicy>
        </property>
-       <layout class="QGridLayout" name="gridLayout">
-        <item row="0" column="0">
-         <widget class="QPlainTextEdit" name="plainTextEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>2</horstretch>
-            <verstretch>3</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="sizeIncrement">
-           <size>
-            <width>0</width>
-            <height>0</height>
-           </size>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QTabWidget" name="tabWidget">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-            <horstretch>2</horstretch>
-            <verstretch>1</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab">
-           <property name="enabled">
-            <bool>true</bool>
-           </property>
-           <attribute name="title">
-            <string>Output</string>
-           </attribute>
-           <widget class="QTextBrowser" name="textBrowser">
-            <property name="geometry">
-             <rect>
-              <x>-20</x>
-              <y>-90</y>
-              <width>1063</width>
-              <height>277</height>
-             </rect>
-            </property>
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-              <horstretch>2</horstretch>
-              <verstretch>1</verstretch>
-             </sizepolicy>
-            </property>
-           </widget>
-          </widget>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="page_6">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>1</horstretch>
-         <verstretch>1</verstretch>
-        </sizepolicy>
-       </property>
-       <layout class="QGridLayout" name="gridLayout_6">
-        <item row="0" column="0">
-         <widget class="QLabel" name="label">
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <widget class="QSplitter" name="splitter">
           <property name="sizePolicy">
            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>1</horstretch>
             <verstretch>1</verstretch>
            </sizepolicy>
           </property>
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QPlainTextEdit" name="plainTextEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>2</horstretch>
+             <verstretch>3</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="sizeIncrement">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
+           </property>
+          </widget>
+          <widget class="QTabWidget" name="tabWidget">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>2</horstretch>
+             <verstretch>1</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="currentIndex">
+            <number>0</number>
+           </property>
+           <widget class="QWidget" name="tab">
+            <property name="enabled">
+             <bool>true</bool>
+            </property>
+            <attribute name="title">
+             <string>Output</string>
+            </attribute>
+            <layout class="QVBoxLayout" name="verticalLayout_2">
+             <item>
+              <widget class="QLabel" name="workingDirLabel">
+               <property name="font">
+                <font>
+                 <pointsize>9</pointsize>
+                </font>
+               </property>
+               <property name="text">
+                <string>Working directory: </string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QTextBrowser" name="textBrowser">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                 <horstretch>2</horstretch>
+                 <verstretch>2</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="font">
+                <font>
+                 <family>Courier New</family>
+                 <pointsize>10</pointsize>
+                </font>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page">
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0" alignment="Qt::AlignHCenter|Qt::AlignTop">
+         <widget class="QLabel" name="label_2">
           <property name="font">
            <font>
-            <pointsize>14</pointsize>
+            <pointsize>11</pointsize>
            </font>
           </property>
           <property name="text">
-           <string>No debugger has been launched yet.</string>
-          </property>
-          <property name="alignment">
-           <set>Qt::AlignCenter</set>
+           <string>CATs developed by: blabla at blabla, License: blabla, Blabla: blabla.</string>
           </property>
          </widget>
         </item>
@@ -147,7 +155,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1126</width>
+     <width>1137</width>
      <height>26</height>
     </rect>
    </property>
@@ -162,8 +170,11 @@
    </widget>
    <widget class="QMenu" name="menu_About">
     <property name="title">
-     <string>&amp;About</string>
+     <string>&amp;Help</string>
     </property>
+    <addaction name="actionAbout"/>
+    <addaction name="actionCATs_Help"/>
+    <addaction name="actionJavaScript_Help"/>
    </widget>
    <widget class="QMenu" name="menu_View">
     <property name="title">
@@ -177,6 +188,7 @@
      <string>&amp;Settings</string>
     </property>
     <addaction name="actionChange_working_directory"/>
+    <addaction name="actionAutoSet_WD_to_script_path"/>
    </widget>
    <widget class="QMenu" name="menu_Run">
     <property name="title">
@@ -184,6 +196,7 @@
     </property>
     <addaction name="actionRun_script"/>
     <addaction name="actionDebug"/>
+    <addaction name="actionAbort"/>
    </widget>
    <addaction name="menu_File"/>
    <addaction name="menu_View"/>
@@ -205,13 +218,24 @@
    <addaction name="separator"/>
    <addaction name="actionRun_script"/>
    <addaction name="actionDebug"/>
+   <addaction name="actionAbort"/>
+   <addaction name="separator"/>
+   <addaction name="actionReference"/>
   </widget>
   <action name="action_Open">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/open.png</normaloff>:/icons/open.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Load script...</string>
    </property>
   </action>
   <action name="action_Save_script">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Save script...</string>
    </property>
@@ -220,6 +244,10 @@
    </property>
   </action>
   <action name="action_Exit">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/exit.png</normaloff>:/icons/exit.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Exit</string>
    </property>
@@ -232,7 +260,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/icons/editor_icon.png</normaloff>:/icons/editor_icon.png</iconset>
    </property>
    <property name="text">
@@ -247,7 +275,7 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/icons/debugger_icon.png</normaloff>:/icons/debugger_icon.png</iconset>
    </property>
    <property name="text">
@@ -259,7 +287,7 @@
   </action>
   <action name="actionChange_working_directory">
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/icons/working_icon.png</normaloff>:/icons/working_icon.png</iconset>
    </property>
    <property name="text">
@@ -268,7 +296,7 @@
   </action>
   <action name="actionRun_script">
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/icons/run_icon.png</normaloff>:/icons/run_icon.png</iconset>
    </property>
    <property name="text">
@@ -280,7 +308,7 @@
   </action>
   <action name="actionDebug">
    <property name="icon">
-    <iconset>
+    <iconset resource="resources.qrc">
      <normaloff>:/icons/debug_icon.png</normaloff>:/icons/debug_icon.png</iconset>
    </property>
    <property name="text">
@@ -288,12 +316,69 @@
    </property>
   </action>
   <action name="actionSave_script_as">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/save.png</normaloff>:/icons/save.png</iconset>
+   </property>
    <property name="text">
     <string>Save script as...</string>
    </property>
   </action>
+  <action name="actionAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionCATs_Help">
+   <property name="text">
+    <string>CATs Help</string>
+   </property>
+  </action>
+  <action name="actionJavaScript_Help">
+   <property name="text">
+    <string>JavaScript Help</string>
+   </property>
+  </action>
+  <action name="actionReference">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset>
+     <normalon>:/icons/help.jpg</normalon>
+    </iconset>
+   </property>
+   <property name="text">
+    <string>Reference</string>
+   </property>
+   <property name="toolTip">
+    <string>Web Browser for CATs and JavaScript reference</string>
+   </property>
+  </action>
+  <action name="actionAbort">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/abort.png</normaloff>:/icons/abort.png</iconset>
+   </property>
+   <property name="text">
+    <string>Abort</string>
+   </property>
+  </action>
+  <action name="actionAutoSet_WD_to_script_path">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Script location is the working directory</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

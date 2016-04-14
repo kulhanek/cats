@@ -1,8 +1,25 @@
+/* =====================================================================
+ * This file is part of CATs - Conversion and Analysis Tools.
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * =====================================================================
+ */
+
 #include "IDEWindow.hpp"
 #include "ui_IDEWindow.h"
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptValue>
-#include "StdoutWatcher.hpp"
 #ifndef QT_NO_SCRIPTTOOLS
 #include <QtScriptTools/QScriptEngineDebugger>
 #endif
@@ -12,63 +29,80 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 {
     JSEngineThread = new CJSEngineThread(this);
 
-    //JSEngineThread = 0;
+    AuxFile = new QTemporaryFile();
+    AuxFile->open();
+    AuxFilePath = AuxFile->fileName();
+    AuxFileStream.setDevice(AuxFile);
 
-    ui.setupUi(this);
-    setupMenu();
+    Debugger = new QScriptEngineDebugger();
+    DebuggerEngine = NULL;
+
+    StdoutWatcher = new CStdoutWatcher(this, AuxFilePath);
+
+    connect(StdoutWatcher, SIGNAL(LineRead(QString)),this,SLOT(WriteLine(QString)));
+
+    Ui.setupUi(this);
+    SetupMenu();
     //setupHelpMenu();
-    setupEditor();
+    SetupEditor();
 
-    workingDir = "";
-    currentFile = "";
+    WorkingDir = "";
+    CurrentFile = "";
+
+    Ui.workingDirLabel->setText("Working directory not selected.");
+
+    CurrentWebPage = "";
+    WebBrowser = NULL;
 
     //setCentralWidget(editor);
     setWindowTitle(tr("CATs IDE"));
+
+    Ui.stackedWidget->addWidget(Debugger->standardWindow());
+
+    Ui.actionAutoSet_WD_to_script_path->setChecked(true);
+    AutoSetWorkingDir = true;
+
+    Ui.stackedWidget->setCurrentIndex(0);
 }
 
-void CIDEWindow::setupMenu()
+void CIDEWindow::SetupMenu()
 {
-    connect(ui.action_Open, SIGNAL(triggered()), this, SLOT(loadFile()));
-    connect(ui.action_Save_script, SIGNAL(triggered()), this, SLOT(saveFile()));
-    connect(ui.actionSave_script_as, SIGNAL(triggered()), this, SLOT(saveFileAs()));
-    connect(ui.action_Exit, SIGNAL(triggered()), this, SLOT(exitProgram()));
-    connect(ui.actionChange_working_directory, SIGNAL(triggered()), this, SLOT(setWorkingDirectory()));
-    connect(ui.actionRun_script, SIGNAL(triggered()), this, SLOT(runScript()));
-    connect(ui.actionDebug, SIGNAL(triggered()), this, SLOT(debugScript()));
-    connect(ui.actionSwitch_to_Editor, SIGNAL(triggered()), this, SLOT(switchToEditor()));
-    connect(ui.actionSwitch_to_Debugger, SIGNAL(triggered()), this, SLOT(switchToDebugger()));
-    connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(refreshTabs()));
+    connect(Ui.action_Open, SIGNAL(triggered()), this, SLOT(LoadFile()));
+    connect(Ui.action_Save_script, SIGNAL(triggered()), this, SLOT(SaveFile()));
+    connect(Ui.actionSave_script_as, SIGNAL(triggered()), this, SLOT(SaveFileAs()));
+    connect(Ui.action_Exit, SIGNAL(triggered()), this, SLOT(ExitProgram()));
+    connect(Ui.actionChange_working_directory, SIGNAL(triggered()), this, SLOT(SetWorkingDirectory()));
+    connect(Ui.actionRun_script, SIGNAL(triggered()), this, SLOT(RunScript()));
+    connect(Ui.actionDebug, SIGNAL(triggered()), this, SLOT(DebugScript()));
+    connect(Ui.actionSwitch_to_Editor, SIGNAL(triggered()), this, SLOT(SwitchToEditor()));
+    connect(Ui.actionSwitch_to_Debugger, SIGNAL(triggered()), this, SLOT(SwitchToDebugger()));
+    connect(Ui.actionJavaScript_Help, SIGNAL(triggered()), this, SLOT(SwitchToJSHelp()));
+    connect(Ui.actionCATs_Help, SIGNAL(triggered()), this, SLOT(SwitchToCATsHelp()));
+    connect(Ui.actionReference, SIGNAL(triggered()), this, SLOT(ShowWebBrowser()));
+    connect(Ui.actionAbout, SIGNAL(triggered()), this, SLOT(SwitchToAbout()));
+    connect(Ui.actionAbort, SIGNAL(triggered()), this, SLOT(AbortEvaluation()));
+    connect(Ui.actionAutoSet_WD_to_script_path, SIGNAL(triggered()), this, SLOT(WorkingDirAutoSetPolicy()));
 
-    auxFilePath = "D:\\programy\\Git\\cats-build\\src\\projects\\cats\\2.0\\src\\bin\\cats-ide\\cats-output.txt";
-    auxFile = new QFile(auxFilePath, this);
-    auxFileStream.setDevice(auxFile);
-
-    //connect(auxFile, SIGNAL(readyRead()), SLOT(Test()));
-
-    connect(JSEngineThread, SIGNAL(finished()), this, SLOT(deleteAuxFile()));
+    connect(JSEngineThread, SIGNAL(UncaughtError(QString)), this, SLOT(PrintErrors(QString)));
+    connect(JSEngineThread, SIGNAL(finished()), this, SLOT(TerminateStdoutWatcher()));
 }
 
-/*void CIDEWindow::Test()
-{
-
-}*/
-
-void CIDEWindow::setupEditor()
+void CIDEWindow::SetupEditor()
 {
     QFont font;
     font.setFamily("Courier");
     font.setFixedPitch(true);
     font.setPointSize(10);
 
-    editor = ui.plainTextEdit;
-    editor->setFont(font);
+    Editor = Ui.plainTextEdit;
+    Editor->setFont(font);
 
-    highlighter = new CSyntaxHighlighter(editor->document());
+    Highlighter = new CSyntaxHighlighter(Editor->document());
 }
 
-void CIDEWindow::loadFile()
+void CIDEWindow::LoadFile()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Load File..."), QString::fromStdString(workingDir), tr("All Files (*.*)"));
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Load File..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
     if (fileName == "")
         return;
 
@@ -79,29 +113,35 @@ void CIDEWindow::loadFile()
 
     QTextStream in(&file);
 
-    ui.plainTextEdit->setPlainText(in.readAll());
+    Ui.plainTextEdit->setPlainText(in.readAll());
 
-    currentFile = fileName.toStdString();
+    CurrentFile = fileName.toStdString();
 
-    if (workingDir == "")
+    if ((WorkingDir == "") || AutoSetWorkingDir)
     {
         QFileInfo info(fileName);
-        workingDir = info.filePath().toStdString();   
+        WorkingDir = info.filePath().toStdString();
 
         size_t found;
-        found=workingDir.find_last_of("/\\");
+        found=WorkingDir.find_last_of("/\\");
 
-        QDir::setCurrent(QString::fromStdString(workingDir.substr(0,found)));
+        WorkingDir = WorkingDir.substr(0,found);
+
+        QDir::setCurrent(QString::fromStdString(WorkingDir));
     }
+
+    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
+
+    this->SwitchToEditor();
 }
 
-void CIDEWindow::saveFile()
+void CIDEWindow::SaveFile()
 {
-    QString fileName = QString::fromStdString(currentFile);
+    QString fileName = QString::fromStdString(CurrentFile);
 
     if (fileName == "")
     {
-        fileName = QFileDialog::getSaveFileName(this, tr("Save File..."), QString::fromStdString(workingDir), tr("All Files (*.*)"));
+        fileName = QFileDialog::getSaveFileName(this, tr("Save File..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
 
         if (fileName == "")
         {
@@ -109,19 +149,34 @@ void CIDEWindow::saveFile()
         }
         else
         {
-            currentFile = fileName.toStdString();
+            CurrentFile = fileName.toStdString();
         }
     }
 
     std::ofstream outFile(fileName.toStdString().c_str());
 
-    outFile << ui.plainTextEdit->toPlainText().toStdString();
+    outFile << Ui.plainTextEdit->toPlainText().toStdString();
     outFile.close();
+
+    if ((WorkingDir == "") || AutoSetWorkingDir)
+    {
+        QFileInfo info(fileName);
+        WorkingDir = info.filePath().toStdString();
+
+        size_t found;
+        found=WorkingDir.find_last_of("/\\");
+
+        WorkingDir = WorkingDir.substr(0,found);
+
+        QDir::setCurrent(QString::fromStdString(WorkingDir));
+    }
+
+    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
-void CIDEWindow::saveFileAs()
+void CIDEWindow::SaveFileAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File As..."), QString::fromStdString(workingDir), tr("All Files (*.*)"));
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save File As..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
 
     if (fileName == "")
     {
@@ -129,18 +184,33 @@ void CIDEWindow::saveFileAs()
     }
     else
     {
-        currentFile = fileName.toStdString();
+        CurrentFile = fileName.toStdString();
     }
 
     std::ofstream outFile(fileName.toStdString().c_str());
 
-    outFile << ui.plainTextEdit->toPlainText().toStdString();
+    outFile << Ui.plainTextEdit->toPlainText().toStdString();
     outFile.close();
+
+    if ((WorkingDir == "") || AutoSetWorkingDir)
+    {
+        QFileInfo info(fileName);
+        WorkingDir = info.filePath().toStdString();
+
+        size_t found;
+        found=WorkingDir.find_last_of("/\\");
+
+        WorkingDir = WorkingDir.substr(0,found);
+
+        QDir::setCurrent(QString::fromStdString(WorkingDir));
+    }
+
+    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
-void CIDEWindow::setWorkingDirectory()
+void CIDEWindow::SetWorkingDirectory()
 {
-    QString dirName = QFileDialog::getExistingDirectory(this,tr("Choose working directory..."), QString::fromStdString(workingDir));
+    QString dirName = QFileDialog::getExistingDirectory(this,tr("Choose working directory..."), QString::fromStdString(WorkingDir));
 
     if (dirName == "")
     {
@@ -148,10 +218,263 @@ void CIDEWindow::setWorkingDirectory()
     }
     else
     {
-        workingDir = dirName.toStdString();
+        WorkingDir = dirName.toStdString();
         QDir::setCurrent(dirName);
     }
+
+    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
+
+void CIDEWindow::RunScript()
+{
+    BlockButtons();
+
+    Ui.textBrowser->clear();
+
+    StdoutWatcher->StartOutputRedirection();
+
+    this->SwitchToEditor();
+
+    JSEngineThread->RunCode(Ui.plainTextEdit->toPlainText());
+}
+
+void CIDEWindow::DebugScript()
+{
+    DebuggerEngine = new QScriptEngine();
+
+    BlockButtons();
+
+    Ui.stackedWidget->setCurrentWidget(Debugger->standardWindow());
+
+    //this->SwitchToDebugger();
+
+    RegisterAllCATsClasses(*DebuggerEngine);
+
+    QString code = Ui.plainTextEdit->toPlainText();
+    QString JSCode;
+
+    if (code.size() > 0)
+    {
+        QString firstLine = code.split(QRegExp("[\r\n]"),QString::SkipEmptyParts)[0];
+        if (firstLine.contains("#!"))
+        {
+            JSCode = "//" + code;
+        }
+        else
+        {
+            JSCode = code;
+        }
+    }
+
+    DebuggerEngine->setProcessEventsInterval(10);
+
+    Debugger->attachTo(DebuggerEngine);
+    Debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
+
+    DebuggerEngine->evaluate(JSCode);
+/*
+    Ui.textBrowser->append("\n=======================\n DEBUGGER HAS FINISHED \n=======================\n\n");
+    QTextCursor cursor = Ui.textBrowser->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser->ensureCursorVisible();
+
+    Ui.stackedWidget->removeWidget(Debugger->standardWindow());
+    this->SwitchToEditor();
+*/
+    Debugger->detach();
+    delete DebuggerEngine;
+    DebuggerEngine = NULL;
+
+    UnblockButtons();
+}
+
+void CIDEWindow::AbortEvaluation()
+{
+    if (DebuggerEngine != NULL)
+    {
+        DebuggerEngine->abortEvaluation();
+        Debugger->action(QScriptEngineDebugger::ContinueAction)->trigger();
+    }
+    else
+    {
+        emit AbortSignal();
+    }
+}
+
+void CIDEWindow::PrintErrors(QString errorMessage)
+{
+    QTextCursor cursor = Ui.textBrowser->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser->append("\n======================================\nEVALUATION ABORTED:");
+    Ui.textBrowser->append(errorMessage);
+    Ui.textBrowser->append("======================================\n");
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser->ensureCursorVisible();
+    this->SwitchToEditor();
+}
+
+void CIDEWindow::SwitchToEditor()
+{
+    Ui.stackedWidget->setCurrentIndex(0);
+    Ui.actionSwitch_to_Editor->setChecked(true);
+    Ui.actionSwitch_to_Debugger->setChecked(false);
+    Ui.actionReference->setChecked(false);
+}
+
+void CIDEWindow::SwitchToDebugger()
+{
+    //If no debugger is launched, switch to "debugger not active" message.
+    //Otherwise show debugger.
+    /*if (Debugger == NULL)
+    {
+        if (WebBrowser == NULL)
+        {
+            Ui.stackedWidget->setCurrentIndex(2);
+        }
+        else
+        {
+            Ui.stackedWidget->setCurrentIndex(3);
+        }
+    }
+    else
+    {*/
+    Ui.stackedWidget->setCurrentWidget(Debugger->standardWindow());
+    //}
+
+    Ui.actionSwitch_to_Editor->setChecked(false);
+    Ui.actionSwitch_to_Debugger->setChecked(true);
+    Ui.actionReference->setChecked(false);
+}
+
+void CIDEWindow::ShowWebBrowser()
+{
+    Ui.actionReference->setChecked(true);
+    Ui.actionSwitch_to_Debugger->setChecked(false);
+    Ui.actionSwitch_to_Editor->setChecked(false);
+
+    if (WebBrowser == NULL)
+    {
+        SwitchToJSHelp();
+    }
+    else
+    {
+        Ui.stackedWidget->setCurrentWidget(WebBrowser);
+    }
+}
+
+void CIDEWindow::SwitchToJSHelp()
+{
+    LoadWebPage("https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference");
+}
+
+void CIDEWindow::SwitchToCATsHelp()
+{
+    LoadWebPage("https://lcc.ncbr.muni.cz/whitezone/development/cats/wiki/index.php/Documentation");
+}
+
+void CIDEWindow::SwitchToAbout()
+{
+    if (WebBrowser == NULL)
+    {
+        Ui.stackedWidget->setCurrentIndex(1);
+    }
+    else
+    {
+        Ui.stackedWidget->setCurrentIndex(2);
+    }
+
+    Ui.actionReference->setChecked(false);
+    Ui.actionSwitch_to_Debugger->setChecked(false);
+    Ui.actionSwitch_to_Editor->setChecked(false);
+}
+
+void CIDEWindow::LoadWebPage(QString url)
+{
+    if (CurrentWebPage == url)
+    {
+        Ui.stackedWidget->setCurrentWidget(WebBrowser);
+        return;
+    }
+
+    CurrentWebPage = url;
+
+    if (WebBrowser == NULL)
+    {
+        WebBrowser = new QWebView(this);
+        Ui.stackedWidget->insertWidget(1,WebBrowser);
+        WebBrowser->show();
+    }
+
+    Ui.stackedWidget->setCurrentWidget(WebBrowser);
+    Ui.actionReference->setChecked(true);
+    Ui.actionSwitch_to_Debugger->setChecked(false);
+    Ui.actionSwitch_to_Editor->setChecked(false);
+    WebBrowser->load(QUrl(url));
+}
+
+void CIDEWindow::TerminateStdoutWatcher()
+{
+    StdoutWatcher->Terminated = true;
+
+    UnblockButtons();
+}
+
+CIDEWindow::~CIDEWindow()
+{
+    StdoutWatcher->Terminated = true;
+    StdoutWatcher->wait();
+}
+
+void CIDEWindow::WriteLine(QString line)
+{
+    QTextCursor cursor = Ui.textBrowser->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser->setTextCursor(cursor);
+    Ui.textBrowser->insertPlainText(line);
+    qApp->processEvents();
+}
+
+void CIDEWindow::BlockButtons()
+{
+    Ui.actionAbort->setEnabled(true);
+    Ui.actionChange_working_directory->setEnabled(false);
+    Ui.actionDebug->setEnabled(false);
+    Ui.actionRun_script->setEnabled(false);
+    Ui.action_Open->setEnabled(false);
+
+    if (DebuggerEngine != NULL)
+        Ui.plainTextEdit->setReadOnly(true);
+}
+
+void CIDEWindow::UnblockButtons()
+{
+    Ui.actionAbort->setEnabled(false);
+    Ui.actionChange_working_directory->setEnabled(true);
+    Ui.actionDebug->setEnabled(true);
+    Ui.actionRun_script->setEnabled(true);
+    Ui.action_Open->setEnabled(true);
+
+    Ui.plainTextEdit->setReadOnly(false);
+}
+
+void CIDEWindow::WorkingDirAutoSetPolicy()
+{
+    if (Ui.actionAutoSet_WD_to_script_path->isChecked())
+    {
+        AutoSetWorkingDir = true;
+        //set it!
+    }
+    else
+    {
+        AutoSetWorkingDir = false;
+    }
+}
+
+void CIDEWindow::ExitProgram()
+{
+    this->close();
+}
+
 /*
 QScriptValue QtPrintFunction(QScriptContext *context, QScriptEngine *engine)
 {
@@ -169,237 +492,3 @@ QScriptValue QtPrintFunction(QScriptContext *context, QScriptEngine *engine)
     return engine->undefinedValue();
 }
 */
-void CIDEWindow::runScript()
-{
-    console_content = "";
-    output_content = "";
-    ui.textBrowser->clear();
-
-    //remove(auxFilePath);
-
-    //std::ofstream o(auxFilePath);
-    //o << std::endl;
-
-//auxFile = new QFile(auxFilePath, this);//&newFile;
-//auxFileStream.setDevice(auxFile);
-/*
-if (st.isRunning())
-    st.terminate();
-
-while (!st.wait())
-{
-    sleep(0.1);
-}*/
-
-    // check if file changed
-    watcher = new QFileSystemWatcher(this);
-    watcher->addPath(auxFilePath);
-    connect(watcher,SIGNAL(fileChanged(QString)),this,SLOT(HandleFileChange(QString)));
-
-    JSEngineThread->RunCode(ui.plainTextEdit->toPlainText());
-}
-
-void CIDEWindow::deleteAuxFile()
-{/*
-    if (QCATsScriptable::CATsEngine->hasUncaughtException())
-    {
-        int line = QCATsScriptable::CATsEngine->uncaughtExceptionLineNumber();
-        //QString err = st.getResult().toString();
-        QString msg = QString("Error at line %1: %2").arg(line);//.arg(err);
-
-        ui.textBrowser->setPlainText(msg);
-
-        ui.tabWidget->setCurrentIndex(0);
-
-        console_content = msg;
-
-        refreshTabs();
-    }
-
-    QByteArray ba = auxFilePath.toLatin1();
-    const char *c_str = ba.data();
-
-    std::remove(c_str);*/
-}
-
-void CIDEWindow::printResults()
-{
-    if (QCATsScriptable::CATsEngine->hasUncaughtException())
-    {
-        int line = QCATsScriptable::CATsEngine->uncaughtExceptionLineNumber();
-        QString err = JSEngineThread->GetResult().toString();
-        QString msg = QString("Error at line %1: %2").arg(line).arg(err);
-
-        ui.textBrowser->setPlainText(msg);
-
-        //ui.tabWidget->setCurrentIndex(0);
-
-        //console_content = msg;
-
-        //refreshTabs();
-    }
-    else
-    {/*ui.textBrowser->setPlainText(JSEngineThread->getOutput());
-        ui.textBrowser->viewport()->update();
-
-        output_content = ui.textBrowser->document()->toPlainText();
-
-        size_t index = 0;
-        while (true) {
-            index = output_content.toStdString().find("\n\n", index);
-
-            if (index == std::string::npos) break;
-
-            output_content.replace(index, 3, "  \n");
-
-            index += 3;
-        }
-
-        ui.tabWidget->setCurrentIndex(1);
-
-        refreshTabs();*/
-    }
-
-    this->switchToEditor();
-}
-
-void CIDEWindow::debugScript()
-{
-    QScriptEngine* JSEngine;
-
-    QScriptEngineDebugger* debugger = new QScriptEngineDebugger();
-
-    if (ui.stackedWidget->count() > 2)
-    {
-        ui.stackedWidget->setCurrentIndex(ui.stackedWidget->count()-1);
-        ui.stackedWidget->removeWidget(ui.stackedWidget->currentWidget());
-    }
-
-    ui.stackedWidget->addWidget(debugger->standardWindow());
-    ui.stackedWidget->setCurrentWidget(debugger->standardWindow());
-
-    debugger->attachTo(JSEngine);
-    debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
-
-    this->switchToDebugger();
-    JSEngine->evaluate(ui.plainTextEdit->toPlainText());
-}
-
-void CIDEWindow::debugScriptInThread()
-{
-    QScriptEngineDebugger* debugger = new QScriptEngineDebugger();
-
-    if (ui.stackedWidget->count() > 2)
-    {
-        ui.stackedWidget->setCurrentIndex(ui.stackedWidget->count()-1);
-        ui.stackedWidget->removeWidget(ui.stackedWidget->currentWidget());
-    }
-
-    ui.stackedWidget->addWidget(debugger->standardWindow());
-    ui.stackedWidget->setCurrentWidget(debugger->standardWindow());
-
-    debugger->attachTo(QCATsScriptable::CATsEngine);
-    debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
-
-    this->switchToDebugger();
-
-    JSEngineThread->RunCode(ui.plainTextEdit->toPlainText());
-}
-
-void CIDEWindow::switchToEditor()
-{
-    ui.stackedWidget->setCurrentIndex(0);
-    ui.actionSwitch_to_Editor->setChecked(true);
-    ui.actionSwitch_to_Debugger->setChecked(false);
-}
-
-void CIDEWindow::switchToDebugger()
-{
-    //If the debugger hasn't been launched, switch to "debugger not launched" message.
-    //Otherwise show debugger.
-    ui.stackedWidget->setCurrentIndex(ui.stackedWidget->count()-1);
-    ui.actionSwitch_to_Editor->setChecked(false);
-    ui.actionSwitch_to_Debugger->setChecked(true);
-}
-
-void CIDEWindow::HandleFileChange(QString change)
-{/*
-    QFile file(auxFilePath);
-
-    if (!file.open(QIODevice::ReadOnly))
-        return;
-
-    QTextStream in(&file);
-
-    output_content = in.readAll();
-
-    ui.tabWidget->setCurrentIndex(1);
-
-    refreshTabs();
-
-    qApp->processEvents();*/
-
-
-
-/*    QString output;
-    while (!auxFile->atEnd())
-    {
-        output = auxFileStream.readLine();
-        output += "\n";
-        ui.textBrowser->append(output);
-        //output_content.append(output);
-    }
-  */
-
-
-
-
-    qApp->processEvents();
-/*
-QString line = "";
-while (!line.isNull())
-{
-    line = auxFileStream.readLine();
-    output_content.append(line);
-}*/
-/*
-do {
-    line = auxFileStream.readLine();
-} while (!line.isNull());*/
-
-    //ui.tabWidget->setCurrentIndex(1);
-
-    //refreshTabs();
-
-    //ui.plainTextEdit->setPlainText(in.readAll());
-}
-
-void CIDEWindow::refreshTabs()
-{
-    if (ui.tabWidget->currentIndex() == 0)
-    {
-        ui.textBrowser->setText(console_content);
-    }
-
-    if (ui.tabWidget->currentIndex() == 1)
-    {
-        ui.textBrowser->setText(output_content);
-    }
-
-    if (ui.tabWidget->currentIndex() == 2)
-    {
-        ui.textBrowser->setText(debugger_tools_content);
-    }
-
-    if (ui.tabWidget->currentIndex() == 3)
-    {
-        ui.textBrowser->setText(stack_view_content);
-    }
-
-    qApp->processEvents();
-}
-
-void CIDEWindow::exitProgram()
-{
-    this->close();
-}

@@ -5,5 +5,10 @@
         <file>icons/editor_icon.png</file>
         <file>icons/run_icon.png</file>
         <file>icons/working_icon.png</file>
+        <file>icons/help.jpg</file>
+        <file>icons/save.png</file>
+        <file>icons/open.png</file>
+        <file>icons/exit.png</file>
+        <file>icons/abort.png</file>
     </qresource>
 </RCC>
