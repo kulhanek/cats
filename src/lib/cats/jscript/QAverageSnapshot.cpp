@@ -134,12 +134,8 @@ QScriptValue QAverageSnapshot::begin(void)
     if( SamplingMode == true ){
         return( ThrowError("","already in sampling mode") );
     }
-    NumOfSnapshostsForCrd = 0;
-    NumOfSnapshostsForVel = 0;
-    NumOfSnapshostsForBox = 0;
-    Restart.Create();   // reset previous data
-    SamplingMode = true;
-
+    
+    BeginAccumulation();
     return(value);
 }
 
@@ -169,9 +165,12 @@ QScriptValue QAverageSnapshot::addSample(void)
         value = GetArgAsObject<QSelection*>("snapshot,selection","selection","Selection",2,p_sel);
         if( value.isError() ) return(value);
     }
+    
+    if( SamplingMode == false ){
+        BeginAccumulation();
+    }    
 
 // execute ---------------------------------------
-
     if( p_sel == NULL ){
         if( Restart.GetNumberOfAtoms() != p_snap->GetNumOfAtoms() ){
             CSmallString error;
@@ -266,35 +265,10 @@ QScriptValue QAverageSnapshot::finish(void)
 
 // execute ---------------------------------------
     if( SamplingMode == false ){
-        return( ThrowError("","still in sampling mode") );
+        return( ThrowError("","not in sampling mode") );
     }
 
-    SamplingMode = false;
-    if( NumOfSnapshostsForCrd <= 0 ) return(false); // no snapshots were accumulated
-
-    for(int i=0; i < Restart.GetNumberOfAtoms(); i++) {
-        CPoint pos = Restart.GetPosition(i);
-        pos /= NumOfSnapshostsForCrd;
-        Restart.SetPosition(i,pos);
-        if( NumOfSnapshostsForVel > 0 ){
-            CPoint vel = Restart.GetVelocity(i);
-            pos /= NumOfSnapshostsForVel;
-            Restart.SetVelocity(i,vel);
-        }
-    }
-    if( NumOfSnapshostsForBox > 0 ) {
-        CPoint box = Restart.GetBox();
-        box /= NumOfSnapshostsForBox;
-        Restart.SetBox(box);
-        CPoint ang = Restart.GetAngles();
-        ang /= NumOfSnapshostsForBox;
-        Restart.SetAngles(ang);
-    }
-    NumOfSnapshostsForCrd = 0;
-    NumOfSnapshostsForVel = 0;
-    NumOfSnapshostsForBox = 0;
-
-    return(true);
+    return(FinishAccumulation());
 }
 
 //------------------------------------------------------------------------------
@@ -319,14 +293,57 @@ QScriptValue QAverageSnapshot::save(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    if( SamplingMode == false ){
-        return( ThrowError("","still in sampling mode") );
+    if( SamplingMode == true ){
+        FinishAccumulation();
     }
 
     // execute code
     Restart.SetTitle("average_structure");
     bool result = Restart.Save(name.toLatin1().constData());
     return(result);
+}
+
+//------------------------------------------------------------------------------
+
+void  QAverageSnapshot::BeginAccumulation(void)
+{
+    NumOfSnapshostsForCrd = 0;
+    NumOfSnapshostsForVel = 0;
+    NumOfSnapshostsForBox = 0;
+    Restart.Create();   // reset previous data
+    SamplingMode = true;
+}
+
+//------------------------------------------------------------------------------
+
+bool  QAverageSnapshot::FinishAccumulation(void)
+{
+    SamplingMode = false;
+    if( NumOfSnapshostsForCrd <= 0 ) return(false); // no snapshots were accumulated
+
+    for(int i=0; i < Restart.GetNumberOfAtoms(); i++) {
+        CPoint pos = Restart.GetPosition(i);
+        pos /= NumOfSnapshostsForCrd;
+        Restart.SetPosition(i,pos);
+        if( NumOfSnapshostsForVel > 0 ){
+            CPoint vel = Restart.GetVelocity(i);
+            pos /= NumOfSnapshostsForVel;
+            Restart.SetVelocity(i,vel);
+        }
+    }
+    if( NumOfSnapshostsForBox > 0 ) {
+        CPoint box = Restart.GetBox();
+        box /= NumOfSnapshostsForBox;
+        Restart.SetBox(box);
+        CPoint ang = Restart.GetAngles();
+        ang /= NumOfSnapshostsForBox;
+        Restart.SetAngles(ang);
+    }
+    NumOfSnapshostsForCrd = 0;
+    NumOfSnapshostsForVel = 0;
+    NumOfSnapshostsForBox = 0;
+    
+    return(true);
 }
 
 //==============================================================================

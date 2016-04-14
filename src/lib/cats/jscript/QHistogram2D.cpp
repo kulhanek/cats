@@ -1,6 +1,7 @@
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
+//    Copyright (C) 2016 Viktor Illík
 //    Copyright (C) 2012 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
@@ -20,7 +21,7 @@
 
 #include <iostream>
 #include <QScriptEngine>
-#include <QHistogram.hpp>
+#include <QHistogram2D.hpp>
 #include <iomanip>
 #include <fstream>
 #include <SmallString.hpp>
@@ -29,44 +30,44 @@
 
 //------------------------------------------------------------------------------
 
-#include <QHistogram.moc>
+#include <QHistogram2D.moc>
 using namespace std;
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-void QHistogram::Register(QScriptEngine& engine)
+void QHistogram2D::Register(QScriptEngine& engine)
 {
-    QScriptValue ctor = engine.newFunction(QHistogram::New);
-    QScriptValue metaObject = engine.newQMetaObject(&QHistogram::staticMetaObject, ctor);
-    engine.globalObject().setProperty("Histogram", metaObject);
+    QScriptValue ctor = engine.newFunction(QHistogram2D::New);
+    QScriptValue metaObject = engine.newQMetaObject(&QHistogram2D::staticMetaObject, ctor);
+    engine.globalObject().setProperty("Histogram2D", metaObject);
 }
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::New(QScriptContext *context,QScriptEngine *engine)
+QScriptValue QHistogram2D::New(QScriptContext *context,QScriptEngine *engine)
 {
     if( context->isCalledAsConstructor() == false ) {
-        context->throwError("new Histogram([histogram]) - it can be called only as a constructor");
+        context->throwError("new Histogram2D([histogram]) - it can be called only as a constructor");
         return(engine->undefinedValue());
     }
     if( context->argumentCount() > 1 ) {
-        context->throwError("new Histogram([histogram]) - illegal number of arguments, none or one is expected");
+        context->throwError("new Histogram2D([histogram]) - illegal number of arguments, none or one is expected");
         return(engine->undefinedValue());
     }
 
-    QCATsScriptable scriptable("Histogram");
+    QCATsScriptable scriptable("Histogram2D");
     QScriptValue    value;
 
 // print help ------------------------------------
     if( scriptable.IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "Histogram object" << endl;
+        sout << "Histogram2D object" << endl;
         sout << endl;
         sout << "Constructors:" << endl;
-        sout << "   new Histogram()" << endl;
-        sout << "   new Histogram(histogram)" << endl;
+        sout << "   new Histogram2D()" << endl;
+        sout << "   new Histogram2D(histogram)" << endl;
         return(scriptable.GetUndefinedValue());
     }
 
@@ -78,20 +79,23 @@ QScriptValue QHistogram::New(QScriptContext *context,QScriptEngine *engine)
     if( value.isError() ) return(value);
 
 // create pbject
-    QHistogram* p_src = NULL;
+    QHistogram2D* p_src = NULL;
     if( scriptable.GetArgumentCount() > 0 ){
-        value = scriptable.GetArgAsObject<>("histogram","histogram","Histogram",1,p_src);
+        value = scriptable.GetArgAsObject<>("histogram","histogram","Histogram2D",1,p_src);
         if( value.isError() ) return(value);
     }
 
-    QHistogram* p_hist = new QHistogram();
+    QHistogram2D* p_hist = new QHistogram2D();
 
     if( p_src != NULL ){
         // copy setup from source histogram
         p_hist->Name = p_src->Name;
-        p_hist->MinValue = p_src->MinValue;
-        p_hist->MaxValue = p_src->MaxValue;
-        p_hist->NBins = p_src->NBins;
+        p_hist->MinValueD1 = p_src->MinValueD1;
+        p_hist->MinValueD2 = p_src->MinValueD2;
+        p_hist->MaxValueD1 = p_src->MaxValueD1;
+        p_hist->MaxValueD2 = p_src->MaxValueD2;
+        p_hist->NBinsD1 = p_src->NBinsD1;
+        p_hist->NBinsD2 = p_src->NBinsD2;
         p_hist->allocateInternal();
     }
 
@@ -102,14 +106,21 @@ QScriptValue QHistogram::New(QScriptContext *context,QScriptEngine *engine)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QHistogram::QHistogram(void)
-    : QCATsScriptable("Histogram")
+QHistogram2D::QHistogram2D(void)
+    : QCATsScriptable("Histogram2D")
 {
-    MinValue = 0;
-    MaxValue = 10.0;
-    NBins = 100;
+    MinValueD1 = 0;
+    MaxValueD1 = 10.0;
+    NBinsD1 = 100;
+    BinSizeD1 = (MaxValueD1 - MinValueD1)/NBinsD1;
+    MinValueD2 = 0;
+    MaxValueD2 = 10.0;
+    NBinsD2 = 100;
+    BinSizeD2 = (MaxValueD2 - MinValueD2)/NBinsD2;
     NumOfSamples = 0;
     NumOfSamplesWithin = 0;
+    BinSize = BinSizeD1 * BinSizeD2;
+    NBins = NBinsD1 * NBinsD2;
     allocateInternal();
 }
 
@@ -117,214 +128,7 @@ QHistogram::QHistogram(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QScriptValue QHistogram::setMinValue(const QScriptValue& dummy)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: Histogram::setMinValue(value)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("value",1);
-    if( value.isError() ) return(value);
-
-    double num;
-    value = GetArgAsRNumber("value","value",1,num);
-    if( value.isError() ) return(value);
-
-    if( num >= MaxValue ){
-        CSmallString error;
-        error << "min value (" << CSmallString().DoubleToStr(num) << ") must be lower than max value (" << CSmallString().DoubleToStr(MaxValue) <<")";
-        return( ThrowError("value",error));
-    }
-
-// execute ---------------------------------------
-    MinValue = num;
-    resetInternal();
-
-    return(true);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::getMinValue(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: double Histogram::getMinValue()" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("",0);
-    if( value.isError() ) return(value);
-
-// execute ---------------------------------------
-    return(MinValue);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::setMaxValue(const QScriptValue& dummy)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: Histogram::setMaxValue(value)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("value",1);
-    if( value.isError() ) return(value);
-
-    double num;
-    value = GetArgAsRNumber("value","value",1,num);
-    if( value.isError() ) return(value);
-
-    if( num <= MinValue ){
-        CSmallString error;
-        error << "max value (" << CSmallString().DoubleToStr(num) << ") must be higher than min value (" << CSmallString().DoubleToStr(MinValue) <<")";
-        return( ThrowError("value",error));
-    }
-
-// execute ---------------------------------------
-    MaxValue = num;
-    resetInternal();
-
-    return(true);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::getMaxValue(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: double Histogram::getMaxValue()" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("",0);
-    if( value.isError() ) return(value);
-
-// execute ---------------------------------------
-    return(MaxValue);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::setNumOfBins(const QScriptValue& dummy)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: Histogram::setNumOfBins(value)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("value",1);
-    if( value.isError() ) return(value);
-
-    int num;
-    value = GetArgAsInt("value","value",1,num);
-    if( value.isError() ) return(value);
-
-    if( num < 0 ){
-        return( ThrowError("value","number of bins must be larger than or equal to zero"));
-    }
-
-// execute ---------------------------------------
-    NBins = num;
-    allocateInternal();
-
-    return(true);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::getNumOfBins(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: int Histogram::getNumOfBins()" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("",0);
-    if( value.isError() ) return(value);
-
-// execute ---------------------------------------
-    return(NBins);
-}
-
-//------------------------------------------------------------------------------
-
-void QHistogram::allocateInternal(void)
-{
-    Histogram.resize(NBins);
-    DataN.resize(NBins);
-    DataSum.resize(NBins);
-    Data2Sum.resize(NBins);
-    resetInternal();
-}
-
-//------------------------------------------------------------------------------
-
-void QHistogram::releaseInternal(void)
-{
-    Histogram.clear();
-    DataN.clear();
-    DataSum.clear();
-    Data2Sum.clear();
-    resetInternal();
-}
-
-//------------------------------------------------------------------------------
-
-void QHistogram::resetInternal(void)
-{
-    NumOfSamples = 0;
-    NumOfSamplesWithin = 0;
-    for(size_t i=0; i < Histogram.size(); i++){
-        Histogram[i] = 0.0;
-    }
-    for(size_t i=0; i < DataN.size(); i++){
-        DataN[i] = 0.0;
-    }
-    for(size_t i=0; i < DataSum.size(); i++){
-        DataSum[i] = 0.0;
-    }
-    for(size_t i=0; i < Data2Sum.size(); i++){
-        Data2Sum[i] = 0.0;
-    }
-}
-
-//==============================================================================
-//------------------------------------------------------------------------------
-//==============================================================================
-
-QScriptValue QHistogram::setName(const QScriptValue& dummy)
+QScriptValue QHistogram2D::setName(const QScriptValue& dummy)
 {
     QScriptValue value;
 
@@ -350,7 +154,7 @@ QScriptValue QHistogram::setName(const QScriptValue& dummy)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::getName(void)
+QScriptValue QHistogram2D::getName(void)
 {
     QScriptValue value;
 
@@ -371,7 +175,333 @@ QScriptValue QHistogram::getName(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::printInfo(void)
+QScriptValue QHistogram2D::setMinValueD1(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setMinValueD1(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    double num;
+    value = GetArgAsRNumber("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num >= MaxValueD1 ){
+        CSmallString error;
+        error << "min value (" << CSmallString().DoubleToStr(num) << ") must be lower than max value (" << CSmallString().DoubleToStr(MaxValueD1) <<")";
+        return( ThrowError("value",error));
+    }
+
+// execute ---------------------------------------
+    MinValueD1 = num;
+    resetInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getMinValueD1(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getMinValueD1()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(MinValueD1);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::setMaxValueD1(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setMaxValueD1(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    double num;
+    value = GetArgAsRNumber("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num <= MinValueD1 ){
+        CSmallString error;
+        error << "max value (" << CSmallString().DoubleToStr(num) << ") must be higher than min value (" << CSmallString().DoubleToStr(MinValueD1) <<")";
+        return( ThrowError("value",error));
+    }
+
+// execute ---------------------------------------
+    MaxValueD1 = num;
+    resetInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getMaxValueD1(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getMaxValueD1()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(MaxValueD1);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::setNumOfBinsD1(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setNumOfBinsD1(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    int num;
+    value = GetArgAsInt("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num < 0 ){
+        return( ThrowError("value","number of bins must be larger than or equal to zero"));
+    }
+
+// execute ---------------------------------------
+    NBinsD1 = num;
+    allocateInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getNumOfBinsD1(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int Histogram::getNumOfBinsD1()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(NBinsD1);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::setMinValueD2(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setMinValueD2(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    double num;
+    value = GetArgAsRNumber("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num >= MaxValueD2 ){
+        CSmallString error;
+        error << "min value (" << CSmallString().DoubleToStr(num) << ") must be lower than max value (" << CSmallString().DoubleToStr(MaxValueD2) <<")";
+        return( ThrowError("value",error));
+    }
+
+// execute ---------------------------------------
+    MinValueD2 = num;
+    resetInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getMinValueD2(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getMinValueD2()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(MinValueD2);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::setMaxValueD2(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setMaxValueD2(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    double num;
+    value = GetArgAsRNumber("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num <= MinValueD2 ){
+        CSmallString error;
+        error << "max value (" << CSmallString().DoubleToStr(num) << ") must be higher than min value (" << CSmallString().DoubleToStr(MinValueD2) <<")";
+        return( ThrowError("value",error));
+    }
+
+// execute ---------------------------------------
+    MaxValueD2 = num;
+    resetInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getMaxValueD2(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Histogram::getMaxValueD2()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(MaxValueD2);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::setNumOfBinsD2(const QScriptValue& dummy)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Histogram::setNumOfBinsD2(value)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("value",1);
+    if( value.isError() ) return(value);
+
+    int num;
+    value = GetArgAsInt("value","value",1,num);
+    if( value.isError() ) return(value);
+
+    if( num < 0 ){
+        return( ThrowError("value","number of bins must be larger than or equal to zero"));
+    }
+
+// execute ---------------------------------------
+    NBinsD2 = num;
+    allocateInternal();
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::getNumOfBinsD2(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int Histogram::getNumOfBinsD2()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(NBinsD2);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QHistogram2D::printInfo(void)
 {
     QScriptValue value;
 
@@ -388,7 +518,7 @@ QScriptValue QHistogram::printInfo(void)
 
 // execute ---------------------------------------
     cout << "=== Histogram" << endl;
-    save(cout);   
+    save(cout);
     return(true);
 }
 
@@ -396,53 +526,110 @@ QScriptValue QHistogram::printInfo(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QScriptValue QHistogram::addSample(void)
+void QHistogram2D::allocateInternal(void)
+{
+    NBins = NBinsD1 * NBinsD2;
+    Histogram.resize(NBins);
+    DataN.resize(NBins);
+    DataSum.resize(NBins);
+    Data2Sum.resize(NBins);
+    BinSizeD1 = (MaxValueD1 - MinValueD1)/NBinsD1;
+    BinSizeD2 = (MaxValueD2 - MinValueD2)/NBinsD2;
+    BinSize = BinSizeD1 * BinSizeD2;
+    resetInternal();
+}
+
+//------------------------------------------------------------------------------
+
+void QHistogram2D::releaseInternal(void)
+{
+    Histogram.clear();
+    DataN.clear();
+    DataSum.clear();
+    Data2Sum.clear();
+    resetInternal();
+}
+
+//------------------------------------------------------------------------------
+
+void QHistogram2D::resetInternal(void)
+{
+    NumOfSamples = 0;
+    NumOfSamplesWithin = 0;
+    for(size_t i=0; i < Histogram.size(); i++){
+        Histogram[i] = 0;
+    }
+    for(size_t i=0; i < DataN.size(); i++){
+        DataN[i] = 0.0;
+    }
+    for(size_t i=0; i < DataSum.size(); i++){
+        DataSum[i] = 0.0;
+    }
+    for(size_t i=0; i < Data2Sum.size(); i++){
+        Data2Sum[i] = 0.0;
+    }
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+QScriptValue QHistogram2D::addSample(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool Histogram::addSample(value[,extra])" << endl;
+        sout << "usage: bool Histogram2D::addSample(value,value[,extra])" << endl;
         return(false);
     }
 
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("value[,extra]",1,2);
+// check arguments ------------------------------
+    value = CheckNumberOfArguments("valueD1,valueD2[,extra]",2,3);
     if( value.isError() ) return(value);
 
-    double num;
-    value = GetArgAsRNumber("value[,extra]","value",1,num);
+    double numD1;
+    value = GetArgAsRNumber("valueD1,valueD2[,extra]","valueD1",1,numD1);
+    if( value.isError() ) return(value);
+
+    double numD2;
+    value = GetArgAsRNumber("valueD1,valueD2[,extra]","valueD1",2,numD2);
     if( value.isError() ) return(value);
 
     double extra;
-    if( GetArgumentCount() > 1 ){
-        value = GetArgAsRNumber("value,extra","extra",2,extra);
+    if( GetArgumentCount() > 2 ){
+        value = GetArgAsRNumber("valueD1,valueD2,extra","extra",3,extra);
         if( value.isError() ) return(value);
     }
 
 
 // execute ---------------------------------------
     if( NBins <= 0 ){
-        return( ThrowError("value[,extra]","number of bins is zero"));
+        return( ThrowError("value,value[,extra]","number of binsD1 is zero"));
     }
 
     NumOfSamples++;
-    if( (num < MinValue) || (num >= MaxValue) ) return(false);
+    if( (numD1 < MinValueD1) || (numD1 >= MaxValueD1) || (numD2 < MinValueD2) || (numD2 >= MaxValueD2) ) return(false);
     NumOfSamplesWithin++;
 
+
     // calculate index
-    double dch = (MaxValue - MinValue)/NBins;
-    if( dch <= 0 ){
-        return( ThrowError("value[,extra]","bin width is zero or negative value"));
+    if( BinSize <= 0 ){ /// STACI BINSIZE alebo D1 D2???
+        return( ThrowError("value,value[,extra]","binD1 width is zero or negative value"));
     }
-    int index = (num - MinValue)/dch;
-    if( (index < 0) || (index >= static_cast<int>(Histogram.size())) ) return(false);
+
+    int indexD1 = (numD1 - MinValueD1)/BinSizeD1;
+    if( (indexD1 < 0) || (indexD1 >= static_cast<int>(Histogram.size())) ) return(false);
+
+    int indexD2 = (numD2 - MinValueD2)/BinSizeD2;
+    if( (indexD2 < 0) || (indexD2 >= static_cast<int>(Histogram.size())) ) return(false);
 
     // increment value
+    int index = indexD1 * NBinsD2 + indexD2;
     Histogram[index] += 1;
 
-    if( GetArgumentCount() > 1 ){
+    if( GetArgumentCount() > 2 ){
         // extra data
         DataN[index] += 1;
         DataSum[index] += extra;
@@ -454,7 +641,7 @@ QScriptValue QHistogram::addSample(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::multBy(void)
+QScriptValue QHistogram2D::multBy(void)
 {
     QScriptValue value;
 
@@ -482,7 +669,7 @@ QScriptValue QHistogram::multBy(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::normalize(void)
+QScriptValue QHistogram2D::normalize(void)
 {
     QScriptValue value;
 
@@ -505,11 +692,10 @@ QScriptValue QHistogram::normalize(void)
     }
 
     double factor;
-    double dch = (MaxValue-MinValue)/NBins;
     if( within ){
-        factor = NumOfSamplesWithin * dch;
+        factor = NumOfSamplesWithin * BinSize;
     } else {
-        factor = NumOfSamples * dch;
+        factor = NumOfSamples * BinSize;
     }
 
     for(size_t i=0; i < Histogram.size(); i++){
@@ -521,7 +707,7 @@ QScriptValue QHistogram::normalize(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::reset(void)
+QScriptValue QHistogram2D::reset(void)
 {
     QScriptValue value;
 
@@ -543,7 +729,7 @@ QScriptValue QHistogram::reset(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::getNumOfSamples(void)
+QScriptValue QHistogram2D::getNumOfSamples(void)
 {
     QScriptValue value;
 
@@ -564,7 +750,7 @@ QScriptValue QHistogram::getNumOfSamples(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::getNumOfSamplesWithin(void)
+QScriptValue QHistogram2D::getNumOfSamplesWithin(void)
 {
     QScriptValue value;
 
@@ -585,86 +771,71 @@ QScriptValue QHistogram::getNumOfSamplesWithin(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::transformToRadial(void)
+QScriptValue QHistogram2D::getIntegral(void)
 {
     QScriptValue value;
 
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: Histogram::transformToRadial([key1,...])" << endl;
-        sout << "       2D" << endl;
+        sout << "usage: Histogram::getIntegral(fromD1,toD1,fromD2,toD2)" << endl;
         return(false);
     }
 
 // check arguments -------------------------------
-    bool to2d = IsArgumentKeySelected("2D");
-    value = CheckArgumentsUsage("[key1,...]");
+    value = CheckNumberOfArguments("fromD1,toD1,fromD2,toD2",4);
     if( value.isError() ) return(value);
 
-// execute ---------------------------------------
-    for(size_t i=0; i < Histogram.size(); i++){
-        double value = (i + 0.5)*(MaxValue-MinValue)/NBins + MinValue;
-        double occur = 0.0;
-        if( value != 0.0 ){
-            occur  = Histogram[i];
-            if( ! to2d ){
-                occur = occur / (4.0*M_PI*value*value);
-            } else {
-                occur = occur / (2.0*M_PI*value);
-            }
-        }
-        Histogram[i] = occur;
-    }
-    return(true);
-}
-
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::getIntegral(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: Histogram::getIntegral(from,to)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("from,to",2);
+    double fromD1,toD1, fromD2, toD2;
+    value = GetArgAsRNumber("fromD1,toD1,fromD2,toD2","fromD1",1,fromD1);
+    if( value.isError() ) return(value);
+    value = GetArgAsRNumber("fromD1,toD1,fromD2,toD2","toD1",2,toD1);
+    if( value.isError() ) return(value);
+    value = GetArgAsRNumber("fromD1,toD1,fromD2,toD2","fromD2",3,fromD2);
+    if( value.isError() ) return(value);
+    value = GetArgAsRNumber("fromD1,toD1,fromD2,toD2","toD2",4,toD2);
     if( value.isError() ) return(value);
 
-    double from,to;
-    value = GetArgAsRNumber("from,to","from",1,from);
-    if( value.isError() ) return(value);
-    value = GetArgAsRNumber("from,to","to",2,to);
-    if( value.isError() ) return(value);
-
-    if( from >= to ){
+    if( fromD1 >= toD1 ){
         CSmallString error;
-        error << "'from' value (" << CSmallString().DoubleToStr(from) << ") must be smaller than 'to' value (" << CSmallString().DoubleToStr(to) <<")";
+        error << "'fromD1' value (" << CSmallString().DoubleToStr(fromD1) << ") must be smaller than 'toD1' value (" << CSmallString().DoubleToStr(toD1) <<")";
+        return( ThrowError("value",error));
+    }
+    if( fromD2 >= toD2 ){
+        CSmallString error;
+        error << "'fromD2' value (" << CSmallString().DoubleToStr(fromD2) << ") must be smaller than 'toD2' value (" << CSmallString().DoubleToStr(toD2) <<")";
         return( ThrowError("value",error));
     }
 
     // calculate index
-    double dch = (MaxValue - MinValue)/NBins;
-    if( dch <= 0 ){
+    ///double dch = (MaxValue - MinValue)/NBins; ---> BIN SIZE
+    ///if( dch <= 0 ){
+    if( BinSize <= 0 ){
         return( ThrowError("from,to","bin width is zero or negative value"));
     }
-    int index1 = (from - MinValue)/dch;
-    if( index1 < 0 ) index1 = 0;
-    if( index1 >= static_cast<int>(Histogram.size()) ) index1 = static_cast<int>(Histogram.size()) - 1;
+    int indexD1a = (fromD1 - MinValueD1) / BinSizeD1;
+    if( indexD1a < 0 ) indexD1a = 0;
+    if( indexD1a >= static_cast<int>(Histogram.size()) ) indexD1a = static_cast<int>(Histogram.size()) - 1;
 
-    int index2 = (to - MinValue)/dch;
-    if( index2 < 0 ) index2 = 0;
-    if( index2 >= static_cast<int>(Histogram.size()) ) index2 = static_cast<int>(Histogram.size()) - 1;
+    int indexD1b = (toD1 - MinValueD1) / BinSizeD1;
+    if( indexD1b < 0 ) indexD1b = 0;
+    if( indexD1b >= static_cast<int>(Histogram.size()) ) indexD1b = static_cast<int>(Histogram.size()) - 1;
+
+    int indexD2a = (fromD2 - MinValueD2) / BinSizeD2;
+    if( indexD2a < 0 ) indexD2a = 0;
+    if( indexD2a >= static_cast<int>(Histogram.size()) ) indexD2a = static_cast<int>(Histogram.size()) - 1;
+
+    int indexD2b = (toD2 - MinValueD2) / BinSizeD2;
+    if( indexD2b < 0 ) indexD2b = 0;
+    if( indexD2b >= static_cast<int>(Histogram.size()) ) indexD2b = static_cast<int>(Histogram.size()) - 1;
 
 // execute ---------------------------------------
     double intval = 0;
-    for(int i=index1;i<=index2; i++){
-        intval += Histogram[i]*dch;
+    for(int i=indexD1a; i<=indexD1b; i++){
+        for(int j=indexD2a; j<=indexD2b; j++){
+            int index = i*NBinsD2 + j;
+            intval += Histogram[index]*BinSize;
+        }
     }
 
     return(intval);
@@ -672,7 +843,7 @@ QScriptValue QHistogram::getIntegral(void)
 
 //------------------------------------------------------------------------------
 
-QScriptValue QHistogram::getMaxOccupancy(void)
+QScriptValue QHistogram2D::getMaxOccupancy(void)
 {
     QScriptValue value;
 
@@ -699,43 +870,11 @@ QScriptValue QHistogram::getMaxOccupancy(void)
     return(maxoccu);
 }
 
-//------------------------------------------------------------------------------
-
-QScriptValue QHistogram::getBinPosition(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: double Histogram::getBinPosition(index)" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments(1);
-    if( value.isError() ) return(value);
-
-    int index;
-    value = GetArgAsInt("index","index",1,index);
-    if( value.isError() ) return(value);
-
-    if( (index < 0) || (index >= NBins) ){
-        return( ThrowError("index","index out-of-legal range"));
-    }
-
-// execute ---------------------------------------
-    double dch = (MaxValue - MinValue)/NBins;
-    double bpos = (index + 0.5)*dch + MinValue;
-
-    return(bpos);
-}
-
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-QScriptValue QHistogram::save(void)
+QScriptValue QHistogram2D::save(void)
 {
     QScriptValue value;
 
@@ -765,24 +904,33 @@ QScriptValue QHistogram::save(void)
 
 //------------------------------------------------------------------------------
 
-void QHistogram::save(ostream& str)
+void QHistogram2D::save(ostream& str)
 {
     str << "# Name      : " << Name.toStdString() << endl;
     str << scientific;
-    str << "# Min value : " << MinValue << endl;
-    str << "# Max value : " << MaxValue << endl;
-    str << "# NBins     : " << NBins << endl;
+    str << "# Dimension1" << endl;
+    ///str << "# Name      : " << NameD1.toStdString();
+    str << "# Min value : " << MinValueD1 << endl;
+    str << "# Max value : " << MaxValueD1 << endl;
+    str << "# NBins     : " << NBinsD1 << endl;
+    str << "# Dimension2" << endl;
+    ///str << "# Name      : " << NameD2.toStdString();
+    str << "# Min value : " << MinValueD2 << endl;
+    str << "# Max value : " << MaxValueD2 << endl;
+    str << "# NBins     : " << NBinsD2 << endl;
     if( static_cast<int>(Histogram.size())!= NBins ){
     str << "# WARNING: histogram is not allocated!" << endl;
     }
     str << "#" << endl;
-    str << "#      Value         Occurence         Extra         RMS(Extra)   " << endl;
-    str << "# --------------- --------------- --------------- --------------- " << endl;
+    str << "#      Value1         Value2         Occurence         Extra         RMS(Extra)   " << endl;
+    str << "# --------------- --------------- --------------- --------------- --------------- " << endl;
 
     for(size_t i=0; i < Histogram.size(); i++){
-        double value = (i + 0.5)*(MaxValue-MinValue)/NBins + MinValue;
+        double valueD1 = ((i-i%NBinsD2)/NBinsD2 + 0.5)*BinSizeD1 + MinValueD1;
+        double valueD2 = ((i%NBinsD1) + 0.5)*BinSizeD2 + MinValueD2;
         double occur = Histogram[i];
-        str << "  " << setw(15) << scientific << value;
+        str << " " << setw(15) << scientific << valueD1;
+        str << " " << setw(15) << scientific << valueD2;
         str << " " << setw(15) << scientific << occur;
         if( DataN[i] > 0 ){
             double extra = DataSum[i] / DataN[i];
@@ -792,6 +940,9 @@ void QHistogram::save(ostream& str)
             str << " " << setw(15) << scientific << rmsd;
         }
         str << endl;
+        if( i%NBinsD2 == 1){
+            str << endl;
+        }
     }
 
     str << "# -------------------------------" << endl;

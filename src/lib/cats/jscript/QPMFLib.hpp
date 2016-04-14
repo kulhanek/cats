@@ -50,6 +50,10 @@ public slots:
     /// load PMFLib control file
     /// bool init(snapshot,ctrlname)
     QScriptValue init(void);
+    
+    /// load PMFLib control from string
+    /// bool init(snapshot,ctrlstr)
+    QScriptValue initByString(void);    
 
     /// set coordinates
     /// void setCoordinates(snapshot)

@@ -56,11 +56,14 @@
 #include <QLinStat.hpp>
 #include <QMinMax.hpp>
 #include <QHistogram.hpp>
+#include <QHistogram2D.hpp>
 #include <QVolumeData.hpp>
 #include <QThermoIG.hpp>
 #include <Qx3DNA.hpp>
+#include <QCurvesP.hpp>
 #include <QNAStat.hpp>
 #include <QMolSurf.hpp>
+#include <QTinySpline.hpp>
 
 // i/o suuport --------------------------------
 #include <QOFile.hpp>
@@ -79,6 +82,7 @@ QStringList QCATs::ScriptArguments;
 
 void RegisterAllCATsClasses(QScriptEngine& engine)
 {
+    // register engine for QCATsScriptable
     QCATsScriptable::CATsEngine = &engine;
 
     // register objects --------------------------
@@ -113,11 +117,14 @@ void RegisterAllCATsClasses(QScriptEngine& engine)
     QLinStat::Register(engine);
     QMinMax::Register(engine);
     QHistogram::Register(engine);
+    QHistogram2D::Register(engine);
     QVolumeData::Register(engine);
     QThermoIG::Register(engine);
     Qx3DNA::Register(engine);
+    QCurvesP::Register(engine);
     QNAStat::Register(engine);
     QMolSurf::Register(engine);
+    QTinySpline::Register(engine);
 
     // i/o suuport --------------------------------
     QOFile::Register(engine);

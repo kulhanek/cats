@@ -1,8 +1,9 @@
-#ifndef QHistogramH
-#define QHistogramH
+#ifndef QHistogram2DH
+#define QHistogram2DH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
+//    Copyright (C) 2016 Viktor Illík
 //    Copyright (C) 2012 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
@@ -33,24 +34,27 @@
 
 /// histogram analysis
 
-class CATS_PACKAGE QHistogram : public QObject, protected QScriptable, protected QCATsScriptable {
+class CATS_PACKAGE QHistogram2D : public QObject, protected QScriptable, protected QCATsScriptable {
 Q_OBJECT
 public:
 // constructor -----------------------------------------------------------------
-    QHistogram(void);
+    QHistogram2D(void);
     static QScriptValue New(QScriptContext *context,QScriptEngine *engine);
     static void Register(QScriptEngine& engine);
 
 // properties ------------------------------------------------------------------
-    Q_PROPERTY(QScriptValue name        READ getName WRITE setName)
-    Q_PROPERTY(QScriptValue minValue    READ getMinValue WRITE setMinValue)
-    Q_PROPERTY(QScriptValue maxValue    READ getMaxValue WRITE setMaxValue)
-    Q_PROPERTY(QScriptValue numOfBins   READ getNumOfBins WRITE setNumOfBins)
+    Q_PROPERTY(QScriptValue minValueD1    READ getMinValueD1 WRITE setMinValueD1)
+    Q_PROPERTY(QScriptValue maxValueD1    READ getMaxValueD1 WRITE setMaxValueD1)
+    Q_PROPERTY(QScriptValue numOfBinsD1   READ getNumOfBinsD1 WRITE setNumOfBinsD1)
+
+    Q_PROPERTY(QScriptValue minValueD2    READ getMinValueD2 WRITE setMinValueD2)
+    Q_PROPERTY(QScriptValue maxValueD2    READ getMaxValueD2 WRITE setMaxValueD2)
+    Q_PROPERTY(QScriptValue numOfBinsD2   READ getNumOfBinsD2 WRITE setNumOfBinsD2)
 
 // methods ---------------------------------------------------------------------
 public slots:
 
-// setup methods ---------------------------------------------------------------
+    // setup methods ---------------------------------------------------------------
     /// set property name
     QScriptValue setName(const QScriptValue& dummy);
 
@@ -58,27 +62,33 @@ public slots:
     QScriptValue getName(void);
 
     /// set minimum value
-    QScriptValue setMinValue(const QScriptValue& dummy);
+    QScriptValue setMinValueD1(const QScriptValue& dummy);
+    QScriptValue setMinValueD2(const QScriptValue& dummy);
 
     /// get minimum value
-    QScriptValue getMinValue(void);
+    QScriptValue getMinValueD1(void);
+    QScriptValue getMinValueD2(void);
 
     /// set maxium value
-    QScriptValue setMaxValue(const QScriptValue& dummy);
+    QScriptValue setMaxValueD1(const QScriptValue& dummy);
+    QScriptValue setMaxValueD2(const QScriptValue& dummy);
 
     /// get maxium value
-    QScriptValue getMaxValue(void);
+    QScriptValue getMaxValueD1(void);
+    QScriptValue getMaxValueD2(void);
 
     /// set number of bins
-    QScriptValue setNumOfBins(const QScriptValue& dummy);
+    QScriptValue setNumOfBinsD1(const QScriptValue& dummy);
+    QScriptValue setNumOfBinsD2(const QScriptValue& dummy);
 
     /// get number of bins
-    QScriptValue getNumOfBins(void);
+    QScriptValue getNumOfBinsD1(void);
+    QScriptValue getNumOfBinsD2(void);
 
     /// print statistics
     QScriptValue printInfo(void);
 
-// data manipulation methods ---------------------------------------------------
+    // data manipulation methods ---------------------------------------------------
     /// add sample
     /// addSample(sample)
     QScriptValue addSample(void);
@@ -103,21 +113,13 @@ public slots:
     /// normalize()
     QScriptValue normalize(void);
 
-    /// transform to radial
-    /// transformToRadial()
-    QScriptValue transformToRadial(void);
-
     /// calculate integral within interval from;to rounded to given bins
     /// double getIntegral(from,to)
     QScriptValue getIntegral(void);
-    
+
     /// return max value of occupancy
     /// double getMaxOccupancy()
     QScriptValue getMaxOccupancy(void);
-
-    /// return middle position of a given bin
-    /// double getBinPosition(index)
-    QScriptValue getBinPosition(void);
 
 // i/o methods -----------------------------------------------------------------
     /// save histogram
@@ -140,13 +142,15 @@ public:
 // section of private data -----------------------------------------------------
 private:
     QString             Name;
-    double              MinValue;
-    double              MaxValue;
-    int                 NBins;
+    double              MinValueD1, MinValueD2;
+    double              MaxValueD1, MaxValueD2;
+    int                 NBinsD1, NBinsD2, NBins;
+    double              BinSizeD1, BinSizeD2, BinSize;
     int                 NumOfSamples;
     int                 NumOfSamplesWithin;
-    std::vector<double> Histogram;
-    std::vector<int>    DataN;
+
+    std::vector<int> Histogram;
+    std::vector<double>    DataN;
     std::vector<double> DataSum;
     std::vector<double> Data2Sum;
 };

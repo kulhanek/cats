@@ -57,16 +57,22 @@ SET(CATS_JSCRIPT_SRC
         jscript/QLinStat.cpp
         jscript/QMinMax.cpp
         jscript/QHistogram.cpp
+        jscript/QHistogram2D.cpp
         jscript/QVolumeData.cpp
         jscript/QThermoIG.cpp
         jscript/QNAHelper.cpp
         jscript/Qx3DNA.cpp
+        jscript/QCurvesP.cpp
         jscript/QNAStatHelper.cpp
         jscript/QNAStat.cpp
         jscript/QMolSurf.cpp
+        jscript/QTinySpline.cpp
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp
+
+    # helpers ------------------------------------
+        jscript/tinyspline/tinyspline.c
     )
 
 SET(CATS_LIB_SRC ${CATS_LIB_SRC} ${CATS_JSCRIPT_SRC})

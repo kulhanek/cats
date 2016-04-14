@@ -71,6 +71,12 @@ private:
     int             NumOfSnapshostsForVel;
     int             NumOfSnapshostsForBox;
 
+    // exec begin()
+    void BeginAccumulation(void);    
+    
+    // exec finish()
+    bool FinishAccumulation(void);
+    
     friend class QSnapshot;
 
     /// clear object data if topology is cleaned - only weak objects
