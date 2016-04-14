@@ -183,7 +183,7 @@ QScriptValue QOFile::printf(void)
     }
 
     // parse individual arguments
-    for(int i=0; i < my_format.expected_args(); i++ ){
+    for(int i=1; i <= my_format.expected_args(); i++ ){
         QScriptValue val = GetArgument(i+1);
 
         try {
