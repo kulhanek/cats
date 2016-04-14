@@ -39,8 +39,6 @@ private:
 public:
     CJSEngineThread(QObject *parent);
     void RunCode(const QString &code);
-    //void DebugCode(const QString &code, QScriptEngineDebugger* debugger);
-    //QScriptValue GetResult(void);
 public slots:
     void AbortEvaluation();
 signals:

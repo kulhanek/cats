@@ -42,7 +42,7 @@
        </size>
       </property>
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="page_5">
        <property name="sizePolicy">
@@ -140,7 +140,7 @@
            </font>
           </property>
           <property name="text">
-           <string>CATs developed by: blabla at blabla, License: blabla, Blabla: blabla.</string>
+           <string>CATs developed by Petr Kulhánek at NCBR. License: blabla, Blabla: blabla.</string>
           </property>
          </widget>
         </item>

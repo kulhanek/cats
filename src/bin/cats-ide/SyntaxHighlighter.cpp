@@ -41,30 +41,6 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
         rule.Format = KeywordFormat;
         HighlightingRules.append(rule);
     }
-/*
-    KeywordFormat.setForeground(Qt::darkMagenta);
-    KeywordFormat.setFontWeight(QFont::Bold);
-    QStringList CATsKeywords;
-    CATsKeywords << "\\bAtom\\b" << "\\bAverageSnapshot\\b" << "\\bCATs\\b"
-                    << "\\bCATsScriptable\\b" << "\\bCovarMatrix\\b" << "\\bGeometry\\b"
-                    << "\\bHistogram\\b" << "\\bLinStat\\b" << "\\bMinMax\\b"
-                    << "\\bMolSurf\\b" << "\\bNAHelper\\b" << "\\bNAStat\\b"
-                    << "\\bNAStatHelper\\b" << "\\bNetResults\\b" << "\\bNetTrajectory\\b"
-                    << "\\bOBMol\\b" << "\\bOFile\\b" << "\\bPMFLib\\b"
-                    << "\\bPoint\\b" << "\\bPropSum\\b" << "\\bResidue\\b"
-                    << "\\bRSelection\\b" << "\\bSelection\\b" << "\\bSimpleVector\\b"
-                    << "\\bSnapshot\\b" << "\\bThermoIG\\b" << "\\bTopology\\b"
-                    << "\\bTrajectory\\b" << "\\bTrajPool\\b" << "\\bTransformation\\b"
-                    << "\\bVolumeData\\b" << "\\bx3DNA\\b";
-    foreach (const QString &pattern, CATsKeywords) {
-        rule.Pattern = QRegExp(pattern);
-        rule.Format = KeywordFormat;
-        HighlightingRules.append(rule);
-    }*/
-
-
-
-
 
 
 

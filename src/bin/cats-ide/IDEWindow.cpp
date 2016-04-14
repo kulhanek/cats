@@ -43,7 +43,6 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     Ui.setupUi(this);
     SetupMenu();
-    //setupHelpMenu();
     SetupEditor();
 
     WorkingDir = "";
@@ -54,7 +53,6 @@ CIDEWindow::CIDEWindow(QWidget *parent)
     CurrentWebPage = "";
     WebBrowser = NULL;
 
-    //setCentralWidget(editor);
     setWindowTitle(tr("CATs IDE"));
 
     Ui.stackedWidget->addWidget(Debugger->standardWindow());
@@ -89,15 +87,24 @@ void CIDEWindow::SetupMenu()
 
 void CIDEWindow::SetupEditor()
 {
+    CodeEditor *CE = new CodeEditor(Ui.splitter);
+    CE->setSizePolicy(Ui.plainTextEdit->sizePolicy());
+    CE->resize(Ui.plainTextEdit->size());
+    Ui.horizontalLayout->replaceWidget(Ui.plainTextEdit, CE);
+    Ui.plainTextEdit->hide();
+    Ui.splitter->insertWidget(0,CE);
+    Editor = CE;
+
     QFont font;
     font.setFamily("Courier");
     font.setFixedPitch(true);
     font.setPointSize(10);
 
-    Editor = Ui.plainTextEdit;
     Editor->setFont(font);
 
     Highlighter = new CSyntaxHighlighter(Editor->document());
+
+    Editor->setFocus();
 }
 
 void CIDEWindow::LoadFile()
@@ -113,24 +120,14 @@ void CIDEWindow::LoadFile()
 
     QTextStream in(&file);
 
-    Ui.plainTextEdit->setPlainText(in.readAll());
+    Editor->setPlainText(in.readAll());
 
     CurrentFile = fileName.toStdString();
 
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
-        QFileInfo info(fileName);
-        WorkingDir = info.filePath().toStdString();
-
-        size_t found;
-        found=WorkingDir.find_last_of("/\\");
-
-        WorkingDir = WorkingDir.substr(0,found);
-
-        QDir::setCurrent(QString::fromStdString(WorkingDir));
+        SetWorkingDirectoryAtScriptLocation(CurrentFile);
     }
-
-    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 
     this->SwitchToEditor();
 }
@@ -155,23 +152,13 @@ void CIDEWindow::SaveFile()
 
     std::ofstream outFile(fileName.toStdString().c_str());
 
-    outFile << Ui.plainTextEdit->toPlainText().toStdString();
+    outFile << Editor->toPlainText().toStdString();
     outFile.close();
 
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
-        QFileInfo info(fileName);
-        WorkingDir = info.filePath().toStdString();
-
-        size_t found;
-        found=WorkingDir.find_last_of("/\\");
-
-        WorkingDir = WorkingDir.substr(0,found);
-
-        QDir::setCurrent(QString::fromStdString(WorkingDir));
+        SetWorkingDirectoryAtScriptLocation(CurrentFile);
     }
-
-    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
 void CIDEWindow::SaveFileAs()
@@ -189,23 +176,13 @@ void CIDEWindow::SaveFileAs()
 
     std::ofstream outFile(fileName.toStdString().c_str());
 
-    outFile << Ui.plainTextEdit->toPlainText().toStdString();
+    outFile << Editor->toPlainText().toStdString();
     outFile.close();
 
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
-        QFileInfo info(fileName);
-        WorkingDir = info.filePath().toStdString();
-
-        size_t found;
-        found=WorkingDir.find_last_of("/\\");
-
-        WorkingDir = WorkingDir.substr(0,found);
-
-        QDir::setCurrent(QString::fromStdString(WorkingDir));
+        SetWorkingDirectoryAtScriptLocation(CurrentFile);
     }
-
-    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
 void CIDEWindow::SetWorkingDirectory()
@@ -235,7 +212,7 @@ void CIDEWindow::RunScript()
 
     this->SwitchToEditor();
 
-    JSEngineThread->RunCode(Ui.plainTextEdit->toPlainText());
+    JSEngineThread->RunCode(Editor->toPlainText());
 }
 
 void CIDEWindow::DebugScript()
@@ -244,13 +221,11 @@ void CIDEWindow::DebugScript()
 
     BlockButtons();
 
-    Ui.stackedWidget->setCurrentWidget(Debugger->standardWindow());
-
-    //this->SwitchToDebugger();
+    this->SwitchToDebugger();
 
     RegisterAllCATsClasses(*DebuggerEngine);
 
-    QString code = Ui.plainTextEdit->toPlainText();
+    QString code = Editor->toPlainText();
     QString JSCode;
 
     if (code.size() > 0)
@@ -311,6 +286,8 @@ void CIDEWindow::PrintErrors(QString errorMessage)
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->ensureCursorVisible();
     this->SwitchToEditor();
+
+    UnblockButtons();
 }
 
 void CIDEWindow::SwitchToEditor()
@@ -323,23 +300,7 @@ void CIDEWindow::SwitchToEditor()
 
 void CIDEWindow::SwitchToDebugger()
 {
-    //If no debugger is launched, switch to "debugger not active" message.
-    //Otherwise show debugger.
-    /*if (Debugger == NULL)
-    {
-        if (WebBrowser == NULL)
-        {
-            Ui.stackedWidget->setCurrentIndex(2);
-        }
-        else
-        {
-            Ui.stackedWidget->setCurrentIndex(3);
-        }
-    }
-    else
-    {*/
     Ui.stackedWidget->setCurrentWidget(Debugger->standardWindow());
-    //}
 
     Ui.actionSwitch_to_Editor->setChecked(false);
     Ui.actionSwitch_to_Debugger->setChecked(true);
@@ -443,7 +404,7 @@ void CIDEWindow::BlockButtons()
     Ui.action_Open->setEnabled(false);
 
     if (DebuggerEngine != NULL)
-        Ui.plainTextEdit->setReadOnly(true);
+        Editor->setReadOnly(true);
 }
 
 void CIDEWindow::UnblockButtons()
@@ -454,7 +415,7 @@ void CIDEWindow::UnblockButtons()
     Ui.actionRun_script->setEnabled(true);
     Ui.action_Open->setEnabled(true);
 
-    Ui.plainTextEdit->setReadOnly(false);
+    Editor->setReadOnly(false);
 }
 
 void CIDEWindow::WorkingDirAutoSetPolicy()
@@ -462,12 +423,28 @@ void CIDEWindow::WorkingDirAutoSetPolicy()
     if (Ui.actionAutoSet_WD_to_script_path->isChecked())
     {
         AutoSetWorkingDir = true;
-        //set it!
+
+        SetWorkingDirectoryAtScriptLocation(CurrentFile);
     }
     else
     {
         AutoSetWorkingDir = false;
     }
+}
+
+void CIDEWindow::SetWorkingDirectoryAtScriptLocation(std::string scriptPath)
+{
+    QFileInfo info(QString::fromStdString(scriptPath));
+    WorkingDir = info.filePath().toStdString();
+
+    size_t found;
+    found=WorkingDir.find_last_of("/\\");
+
+    WorkingDir = WorkingDir.substr(0,found);
+
+    QDir::setCurrent(QString::fromStdString(WorkingDir));
+
+    Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
 void CIDEWindow::ExitProgram()

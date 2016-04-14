@@ -9,6 +9,7 @@ SET(CATS_IDE_SRC
 	SyntaxHighlighter.cpp
 	JSEngineThread.cpp
 	StdoutWatcher.cpp
+	CodeEditor.cpp
         resources.qrc
         )
 

@@ -37,6 +37,7 @@
 #include "SyntaxHighlighter.hpp"
 #include "StdoutWatcher.hpp"
 #include "JSEngineThread.hpp"
+#include "CodeEditor.hpp"
 #include "ui_IDEWindow.h"
 
 class CIDEWindow : public QMainWindow
@@ -76,6 +77,7 @@ private:
     void LoadWebPage(QString url);
     void BlockButtons(void);
     void UnblockButtons(void);
+    void SetWorkingDirectoryAtScriptLocation(std::string scriptPath);
     Ui::IDEWindow Ui;
     std::string WorkingDir;
     std::string CurrentFile;

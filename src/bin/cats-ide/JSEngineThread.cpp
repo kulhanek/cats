@@ -41,6 +41,17 @@ void CJSEngineThread::RunCode(const QString &code)
         JSCode = code;
     }
 
+    QScriptSyntaxCheckResult syntaxCheck = JSEngine->checkSyntax(JSCode);
+
+    if (syntaxCheck.state() != QScriptSyntaxCheckResult::Valid)
+    {
+        QString errorMessage = QString("Syntax error at line %1: %2").arg(syntaxCheck.errorLineNumber()).arg(syntaxCheck.errorMessage());
+        emit UncaughtError(errorMessage);
+        delete JSEngine;
+        JSEngine = NULL;
+        return;
+    }
+
     start();
 }
 

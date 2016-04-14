@@ -54,6 +54,7 @@ void CStdoutWatcher::StartOutputRedirection()
     const char *c_str = ba.data();
 
     freopen(c_str,"wa",stdout);
+
     setvbuf(stdout,NULL,_IONBF,0);
 
     start();

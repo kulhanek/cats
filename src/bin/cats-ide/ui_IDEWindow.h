@@ -302,7 +302,7 @@ public:
 
         retranslateUi(IDEWindow);
 
-        stackedWidget->setCurrentIndex(1);
+        stackedWidget->setCurrentIndex(0);
         tabWidget->setCurrentIndex(0);
 
 
@@ -340,7 +340,7 @@ public:
         actionAutoSet_WD_to_script_path->setText(QApplication::translate("IDEWindow", "Script location is the working directory", 0));
         workingDirLabel->setText(QApplication::translate("IDEWindow", "Working directory: ", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("IDEWindow", "Output", 0));
-        label_2->setText(QApplication::translate("IDEWindow", "CATs developed by: blabla at blabla, License: blabla, Blabla: blabla.", 0));
+        label_2->setText(QApplication::translate("IDEWindow", "CATs developed by Petr Kulh\303\241nek at NCBR. License: blabla, Blabla: blabla.", 0));
         menu_File->setTitle(QApplication::translate("IDEWindow", "&File", 0));
         menu_About->setTitle(QApplication::translate("IDEWindow", "&Help", 0));
         menu_View->setTitle(QApplication::translate("IDEWindow", "&View", 0));
