@@ -144,6 +144,9 @@ void QCATs::Register(QScriptEngine& engine)
     fun = engine.newFunction(QCATs::printf);
     engine.globalObject().setProperty("printf", fun);
 
+    fun = engine.newFunction(QCATs::print);
+    engine.globalObject().setProperty("print", fun);
+
     fun = engine.newFunction(QCATs::sprintf);
     engine.globalObject().setProperty("sprintf", fun);
 
@@ -389,6 +392,19 @@ const std::string QCATs::sprintf(const CSmallString& fname, QScriptContext* p_co
 
     // return string
     return( my_format.str() );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QCATs::print(QScriptContext* p_context, QScriptEngine* p_engine)
+{
+    for(int i = 0; i < p_context->argumentCount(); i++){
+        QScriptValue val = p_context->argument(i);
+        QString sval = val.toString();
+        cout << sval.toStdString();
+    }
+    cout << endl;
+    return(QScriptValue());
 }
 
 //==============================================================================

@@ -74,6 +74,9 @@ public:
     /// printf
     static QScriptValue printf(QScriptContext* p_context, QScriptEngine* p_engine);
 
+    /// print
+    static QScriptValue print(QScriptContext* p_context, QScriptEngine* p_engine);
+
     /// sprintf
     static QScriptValue sprintf(QScriptContext* p_context, QScriptEngine* p_engine);
 
