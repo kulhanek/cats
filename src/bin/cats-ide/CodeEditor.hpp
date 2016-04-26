@@ -1,5 +1,22 @@
 #ifndef CODEEDITOR_HPP
 #define CODEEDITOR_HPP
+/* =====================================================================
+ * This file is part of CATs - Conversion and Analysis Tools.
+ *
+ * Most of this file is taken from the official Qt documentation, at:
+ *
+ * http://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
+ *
+ * As such, it is licensed under the terms of the GNU Free Documentation
+ * License version 1.3 as published by the Free Software Foundation.
+ *
+ * Certain parts were slightly edited as part of the CATs IDE development.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
+ *
+ * =====================================================================
+ */
 
 #include <QPlainTextEdit>
 #include <QTextBlock>

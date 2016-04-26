@@ -1,18 +1,19 @@
 /* =====================================================================
  * This file is part of CATs - Conversion and Analysis Tools.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Most of this file is taken from the official Qt documentation, at:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * http://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * As such, it is licensed under the terms of the GNU Free Documentation
+ * License version 1.3 as published by the Free Software Foundation.
+ *
+ * Certain parts were slightly edited or added as part of the CATs IDE
+ * development.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
+ *
  * =====================================================================
  */
 
@@ -84,18 +85,22 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 
 
        QuotationFormat.setForeground(Qt::darkGreen);
-       //rule.Pattern = QRegExp("\".*\"");
-       rule.Pattern = QRegExp("\"[^\"]*\"");
+       rule.Pattern = QRegExp("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"");
+       rule.Format = QuotationFormat;
+       HighlightingRules.append(rule);
+
+       QuotationFormat.setForeground(Qt::darkGreen);
+       rule.Pattern = QRegExp("\'[^\'\\\\]*(\\\\.[^\'\\\\]*)*\'");
        rule.Format = QuotationFormat;
        HighlightingRules.append(rule);
 
 
-       SingleLineCommentFormat.setForeground(Qt::red);
+       SingleLineCommentFormat.setForeground(Qt::darkGreen);
            rule.Pattern = QRegExp("//[^\n]*");
            rule.Format = SingleLineCommentFormat;
            HighlightingRules.append(rule);
 
-           MultiLineCommentFormat.setForeground(Qt::red);
+           MultiLineCommentFormat.setForeground(Qt::darkGreen);
 
            CommentStartExpression = QRegExp("/\\*");
            CommentEndExpression = QRegExp("\\*/");

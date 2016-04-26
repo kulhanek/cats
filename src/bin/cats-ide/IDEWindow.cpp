@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
  * =====================================================================
  */
 
@@ -55,7 +58,8 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     setWindowTitle(tr("CATs IDE"));
 
-    Ui.stackedWidget->addWidget(Debugger->standardWindow());
+    Ui.label->hide();
+    Ui.splitter_2->insertWidget(0,Debugger->standardWindow());
 
     Ui.actionAutoSet_WD_to_script_path->setChecked(true);
     AutoSetWorkingDir = true;
@@ -207,6 +211,7 @@ void CIDEWindow::RunScript()
     BlockButtons();
 
     Ui.textBrowser->clear();
+    Ui.textBrowser_2->clear();
 
     StdoutWatcher->StartOutputRedirection();
 
@@ -220,6 +225,11 @@ void CIDEWindow::DebugScript()
     DebuggerEngine = new QScriptEngine();
 
     BlockButtons();
+
+    Ui.textBrowser->clear();
+    Ui.textBrowser_2->clear();
+
+    StdoutWatcher->StartOutputRedirection();
 
     this->SwitchToDebugger();
 
@@ -247,20 +257,17 @@ void CIDEWindow::DebugScript()
     Debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
 
     DebuggerEngine->evaluate(JSCode);
-/*
-    Ui.textBrowser->append("\n=======================\n DEBUGGER HAS FINISHED \n=======================\n\n");
-    QTextCursor cursor = Ui.textBrowser->textCursor();
-    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
-    Ui.textBrowser->ensureCursorVisible();
 
-    Ui.stackedWidget->removeWidget(Debugger->standardWindow());
-    this->SwitchToEditor();
-*/
     Debugger->detach();
     delete DebuggerEngine;
     DebuggerEngine = NULL;
 
-    UnblockButtons();
+    Ui.textBrowser_2->append("\n=======================\n DEBUGGER HAS FINISHED \n=======================\n\n");
+    QTextCursor cursor = Ui.textBrowser_2->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser_2->ensureCursorVisible();
+
+    TerminateStdoutWatcher();
 }
 
 void CIDEWindow::AbortEvaluation()
@@ -300,7 +307,7 @@ void CIDEWindow::SwitchToEditor()
 
 void CIDEWindow::SwitchToDebugger()
 {
-    Ui.stackedWidget->setCurrentWidget(Debugger->standardWindow());
+    Ui.stackedWidget->setCurrentIndex(1);
 
     Ui.actionSwitch_to_Editor->setChecked(false);
     Ui.actionSwitch_to_Debugger->setChecked(true);
@@ -335,14 +342,7 @@ void CIDEWindow::SwitchToCATsHelp()
 
 void CIDEWindow::SwitchToAbout()
 {
-    if (WebBrowser == NULL)
-    {
-        Ui.stackedWidget->setCurrentIndex(1);
-    }
-    else
-    {
-        Ui.stackedWidget->setCurrentIndex(2);
-    }
+    Ui.stackedWidget->setCurrentIndex(2);
 
     Ui.actionReference->setChecked(false);
     Ui.actionSwitch_to_Debugger->setChecked(false);
@@ -362,7 +362,7 @@ void CIDEWindow::LoadWebPage(QString url)
     if (WebBrowser == NULL)
     {
         WebBrowser = new QWebView(this);
-        Ui.stackedWidget->insertWidget(1,WebBrowser);
+        Ui.stackedWidget->insertWidget(3,WebBrowser);
         WebBrowser->show();
     }
 
@@ -388,11 +388,20 @@ CIDEWindow::~CIDEWindow()
 
 void CIDEWindow::WriteLine(QString line)
 {
+
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
     Ui.textBrowser->insertPlainText(line);
-    qApp->processEvents();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser->setTextCursor(cursor);
+
+    cursor = Ui.textBrowser_2->textCursor();
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser_2->setTextCursor(cursor);
+    Ui.textBrowser_2->insertPlainText(line);
+    cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
+    Ui.textBrowser_2->setTextCursor(cursor);
 }
 
 void CIDEWindow::BlockButtons()
@@ -451,21 +460,3 @@ void CIDEWindow::ExitProgram()
 {
     this->close();
 }
-
-/*
-QScriptValue QtPrintFunction(QScriptContext *context, QScriptEngine *engine)
-{
-    QString result;
-    for (int i = 0; i < context->argumentCount(); ++i) {
-        if (i > 0)
-            result.append(" ");
-        result.append(context->argument(i).toString());
-    }
-
-    QScriptValue calleeData = context->callee().data();
-    QTextBrowser *edit = qobject_cast<QTextBrowser*>(calleeData.toQObject());
-    edit->append(result);
-
-    return engine->undefinedValue();
-}
-*/
