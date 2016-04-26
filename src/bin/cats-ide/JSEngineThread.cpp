@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
  * =====================================================================
  */
 
@@ -39,6 +42,17 @@ void CJSEngineThread::RunCode(const QString &code)
     else
     {
         JSCode = code;
+    }
+
+    QScriptSyntaxCheckResult syntaxCheck = JSEngine->checkSyntax(JSCode);
+
+    if (syntaxCheck.state() != QScriptSyntaxCheckResult::Valid)
+    {
+        QString errorMessage = QString("Syntax error at line %1: %2").arg(syntaxCheck.errorLineNumber()).arg(syntaxCheck.errorMessage());
+        emit UncaughtError(errorMessage);
+        delete JSEngine;
+        JSEngine = NULL;
+        return;
     }
 
     start();

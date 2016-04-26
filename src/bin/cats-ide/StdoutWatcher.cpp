@@ -13,6 +13,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
  * =====================================================================
  */
 
@@ -54,6 +57,7 @@ void CStdoutWatcher::StartOutputRedirection()
     const char *c_str = ba.data();
 
     freopen(c_str,"wa",stdout);
+
     setvbuf(stdout,NULL,_IONBF,0);
 
     start();

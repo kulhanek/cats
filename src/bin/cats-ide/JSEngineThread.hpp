@@ -15,6 +15,9 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * CATs developed by: RNDr. Petr Kulhánek, PhD.
+ * CATs IDE developed by: Mgr. Jaroslav Oľha
  * =====================================================================
  */
 
@@ -39,8 +42,6 @@ private:
 public:
     CJSEngineThread(QObject *parent);
     void RunCode(const QString &code);
-    //void DebugCode(const QString &code, QScriptEngineDebugger* debugger);
-    //QScriptValue GetResult(void);
 public slots:
     void AbortEvaluation();
 signals:
