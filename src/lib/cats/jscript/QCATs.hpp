@@ -68,6 +68,10 @@ public slots:
     /// get argument
     /// string argument(index)
     QScriptValue argument(void);
+    
+    /// include another javascript from file; files are searched 
+    /// bool include(name)
+    QScriptValue include(void);    
 
 // global functions ------------------------------------------------------------
 public:
