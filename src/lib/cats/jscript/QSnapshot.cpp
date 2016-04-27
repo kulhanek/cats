@@ -613,10 +613,106 @@ QScriptValue QSnapshot::getLargestSphereRadius(void)
 
 // execute code ----------------------------------
     if( Restart.IsBoxPresent() == false ) return(0.0);
+    
     Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
     Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
     Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
     return( Restart.GetTopology()->BoxInfo.GetLargestSphereRadius());
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getVolume(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getVolume()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    return( Restart.GetTopology()->BoxInfo.GetVolume() );    
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getDensity(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getDensity()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    double volume = Restart.GetTopology()->BoxInfo.GetVolume();
+    double totmass = Restart.GetTopology()->GetTotalMass();
+                                    // m^3 -> ml; amu
+    double density = totmass / volume * 1e21 * 1.660539040e-27;
+    
+    return( density );
+}
+    
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getConcentration(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getConcentration(number)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+    
+    int number;
+    value = GetArgAsInt("number","number",1,number);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    double volume = Restart.GetTopology()->BoxInfo.GetVolume();
+                                    // m^3->L; N_a
+    double conc = (double)number / volume * 1e24 / 6.02214086e23;
+    
+    return( conc );
 }
 
 //==============================================================================
