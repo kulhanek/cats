@@ -15,3 +15,4 @@ Testing/
 CATs.*
 CATsWin.*
 test/*
+ui_*.h
