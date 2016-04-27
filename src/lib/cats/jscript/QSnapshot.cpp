@@ -674,8 +674,8 @@ QScriptValue QSnapshot::getDensity(void)
     
     double volume = Restart.GetTopology()->BoxInfo.GetVolume();
     double totmass = Restart.GetTopology()->GetTotalMass();
-                                    // m^3 -> ml; amu
-    double density = totmass / volume * 1e21 * 1.660539040e-27;
+                                    // 10^30 A^3 -> m^3 -> 10^6 cm^3; amu; kg->g
+    double density = totmass / volume * 1e24 * 1.660539040e-27 * 1e3;
     
     return( density );
 }
@@ -709,8 +709,8 @@ QScriptValue QSnapshot::getConcentration(void)
     Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
     
     double volume = Restart.GetTopology()->BoxInfo.GetVolume();
-                                    // m^3->L; N_a
-    double conc = (double)number / volume * 1e24 / 6.02214086e23;
+                                    // 10^30 A^3 -> m^3 -> 10^3 L; N_a
+    double conc = (double)number / volume * 1e27 / 6.02214086e23;
     
     return( conc );
 }
