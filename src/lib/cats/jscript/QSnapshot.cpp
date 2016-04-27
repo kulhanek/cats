@@ -694,7 +694,7 @@ QScriptValue QSnapshot::getConcentration(void)
     }
 
 // check arguments -------------------------------
-    value = CheckNumberOfArguments(0);
+    value = CheckNumberOfArguments(1);
     if( value.isError() ) return(value);
     
     int number;
