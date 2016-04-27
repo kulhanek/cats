@@ -71,7 +71,7 @@ public slots:
     
     /// include another javascript from file; files are searched 
     /// bool include(name)
-    QScriptValue include(void);    
+//    QScriptValue include(void);    
 
 // global functions ------------------------------------------------------------
 public:

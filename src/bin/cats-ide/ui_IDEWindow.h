@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'IDEWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.5.1
+** Created by: Qt User Interface Compiler version 5.2.1
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -62,6 +62,11 @@ public:
     QVBoxLayout *verticalLayout_2;
     QLabel *workingDirLabel;
     QTextBrowser *textBrowser;
+    QWidget *page_2;
+    QVBoxLayout *verticalLayout_4;
+    QSplitter *splitter_2;
+    QLabel *label;
+    QTextBrowser *textBrowser_2;
     QWidget *page;
     QGridLayout *gridLayout;
     QLabel *label_2;
@@ -231,6 +236,30 @@ public:
         horizontalLayout->addWidget(splitter);
 
         stackedWidget->addWidget(page_5);
+        page_2 = new QWidget();
+        page_2->setObjectName(QStringLiteral("page_2"));
+        verticalLayout_4 = new QVBoxLayout(page_2);
+        verticalLayout_4->setSpacing(6);
+        verticalLayout_4->setContentsMargins(11, 11, 11, 11);
+        verticalLayout_4->setObjectName(QStringLiteral("verticalLayout_4"));
+        splitter_2 = new QSplitter(page_2);
+        splitter_2->setObjectName(QStringLiteral("splitter_2"));
+        splitter_2->setOrientation(Qt::Vertical);
+        label = new QLabel(splitter_2);
+        label->setObjectName(QStringLiteral("label"));
+        sizePolicy2.setHeightForWidth(label->sizePolicy().hasHeightForWidth());
+        label->setSizePolicy(sizePolicy2);
+        splitter_2->addWidget(label);
+        textBrowser_2 = new QTextBrowser(splitter_2);
+        textBrowser_2->setObjectName(QStringLiteral("textBrowser_2"));
+        sizePolicy3.setHeightForWidth(textBrowser_2->sizePolicy().hasHeightForWidth());
+        textBrowser_2->setSizePolicy(sizePolicy3);
+        textBrowser_2->setFont(font1);
+        splitter_2->addWidget(textBrowser_2);
+
+        verticalLayout_4->addWidget(splitter_2);
+
+        stackedWidget->addWidget(page_2);
         page = new QWidget();
         page->setObjectName(QStringLiteral("page"));
         gridLayout = new QGridLayout(page);
@@ -242,6 +271,9 @@ public:
         QFont font2;
         font2.setPointSize(11);
         label_2->setFont(font2);
+        label_2->setScaledContents(false);
+        label_2->setAlignment(Qt::AlignCenter);
+        label_2->setWordWrap(false);
 
         gridLayout->addWidget(label_2, 0, 0, 1, 1, Qt::AlignHCenter|Qt::AlignTop);
 
@@ -340,7 +372,13 @@ public:
         actionAutoSet_WD_to_script_path->setText(QApplication::translate("IDEWindow", "Script location is the working directory", 0));
         workingDirLabel->setText(QApplication::translate("IDEWindow", "Working directory: ", 0));
         tabWidget->setTabText(tabWidget->indexOf(tab), QApplication::translate("IDEWindow", "Output", 0));
-        label_2->setText(QApplication::translate("IDEWindow", "CATs developed by Petr Kulh\303\241nek at NCBR. License: blabla, Blabla: blabla.", 0));
+        label->setText(QString());
+        label_2->setText(QApplication::translate("IDEWindow", "CATs IDE\n"
+"\n"
+"\n"
+"CATs developed by RNDr. Petr Kulh\303\241nek, PhD. at NCBR.\n"
+"This CATs IDE application has been developed by Mgr. Jaroslav O\304\276ha.\n"
+"Licensed under GNU General Public License.", 0));
         menu_File->setTitle(QApplication::translate("IDEWindow", "&File", 0));
         menu_About->setTitle(QApplication::translate("IDEWindow", "&Help", 0));
         menu_View->setTitle(QApplication::translate("IDEWindow", "&View", 0));
