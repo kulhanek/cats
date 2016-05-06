@@ -30,6 +30,7 @@
 CIDEWindow::CIDEWindow(QWidget *parent)
     : QMainWindow(parent)
 {
+    //Main objects are initialized.
     JSEngineThread = new CJSEngineThread(this);
 
     AuxFile = new QTemporaryFile();
@@ -42,10 +43,14 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     StdoutWatcher = new CStdoutWatcher(this, AuxFilePath);
 
+    //Whenever the StdoutWatcher reads a line from the temporary file, it is sent
+    //as a signal to the WriteLine slot (so that it can be written to the output window).
     connect(StdoutWatcher, SIGNAL(LineRead(QString)),this,SLOT(WriteLine(QString)));
 
     Ui.setupUi(this);
+
     SetupMenu();
+
     SetupEditor();
 
     WorkingDir = "";
@@ -58,17 +63,21 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     setWindowTitle(tr("CATs IDE"));
 
+    //In the IDEWindow.ui file, the debugger window's place is occupied by the label - now the label
+    //is hidden and replaced by the window.
     Ui.label->hide();
     Ui.splitter_2->insertWidget(0,Debugger->standardWindow());
 
     Ui.actionAutoSet_WD_to_script_path->setChecked(true);
     AutoSetWorkingDir = true;
 
+    //On startup, always show the Editor view.
     Ui.stackedWidget->setCurrentIndex(0);
 }
 
 void CIDEWindow::SetupMenu()
 {
+    //GUI buttons are associated with corresponding actions.
     connect(Ui.action_Open, SIGNAL(triggered()), this, SLOT(LoadFile()));
     connect(Ui.action_Save_script, SIGNAL(triggered()), this, SLOT(SaveFile()));
     connect(Ui.actionSave_script_as, SIGNAL(triggered()), this, SLOT(SaveFileAs()));
@@ -85,12 +94,16 @@ void CIDEWindow::SetupMenu()
     connect(Ui.actionAbort, SIGNAL(triggered()), this, SLOT(AbortEvaluation()));
     connect(Ui.actionAutoSet_WD_to_script_path, SIGNAL(triggered()), this, SLOT(WorkingDirAutoSetPolicy()));
 
+    //JSEngineThread's signals are associated with the corresponding reactions by the GUI.
     connect(JSEngineThread, SIGNAL(UncaughtError(QString)), this, SLOT(PrintErrors(QString)));
     connect(JSEngineThread, SIGNAL(finished()), this, SLOT(TerminateStdoutWatcher()));
 }
 
 void CIDEWindow::SetupEditor()
 {
+    //In the IDEWindow.ui file, the CodeEditor's place is occupied by a placeholder QPlainTextEdit
+    //object - now the placeholder's properties are copied into the newly-created CodeEditor, which
+    //replaces it in the layout.
     CodeEditor *CE = new CodeEditor(Ui.splitter);
     CE->setSizePolicy(Ui.plainTextEdit->sizePolicy());
     CE->resize(Ui.plainTextEdit->size());
@@ -106,13 +119,16 @@ void CIDEWindow::SetupEditor()
 
     Editor->setFont(font);
 
+    //The custom syntax highlighter is attached to the CodeEditor.
     Highlighter = new CSyntaxHighlighter(Editor->document());
 
+    //Ensures that the CodeEditor widget has the keyboard focus on startup.
     Editor->setFocus();
 }
 
 void CIDEWindow::LoadFile()
 {
+    //Opens the "Load File..." prompt.
     QString fileName = QFileDialog::getOpenFileName(this, tr("Load File..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
     if (fileName == "")
         return;
@@ -124,10 +140,14 @@ void CIDEWindow::LoadFile()
 
     QTextStream in(&file);
 
+    //Prints the file's contents into the CodeEditor.
     Editor->setPlainText(in.readAll());
 
     CurrentFile = fileName.toStdString();
 
+    //If the working directory has not been set yet, it is set to the loaded file's folder.
+    //If the working directory has already been set before, it will only be changed if the
+    //"Script location is the working directory" option is enabled.
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
         SetWorkingDirectoryAtScriptLocation(CurrentFile);
@@ -140,6 +160,8 @@ void CIDEWindow::SaveFile()
 {
     QString fileName = QString::fromStdString(CurrentFile);
 
+    //If the file does not already exist (i.e. it hasn't previously been loaded or saved), a file prompt is
+    //opened so the file location can be chosen.
     if (fileName == "")
     {
         fileName = QFileDialog::getSaveFileName(this, tr("Save File..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
@@ -154,11 +176,15 @@ void CIDEWindow::SaveFile()
         }
     }
 
+    //A file is opened and the entire content of the CodeEditor's text area is written.
     std::ofstream outFile(fileName.toStdString().c_str());
 
     outFile << Editor->toPlainText().toStdString();
     outFile.close();
 
+    //If the working directory has not been set yet, it is set to the saved file's folder.
+    //If the working directory has already been set before, it will only be changed if the
+    //"Script location is the working directory" option is enabled.
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
         SetWorkingDirectoryAtScriptLocation(CurrentFile);
@@ -167,6 +193,7 @@ void CIDEWindow::SaveFile()
 
 void CIDEWindow::SaveFileAs()
 {
+    //Opens a file prompt so the file location can be chosen.
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save File As..."), QString::fromStdString(WorkingDir), tr("All Files (*.*)"));
 
     if (fileName == "")
@@ -183,6 +210,9 @@ void CIDEWindow::SaveFileAs()
     outFile << Editor->toPlainText().toStdString();
     outFile.close();
 
+    //If the working directory has not been set yet, it is set to the saved file's folder.
+    //If the working directory has already been set before, it will only be changed if the
+    //"Script location is the working directory" option is enabled.
     if ((WorkingDir == "") || AutoSetWorkingDir)
     {
         SetWorkingDirectoryAtScriptLocation(CurrentFile);
@@ -191,6 +221,7 @@ void CIDEWindow::SaveFileAs()
 
 void CIDEWindow::SetWorkingDirectory()
 {
+    //Opens a directory prompt and sets the working directory to the selected path.
     QString dirName = QFileDialog::getExistingDirectory(this,tr("Choose working directory..."), QString::fromStdString(WorkingDir));
 
     if (dirName == "")
@@ -203,6 +234,7 @@ void CIDEWindow::SetWorkingDirectory()
         QDir::setCurrent(dirName);
     }
 
+    //Changes the label above the output field, so that it displays the current working directory.
     Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
@@ -222,6 +254,7 @@ void CIDEWindow::RunScript()
 
 void CIDEWindow::DebugScript()
 {
+    //The debugger has its own Qt Script engine.
     DebuggerEngine = new QScriptEngine();
 
     BlockButtons();
@@ -238,6 +271,7 @@ void CIDEWindow::DebugScript()
     QString code = Editor->toPlainText();
     QString JSCode;
 
+    //If the code's first line begins with #!, the line is disabled (turned into a comment)
     if (code.size() > 0)
     {
         QString firstLine = code.split(QRegExp("[\r\n]"),QString::SkipEmptyParts)[0];
@@ -251,13 +285,19 @@ void CIDEWindow::DebugScript()
         }
     }
 
+    //Allows the GUI to remain responsive.
     DebuggerEngine->setProcessEventsInterval(10);
 
+    //Attaches the debugger to the engine and triggers an interrupt action (so that the engine's evaluation
+    //will immediately stop at the first line).
     Debugger->attachTo(DebuggerEngine);
     Debugger->action(QScriptEngineDebugger::InterruptAction)->trigger();
 
+    //Launches the engine (it will be stopped immediately).
     DebuggerEngine->evaluate(JSCode);
 
+    //Once the evaluate method is finished (the debugger has reached the end of code or it was aborted
+    //by the Abort button), it is detached and the engine is deleted.
     Debugger->detach();
     delete DebuggerEngine;
     DebuggerEngine = NULL;
@@ -267,24 +307,32 @@ void CIDEWindow::DebugScript()
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser_2->ensureCursorVisible();
 
+    //End of output redirection.
     TerminateStdoutWatcher();
 }
 
 void CIDEWindow::AbortEvaluation()
 {
+    //If the debugger engine exists, the debug is running, otherwise the evaluation is running in a thread.
     if (DebuggerEngine != NULL)
     {
+        //Abort the evaluation, and trigger the Continue action on the debugger (so that the control
+        //will return to the engine and it can abort).
         DebuggerEngine->abortEvaluation();
         Debugger->action(QScriptEngineDebugger::ContinueAction)->trigger();
     }
     else
     {
+        //Send an Abort signal to the thread.
         emit AbortSignal();
     }
 }
 
 void CIDEWindow::PrintErrors(QString errorMessage)
 {
+    //If the JSEngineThread's run has ended with an error (either syntax error detected
+    //before the evaluation, or an exception thrown during the evaluation), it sends a signal
+    //with the message - this method is the slot that prints the message to the GUI.
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->append("\n======================================\nEVALUATION ABORTED:");
@@ -299,7 +347,9 @@ void CIDEWindow::PrintErrors(QString errorMessage)
 
 void CIDEWindow::SwitchToEditor()
 {
+    //Switches to the Editor view.
     Ui.stackedWidget->setCurrentIndex(0);
+
     Ui.actionSwitch_to_Editor->setChecked(true);
     Ui.actionSwitch_to_Debugger->setChecked(false);
     Ui.actionReference->setChecked(false);
@@ -307,6 +357,7 @@ void CIDEWindow::SwitchToEditor()
 
 void CIDEWindow::SwitchToDebugger()
 {
+    //Switches to the Debugger view.
     Ui.stackedWidget->setCurrentIndex(1);
 
     Ui.actionSwitch_to_Editor->setChecked(false);
@@ -316,6 +367,8 @@ void CIDEWindow::SwitchToDebugger()
 
 void CIDEWindow::ShowWebBrowser()
 {
+    //If the web browser has not been opened yet, it is created and the JavaScript reference page is loaded.
+    //Otherwise, the already existing web browser is shown, with the page that had been loaded before.
     Ui.actionReference->setChecked(true);
     Ui.actionSwitch_to_Debugger->setChecked(false);
     Ui.actionSwitch_to_Editor->setChecked(false);
@@ -342,6 +395,7 @@ void CIDEWindow::SwitchToCATsHelp()
 
 void CIDEWindow::SwitchToAbout()
 {
+    //Switches to the "About" screen.
     Ui.stackedWidget->setCurrentIndex(2);
 
     Ui.actionReference->setChecked(false);
@@ -351,14 +405,20 @@ void CIDEWindow::SwitchToAbout()
 
 void CIDEWindow::LoadWebPage(QString url)
 {
+    //If the desired url matches the one already loaded, the web browser is shown
+    //and nothing else happens.
     if (CurrentWebPage == url)
     {
         Ui.stackedWidget->setCurrentWidget(WebBrowser);
+        Ui.actionReference->setChecked(true);
+        Ui.actionSwitch_to_Debugger->setChecked(false);
+        Ui.actionSwitch_to_Editor->setChecked(false);
         return;
     }
 
     CurrentWebPage = url;
 
+    //If the web browser does not exist already, create it and insert it into the stacked widget.
     if (WebBrowser == NULL)
     {
         WebBrowser = new QWebView(this);
@@ -366,6 +426,7 @@ void CIDEWindow::LoadWebPage(QString url)
         WebBrowser->show();
     }
 
+    //Display the web browser and load the new url.
     Ui.stackedWidget->setCurrentWidget(WebBrowser);
     Ui.actionReference->setChecked(true);
     Ui.actionSwitch_to_Debugger->setChecked(false);
@@ -388,13 +449,18 @@ CIDEWindow::~CIDEWindow()
 
 void CIDEWindow::WriteLine(QString line)
 {
-
+    //Writes the given line to both text output widgets - the one in the Editor view,
+    //and the one in the Debugger view. The cursor is moved to the end of the widget
+    //twice - the first time to ensure that the line will be written to the end (in case
+    //the user has moved the cursor elsewhere), the second time to ensure that the output
+    //widget will scroll down to this new line.
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
     Ui.textBrowser->insertPlainText(line);
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
+    Ui.textBrowser->ensureCursorVisible();
 
     cursor = Ui.textBrowser_2->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
@@ -402,22 +468,26 @@ void CIDEWindow::WriteLine(QString line)
     Ui.textBrowser_2->insertPlainText(line);
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser_2->setTextCursor(cursor);
+    Ui.textBrowser->ensureCursorVisible();
 }
 
 void CIDEWindow::BlockButtons()
 {
+    //Disables the main action buttons in the GUI, enables the Abort button.
     Ui.actionAbort->setEnabled(true);
     Ui.actionChange_working_directory->setEnabled(false);
     Ui.actionDebug->setEnabled(false);
     Ui.actionRun_script->setEnabled(false);
     Ui.action_Open->setEnabled(false);
 
+    //If the debugger is running, the script cannot be edited.
     if (DebuggerEngine != NULL)
         Editor->setReadOnly(true);
 }
 
 void CIDEWindow::UnblockButtons()
 {
+    //Enables the main action buttons in the GUI, disables the Abort button.
     Ui.actionAbort->setEnabled(false);
     Ui.actionChange_working_directory->setEnabled(true);
     Ui.actionDebug->setEnabled(true);
@@ -429,6 +499,7 @@ void CIDEWindow::UnblockButtons()
 
 void CIDEWindow::WorkingDirAutoSetPolicy()
 {
+    //Reacts to the "Script location is the working directory" setting.
     if (Ui.actionAutoSet_WD_to_script_path->isChecked())
     {
         AutoSetWorkingDir = true;
@@ -443,16 +514,20 @@ void CIDEWindow::WorkingDirAutoSetPolicy()
 
 void CIDEWindow::SetWorkingDirectoryAtScriptLocation(std::string scriptPath)
 {
+    //Change the application's working directory to the location of the script.
     QFileInfo info(QString::fromStdString(scriptPath));
     WorkingDir = info.filePath().toStdString();
 
+    //Ignore the script file name (remove the part after the last slash).
     size_t found;
     found=WorkingDir.find_last_of("/\\");
 
     WorkingDir = WorkingDir.substr(0,found);
 
+    //Set the working directory.
     QDir::setCurrent(QString::fromStdString(WorkingDir));
 
+    //Change the label above the output widget.
     Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
 }
 
