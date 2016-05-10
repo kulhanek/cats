@@ -68,11 +68,106 @@ CIDEWindow::CIDEWindow(QWidget *parent)
     Ui.label->hide();
     Ui.splitter_2->insertWidget(0,Debugger->standardWindow());
 
+    DefaultGeometry = Debugger->standardWindow()->saveGeometry();
+    DefaultState = Debugger->standardWindow()->saveState();
+
+    QSettings settings("STNGS", "CATs_IDE");
+    Debugger->standardWindow()->restoreGeometry(settings.value("debuggerGeometry").toByteArray());
+    Debugger->standardWindow()->restoreState(settings.value("debuggerWindowState").toByteArray());
+
     Ui.actionAutoSet_WD_to_script_path->setChecked(true);
     AutoSetWorkingDir = true;
 
     //On startup, always show the Editor view.
     Ui.stackedWidget->setCurrentIndex(0);
+}
+
+CIDEWindow::~CIDEWindow()
+{
+    QSettings settings("STNGS", "CATs_IDE");
+    settings.setValue("debuggerGeometry", Debugger->standardWindow()->saveGeometry());
+    settings.setValue("debuggerWindowState", Debugger->standardWindow()->saveState());
+}
+
+void CIDEWindow::CloseEvent(QCloseEvent *event)
+{
+    QString fileName = QString::fromStdString(CurrentFile);
+
+    if (Editor->toPlainText() == "")
+    {
+        event->accept();
+        return;
+    }
+
+    if (fileName != "")
+    {
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            event->ignore();
+            return;
+        }
+
+        QTextStream in(&file);
+
+        QString fileContents = in.readAll();
+
+        QString editorContents = Editor->toPlainText();
+
+        if (fileContents.toStdString() == editorContents.toStdString())
+        {
+            event->accept();
+            return;
+        }
+    }
+
+    this->SwitchToEditor();
+
+    int selection = QMessageBox::question(this, "Exit application", "Do you want to save the changes?", QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel, QMessageBox::Cancel);
+
+    if (selection == QMessageBox::Save)
+    {
+        this->SaveFile();
+
+        QFile file(fileName);
+
+        if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            event->ignore();
+            return;
+        }
+
+        QTextStream in(&file);
+
+        QString fileContents = in.readAll();
+
+        QString editorContents = Editor->toPlainText();
+
+        if (fileContents == editorContents)
+        {
+            event->accept();
+            return;
+        }
+        else
+        {
+            event->ignore();
+            return;
+        }
+    }
+    else
+    {
+        if (selection == QMessageBox::Discard)
+        {
+            event->accept();
+            return;
+        }
+        else
+        {
+            event->ignore();
+            return;
+        }
+    }
 }
 
 void CIDEWindow::SetupMenu()
@@ -93,6 +188,7 @@ void CIDEWindow::SetupMenu()
     connect(Ui.actionAbout, SIGNAL(triggered()), this, SLOT(SwitchToAbout()));
     connect(Ui.actionAbort, SIGNAL(triggered()), this, SLOT(AbortEvaluation()));
     connect(Ui.actionAutoSet_WD_to_script_path, SIGNAL(triggered()), this, SLOT(WorkingDirAutoSetPolicy()));
+    connect(Ui.actionRestore_default_debugger_layout, SIGNAL(triggered()), this, SLOT(DeleteLayout()));
 
     //JSEngineThread's signals are associated with the corresponding reactions by the GUI.
     connect(JSEngineThread, SIGNAL(UncaughtError(QString)), this, SLOT(PrintErrors(QString)));
@@ -136,7 +232,7 @@ void CIDEWindow::LoadFile()
     QFile file(fileName);
 
     if (!file.open(QIODevice::ReadOnly))
-        QMessageBox::information(0,"info",file.errorString());
+        return;
 
     QTextStream in(&file);
 
@@ -385,7 +481,8 @@ void CIDEWindow::ShowWebBrowser()
 
 void CIDEWindow::SwitchToJSHelp()
 {
-    LoadWebPage("https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference");
+    //LoadWebPage("https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference");
+    LoadWebPage("http://www.sme.sk/");
 }
 
 void CIDEWindow::SwitchToCATsHelp()
@@ -424,6 +521,35 @@ void CIDEWindow::LoadWebPage(QString url)
         WebBrowser = new QWebView(this);
         Ui.stackedWidget->insertWidget(3,WebBrowser);
         WebBrowser->show();
+
+        WebPage = new QWebPage(WebBrowser);
+
+        NetworkManager = WebPage->networkAccessManager();
+
+      //  QWebPage* newPage = new QWebPage(WebBrowser);
+  //      connect(newPage->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
+    //    this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
+        //connect(newPage, SIGNAL(unsupportedContent(QNetworkReply * reply)),
+        //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
+
+        WebBrowser->setPage(WebPage);
+        /*QSslConfiguration sslCfg = QSslConfiguration::defaultConfiguration();
+            QList<QSslCertificate> ca_list = sslCfg.caCertificates();
+            QList<QSslCertificate> ca_new = QSslCertificate::fromData("CaCertificates");
+            ca_list += ca_new;
+
+            sslCfg.setCaCertificates(ca_list);
+            sslCfg.setProtocol(QSsl::AnyProtocol);
+            QSslConfiguration::setDefaultConfiguration(sslCfg);*/
+
+        //QNetworkReply *reply = NetworkManageranager.get(QNetworkRequest(QUrl("https://server.tld/index.html")));
+        connect(NetworkManager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
+        this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
+
+WebBrowser->setPage(WebPage);
+
+//connect(newPage, SIGNAL(contentsChanged()),
+//this, SLOT(BS()));
     }
 
     //Display the web browser and load the new url.
@@ -431,7 +557,30 @@ void CIDEWindow::LoadWebPage(QString url)
     Ui.actionReference->setChecked(true);
     Ui.actionSwitch_to_Debugger->setChecked(false);
     Ui.actionSwitch_to_Editor->setChecked(false);
-    WebBrowser->load(QUrl(url));
+    //WebBrowser->setPage(WebPage);
+    //WebBrowser->setUrl(QUrl(url));
+    QNetworkReply *reply = NetworkManager->get(QNetworkRequest(QUrl(url)));
+    reply->ignoreSslErrors();
+    //WebBrowser->setPage(WebPage);
+
+    //NetworkManager = WebBrowser->page()->networkAccessManager();
+    //connect(NetworkManager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
+    //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
+    //newPage->mainFrame()->setUrl(QUrl(url));
+//sleep(2);
+    //connect(WebBrowser->page()->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
+    //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
+}
+void CIDEWindow::BS()
+{
+    std::cout << "BS" << endl;
+}
+
+void CIDEWindow::SslErrorHandler(QNetworkReply* reply, const QList<QSslError>& errlist)
+{
+    reply->ignoreSslErrors();
+    qDebug() << "ACTIVATED" << endl;
+    std::cout << "ACTIVATED" << endl;
 }
 
 void CIDEWindow::TerminateStdoutWatcher()
@@ -441,19 +590,13 @@ void CIDEWindow::TerminateStdoutWatcher()
     UnblockButtons();
 }
 
-CIDEWindow::~CIDEWindow()
-{
-    StdoutWatcher->Terminated = true;
-    StdoutWatcher->wait();
-}
-
 void CIDEWindow::WriteLine(QString line)
 {
     //Writes the given line to both text output widgets - the one in the Editor view,
-    //and the one in the Debugger view. The cursor is moved to the end of the widget
-    //twice - the first time to ensure that the line will be written to the end (in case
-    //the user has moved the cursor elsewhere), the second time to ensure that the output
-    //widget will scroll down to this new line.
+    //and the one in the Debugger view.
+    //The cursor is moved to the end of the widget twice - the first time to ensure that
+    //the line will be written to the end, the second time to force the output widget
+    //to scroll down to this new line.
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
@@ -529,6 +672,16 @@ void CIDEWindow::SetWorkingDirectoryAtScriptLocation(std::string scriptPath)
 
     //Change the label above the output widget.
     Ui.workingDirLabel->setText("Working directory: "+QString::fromStdString(WorkingDir));
+}
+
+void CIDEWindow::DeleteLayout()
+{
+    QSettings settings("STNGS", "CATs_IDE");
+    settings.remove("debuggerGeometry");
+    settings.remove("debuggerWindowState");
+
+    Debugger->standardWindow()->restoreGeometry(DefaultGeometry);
+    Debugger->standardWindow()->restoreState(DefaultState);
 }
 
 void CIDEWindow::ExitProgram()

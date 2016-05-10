@@ -36,6 +36,12 @@
 #include <QtScript/QScriptEngine>
 #include <QtScript/QScriptable>
 #include <QWebView>
+#include <QWebFrame>
+#include <QNetworkReply>
+#include <QNetworkAccessManager>
+#include <QSslError>
+#include <QSslConfiguration>
+#include <QUrl>
 #include <unistd.h>
 #include "SyntaxHighlighter.hpp"
 #include "StdoutWatcher.hpp"
@@ -70,11 +76,15 @@ public slots:
     void SwitchToAbout(void);
     void TerminateStdoutWatcher(void);
     void WorkingDirAutoSetPolicy(void);
+    void DeleteLayout(void);
+    void SslErrorHandler(QNetworkReply* qnr, const QList<QSslError> & errlist);
+    void BS();
 
 signals:
     void AbortSignal(void);
 
 private:
+    void CloseEvent(QCloseEvent *event);
     void SetupEditor(void);
     void SetupMenu(void);
     void LoadWebPage(QString url);
@@ -88,8 +98,13 @@ private:
     CStdoutWatcher *StdoutWatcher;
     QString CurrentWebPage;
     QWebView *WebBrowser;
+    QWebPage *WebPage;
+    QNetworkAccessManager *NetworkManager;
     QScriptEngine *DebuggerEngine;
     QScriptEngineDebugger *Debugger;
+
+    QByteArray DefaultGeometry;
+    QByteArray DefaultState;
 
     bool AutoSetWorkingDir;
 

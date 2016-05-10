@@ -242,6 +242,7 @@ Licensed under GNU General Public License.</string>
      <string>&amp;Settings</string>
     </property>
     <addaction name="actionChange_working_directory"/>
+    <addaction name="actionRestore_default_debugger_layout"/>
     <addaction name="actionAutoSet_WD_to_script_path"/>
    </widget>
    <widget class="QMenu" name="menu_Run">
@@ -427,6 +428,15 @@ Licensed under GNU General Public License.</string>
    </property>
    <property name="text">
     <string>Script location is the working directory</string>
+   </property>
+  </action>
+  <action name="actionRestore_default_debugger_layout">
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/icons/restore.png</normaloff>:/icons/restore.png</iconset>
+   </property>
+   <property name="text">
+    <string>Restore default debugger layout</string>
    </property>
   </action>
  </widget>

@@ -11,5 +11,6 @@
         <file>icons/exit.png</file>
         <file>icons/abort.png</file>
         <file>icons/CATs.png</file>
+        <file>icons/restore.png</file>
     </qresource>
 </RCC>
