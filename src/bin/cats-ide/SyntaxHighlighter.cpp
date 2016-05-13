@@ -10,8 +10,8 @@
  *
  * Adapted for CATs/JavaScript as part of the CATs IDE development.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  *
  * =====================================================================
  */
@@ -23,6 +23,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
+    //Highlighting for the reserved JavaScript keywords.
     KeywordFormat.setForeground(Qt::darkBlue);
     KeywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
@@ -54,14 +55,14 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
         HighlightingRules.append(rule);
     }
 
-
+    //Highlighting for the functions.
     FunctionFormat.setFontItalic(true);
     FunctionFormat.setForeground(Qt::blue);
     rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
     rule.Format = FunctionFormat;
     HighlightingRules.append(rule);
 
-
+    //Highlighting for the CATs class names.
     KeywordFormat.setForeground(Qt::darkMagenta);
     KeywordFormat.setFontItalic(true);
     QStringList CATsKeywords;
@@ -82,20 +83,24 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
         HighlightingRules.append(rule);
     }
 
+    //Highlighting for single line comments.
     SingleLineCommentFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegExp("//[^\n]*");
     rule.Format = SingleLineCommentFormat;
     HighlightingRules.append(rule);
 
+    //Highlighting for multiple line comments.
     MultiLineCommentFormat.setForeground(Qt::darkGreen);
     CommentStartExpression = QRegExp("/\\*");
     CommentEndExpression = QRegExp("\\*/");
 
+    //Highlighting for strings denoted by double quotes (escaped double quotes are ignored).
     QuotationFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegExp("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"");
     rule.Format = QuotationFormat;
     HighlightingRules.append(rule);
 
+    //Highlighting for strings denoted by single quotes (escaped single quotes are ignored).
     QuotationFormat.setForeground(Qt::darkGreen);
     rule.Pattern = QRegExp("\'[^\'\\\\]*(\\\\.[^\'\\\\]*)*\'");
     rule.Format = QuotationFormat;
@@ -105,6 +110,7 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 
 void CSyntaxHighlighter::highlightBlock(const QString &text)
 {
+    //Applies the highlighting rules which only apply for a single line (all except for multiple line comments).
     foreach (const HighlightingRule &rule, HighlightingRules) {
         QRegExp expression(rule.Pattern);
         int index = expression.indexIn(text);
@@ -117,6 +123,7 @@ void CSyntaxHighlighter::highlightBlock(const QString &text)
 
     setCurrentBlockState(0);
 
+    //Applies the highlighting rule for multiple line comments.
     int startIndex = 0;
         if (previousBlockState() != 1)
             startIndex = CommentStartExpression.indexIn(text);

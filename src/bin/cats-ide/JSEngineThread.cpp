@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  * =====================================================================
  */
 
@@ -32,8 +32,10 @@ void CJSEngineThread::RunCode(const QString &code)
 {
     JSEngine = new QScriptEngine();
 
+    //Import the CATs classes and methods into the engine.
     RegisterAllCATsClasses(*JSEngine);
 
+    //If the code's first line begins with #!, disable the line (turn into a comment)
     QString firstLine = code.split(QRegExp("[\r\n]"),QString::SkipEmptyParts)[0];
     if (firstLine.contains("#!"))
     {
@@ -44,8 +46,10 @@ void CJSEngineThread::RunCode(const QString &code)
         JSCode = code;
     }
 
+    //Run a syntax check.
     QScriptSyntaxCheckResult syntaxCheck = JSEngine->checkSyntax(JSCode);
 
+    //If the syntax check failed, send the error message as a signal to the main window and exit.
     if (syntaxCheck.state() != QScriptSyntaxCheckResult::Valid)
     {
         QString errorMessage = QString("Syntax error at line %1: %2").arg(syntaxCheck.errorLineNumber()).arg(syntaxCheck.errorMessage());
@@ -55,6 +59,7 @@ void CJSEngineThread::RunCode(const QString &code)
         return;
     }
 
+    //Run the thread.
     start();
 }
 
@@ -64,6 +69,8 @@ void CJSEngineThread::run()
 
     Result = JSEngine->evaluate(JSCode);
 
+    //If the evaluation ended with an error, send the error message as a signal to the main window and exit.
+    //Otherwise, the output is redirected automatically via StdoutWatcher.
     if (JSEngine->hasUncaughtException())
     {
         int line = JSEngine->uncaughtExceptionLineNumber();

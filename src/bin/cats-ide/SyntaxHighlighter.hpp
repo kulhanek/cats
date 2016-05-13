@@ -12,8 +12,8 @@
  *
  * Adapted for CATs/JavaScript as part of the CATs IDE development.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  *
  * =====================================================================
  */
@@ -33,7 +33,10 @@ protected:
 private:
     struct HighlightingRule
     {
+        //The regular expression that a string needs to match in order to be highlighted.
         QRegExp Pattern;
+
+        //The highlighting font.
         QTextCharFormat Format;
     };
     QVector<HighlightingRule> HighlightingRules;

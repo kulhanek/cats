@@ -12,8 +12,8 @@
  *
  * Certain parts were slightly edited as part of the CATs IDE development.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  *
  * =====================================================================
  */

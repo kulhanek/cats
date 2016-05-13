@@ -14,8 +14,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  * =====================================================================
  */
 
@@ -36,6 +36,9 @@ void CStdoutWatcher::run()
 
     QTextStream stream(&outputFile);
 
+    //Keep checking the temporary file for new lines every 20 miliseconds, until the main window sets
+    //the Terminated bool to 'true'. If there are new lines to be read (rather than EOF), send them
+    //to the main window via the LineRead signal.
     while (!Terminated)
     {
         sleep(0.02);
@@ -53,11 +56,12 @@ void CStdoutWatcher::StartOutputRedirection()
 {
     Terminated = false;
 
+    //Convert the temporary file name to char* so that it can be passed to the freopen method.
     QByteArray ba = RedirectFileName.toLatin1();
     const char *c_str = ba.data();
 
+    //Redirect the stdout stream to the given temporary file.
     freopen(c_str,"wa",stdout);
-
     setvbuf(stdout,NULL,_IONBF,0);
 
     start();
@@ -65,6 +69,7 @@ void CStdoutWatcher::StartOutputRedirection()
 
 void CStdoutWatcher::StopOutputRedirection()
 {
+    //Restore the stdout stream.
     setvbuf(stdout,NULL,_IOFBF,0);
     freopen("CON","w",stdout);
 }

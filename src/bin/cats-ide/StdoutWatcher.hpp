@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  * =====================================================================
  */
 
@@ -34,15 +34,25 @@ class CStdoutWatcher : public QThread
 
 public:
     CStdoutWatcher(QObject *parent, QString fileName);
+
+    //Redirects stdout to a temporary file and launches the thread.
     void StartOutputRedirection();
+
+    //Restores stdout.
     void StopOutputRedirection();
+
+    //The flag that forces the thread to break its endless cycle and exit.
     bool Terminated;
 
 signals:
+    //The signal used to send every new line of output to the main window.
     void LineRead(QString line);
 
 private:
+    //The path to the temporary file used for output redirection.
     QString RedirectFileName;
+
+    //The thread that continuously reads the temporary output file and sends each line to the main window.
     virtual void run();
 };
 

@@ -14,18 +14,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  *
- * CATs developed by: RNDr. Petr Kulhánek, PhD.
- * CATs IDE developed by: Mgr. Jaroslav Oľha
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  * =====================================================================
  */
 
 #include "IDEWindow.hpp"
 #include "ui_IDEWindow.h"
-#include <QtScript/QScriptEngine>
-#include <QtScript/QScriptValue>
-#ifndef QT_NO_SCRIPTTOOLS
-#include <QtScriptTools/QScriptEngineDebugger>
-#endif
 
 CIDEWindow::CIDEWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -43,8 +38,7 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     StdoutWatcher = new CStdoutWatcher(this, AuxFilePath);
 
-    //Whenever the StdoutWatcher reads a line from the temporary file, it is sent
-    //as a signal to the WriteLine slot (so that it can be written to the output window).
+    //When a line is received from the StdoutWatcher object, it is printed to the output widget.
     connect(StdoutWatcher, SIGNAL(LineRead(QString)),this,SLOT(WriteLine(QString)));
 
     Ui.setupUi(this);
@@ -63,18 +57,21 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
     setWindowTitle(tr("CATs IDE"));
 
-    //In the IDEWindow.ui file, the debugger window's place is occupied by the label - now the label
-    //is hidden and replaced by the window.
+    //The label is a placeholder for the debugger window in the IDEWindow.ui file.
+    //Now it is hidden and replaced by the debugger.
     Ui.label->hide();
     Ui.splitter_2->insertWidget(0,Debugger->standardWindow());
 
+    //The initial layout of the debugger is saved, in case the user wants to restore it later.
     DefaultGeometry = Debugger->standardWindow()->saveGeometry();
     DefaultState = Debugger->standardWindow()->saveState();
 
+    //If there is a saved debugger layout from a previous session, it is applied.
     QSettings settings("STNGS", "CATs_IDE");
     Debugger->standardWindow()->restoreGeometry(settings.value("debuggerGeometry").toByteArray());
     Debugger->standardWindow()->restoreState(settings.value("debuggerWindowState").toByteArray());
 
+    //By default, the "Script location is the working directory" option is on.
     Ui.actionAutoSet_WD_to_script_path->setChecked(true);
     AutoSetWorkingDir = true;
 
@@ -84,21 +81,24 @@ CIDEWindow::CIDEWindow(QWidget *parent)
 
 CIDEWindow::~CIDEWindow()
 {
+    //Save the debugger window layout.
     QSettings settings("STNGS", "CATs_IDE");
     settings.setValue("debuggerGeometry", Debugger->standardWindow()->saveGeometry());
     settings.setValue("debuggerWindowState", Debugger->standardWindow()->saveState());
 }
 
-void CIDEWindow::CloseEvent(QCloseEvent *event)
+void CIDEWindow::closeEvent(QCloseEvent *event)
 {
     QString fileName = QString::fromStdString(CurrentFile);
 
+    //If the editor is empty, allow the window to close without a prompt.
     if (Editor->toPlainText() == "")
     {
         event->accept();
         return;
     }
 
+    //If the script file exists (it has previously been saved or loaded):
     if (fileName != "")
     {
         QFile file(fileName);
@@ -115,6 +115,8 @@ void CIDEWindow::CloseEvent(QCloseEvent *event)
 
         QString editorContents = Editor->toPlainText();
 
+        //Compare the code editor contents with the saved file.
+        //If they are the same, allow the window to close without a prompt.
         if (fileContents.toStdString() == editorContents.toStdString())
         {
             event->accept();
@@ -124,8 +126,10 @@ void CIDEWindow::CloseEvent(QCloseEvent *event)
 
     this->SwitchToEditor();
 
+    //Throw a prompt asking the user if they want to save the changes.
     int selection = QMessageBox::question(this, "Exit application", "Do you want to save the changes?", QMessageBox::Save|QMessageBox::Discard|QMessageBox::Cancel, QMessageBox::Cancel);
 
+    //If "Save" was selected, save the file.
     if (selection == QMessageBox::Save)
     {
         this->SaveFile();
@@ -144,6 +148,7 @@ void CIDEWindow::CloseEvent(QCloseEvent *event)
 
         QString editorContents = Editor->toPlainText();
 
+        //Check if the save was successful. If it was, allow the window to close.
         if (fileContents == editorContents)
         {
             event->accept();
@@ -157,12 +162,13 @@ void CIDEWindow::CloseEvent(QCloseEvent *event)
     }
     else
     {
+        //If "Discard" was selected, close the window.
         if (selection == QMessageBox::Discard)
         {
             event->accept();
             return;
         }
-        else
+        else //If "Cancel" was selected, return to the application.
         {
             event->ignore();
             return;
@@ -197,9 +203,8 @@ void CIDEWindow::SetupMenu()
 
 void CIDEWindow::SetupEditor()
 {
-    //In the IDEWindow.ui file, the CodeEditor's place is occupied by a placeholder QPlainTextEdit
-    //object - now the placeholder's properties are copied into the newly-created CodeEditor, which
-    //replaces it in the layout.
+    //Ui.plainTextEdit is a placeholder for the code editor in the IDEWindow.ui file.
+    //Now it is replaced by the new CodeEditor object.
     CodeEditor *CE = new CodeEditor(Ui.splitter);
     CE->setSizePolicy(Ui.plainTextEdit->sizePolicy());
     CE->resize(Ui.plainTextEdit->size());
@@ -336,15 +341,19 @@ void CIDEWindow::SetWorkingDirectory()
 
 void CIDEWindow::RunScript()
 {
+    //Disable some of the GUI actions while the script is running.
     BlockButtons();
 
+    //Clear the output windows.
     Ui.textBrowser->clear();
     Ui.textBrowser_2->clear();
 
+    //Redirect output.
     StdoutWatcher->StartOutputRedirection();
 
     this->SwitchToEditor();
 
+    //Launch the thread.
     JSEngineThread->RunCode(Editor->toPlainText());
 }
 
@@ -353,21 +362,25 @@ void CIDEWindow::DebugScript()
     //The debugger has its own Qt Script engine.
     DebuggerEngine = new QScriptEngine();
 
+    //Disable some of the GUI actions while the debugger is active.
     BlockButtons();
 
+    //Clear the output windows.
     Ui.textBrowser->clear();
     Ui.textBrowser_2->clear();
 
+    //Redirect output.
     StdoutWatcher->StartOutputRedirection();
 
     this->SwitchToDebugger();
 
+    //Import the CATs classes and methods into the engine.
     RegisterAllCATsClasses(*DebuggerEngine);
 
     QString code = Editor->toPlainText();
     QString JSCode;
 
-    //If the code's first line begins with #!, the line is disabled (turned into a comment)
+    //If the code's first line begins with #!, disable the line (turn into a comment)
     if (code.size() > 0)
     {
         QString firstLine = code.split(QRegExp("[\r\n]"),QString::SkipEmptyParts)[0];
@@ -426,9 +439,7 @@ void CIDEWindow::AbortEvaluation()
 
 void CIDEWindow::PrintErrors(QString errorMessage)
 {
-    //If the JSEngineThread's run has ended with an error (either syntax error detected
-    //before the evaluation, or an exception thrown during the evaluation), it sends a signal
-    //with the message - this method is the slot that prints the message to the GUI.
+    //Print the error message from JSEngineThread to the output widget.
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->append("\n======================================\nEVALUATION ABORTED:");
@@ -438,6 +449,7 @@ void CIDEWindow::PrintErrors(QString errorMessage)
     Ui.textBrowser->ensureCursorVisible();
     this->SwitchToEditor();
 
+    //Return full control to the GUI.
     UnblockButtons();
 }
 
@@ -481,8 +493,7 @@ void CIDEWindow::ShowWebBrowser()
 
 void CIDEWindow::SwitchToJSHelp()
 {
-    //LoadWebPage("https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference");
-    LoadWebPage("http://www.sme.sk/");
+    LoadWebPage("https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference");
 }
 
 void CIDEWindow::SwitchToCATsHelp()
@@ -502,7 +513,7 @@ void CIDEWindow::SwitchToAbout()
 
 void CIDEWindow::LoadWebPage(QString url)
 {
-    //If the desired url matches the one already loaded, the web browser is shown
+    //If the given url matches the one already loaded, the web browser is shown
     //and nothing else happens.
     if (CurrentWebPage == url)
     {
@@ -521,35 +532,6 @@ void CIDEWindow::LoadWebPage(QString url)
         WebBrowser = new QWebView(this);
         Ui.stackedWidget->insertWidget(3,WebBrowser);
         WebBrowser->show();
-
-        WebPage = new QWebPage(WebBrowser);
-
-        NetworkManager = WebPage->networkAccessManager();
-
-      //  QWebPage* newPage = new QWebPage(WebBrowser);
-  //      connect(newPage->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
-    //    this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
-        //connect(newPage, SIGNAL(unsupportedContent(QNetworkReply * reply)),
-        //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
-
-        WebBrowser->setPage(WebPage);
-        /*QSslConfiguration sslCfg = QSslConfiguration::defaultConfiguration();
-            QList<QSslCertificate> ca_list = sslCfg.caCertificates();
-            QList<QSslCertificate> ca_new = QSslCertificate::fromData("CaCertificates");
-            ca_list += ca_new;
-
-            sslCfg.setCaCertificates(ca_list);
-            sslCfg.setProtocol(QSsl::AnyProtocol);
-            QSslConfiguration::setDefaultConfiguration(sslCfg);*/
-
-        //QNetworkReply *reply = NetworkManageranager.get(QNetworkRequest(QUrl("https://server.tld/index.html")));
-        connect(NetworkManager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
-        this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
-
-WebBrowser->setPage(WebPage);
-
-//connect(newPage, SIGNAL(contentsChanged()),
-//this, SLOT(BS()));
     }
 
     //Display the web browser and load the new url.
@@ -557,36 +539,15 @@ WebBrowser->setPage(WebPage);
     Ui.actionReference->setChecked(true);
     Ui.actionSwitch_to_Debugger->setChecked(false);
     Ui.actionSwitch_to_Editor->setChecked(false);
-    //WebBrowser->setPage(WebPage);
-    //WebBrowser->setUrl(QUrl(url));
-    QNetworkReply *reply = NetworkManager->get(QNetworkRequest(QUrl(url)));
-    reply->ignoreSslErrors();
-    //WebBrowser->setPage(WebPage);
-
-    //NetworkManager = WebBrowser->page()->networkAccessManager();
-    //connect(NetworkManager, SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
-    //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
-    //newPage->mainFrame()->setUrl(QUrl(url));
-//sleep(2);
-    //connect(WebBrowser->page()->networkAccessManager(), SIGNAL(sslErrors(QNetworkReply*, const QList<QSslError>&)),
-    //this, SLOT(SslErrorHandler(QNetworkReply*, const QList<QSslError>&)));
-}
-void CIDEWindow::BS()
-{
-    std::cout << "BS" << endl;
-}
-
-void CIDEWindow::SslErrorHandler(QNetworkReply* reply, const QList<QSslError>& errlist)
-{
-    reply->ignoreSslErrors();
-    qDebug() << "ACTIVATED" << endl;
-    std::cout << "ACTIVATED" << endl;
+    WebBrowser->setUrl(QUrl(url));
 }
 
 void CIDEWindow::TerminateStdoutWatcher()
 {
+    //Stop output redirection to the output widget.
     StdoutWatcher->Terminated = true;
 
+    //Return full control to the GUI.
     UnblockButtons();
 }
 
@@ -594,17 +555,21 @@ void CIDEWindow::WriteLine(QString line)
 {
     //Writes the given line to both text output widgets - the one in the Editor view,
     //and the one in the Debugger view.
-    //The cursor is moved to the end of the widget twice - the first time to ensure that
-    //the line will be written to the end, the second time to force the output widget
-    //to scroll down to this new line.
+
+    //Move the cursor to the end of the widget (to ensure that the line will be written to the end).
     QTextCursor cursor = Ui.textBrowser->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
+
+    //Print the line.
     Ui.textBrowser->insertPlainText(line);
+
+    //Move the cursor to the end again (to force the output widget to scroll down to the new line).
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser->setTextCursor(cursor);
     Ui.textBrowser->ensureCursorVisible();
 
+    //The same for the second output widget.
     cursor = Ui.textBrowser_2->textCursor();
     cursor.movePosition(QTextCursor::End, QTextCursor::MoveAnchor);
     Ui.textBrowser_2->setTextCursor(cursor);
@@ -616,7 +581,7 @@ void CIDEWindow::WriteLine(QString line)
 
 void CIDEWindow::BlockButtons()
 {
-    //Disables the main action buttons in the GUI, enables the Abort button.
+    //Disable the main action buttons in the GUI, enable the Abort button.
     Ui.actionAbort->setEnabled(true);
     Ui.actionChange_working_directory->setEnabled(false);
     Ui.actionDebug->setEnabled(false);
@@ -630,7 +595,7 @@ void CIDEWindow::BlockButtons()
 
 void CIDEWindow::UnblockButtons()
 {
-    //Enables the main action buttons in the GUI, disables the Abort button.
+    //Enable the main action buttons in the GUI, disable the Abort button.
     Ui.actionAbort->setEnabled(false);
     Ui.actionChange_working_directory->setEnabled(true);
     Ui.actionDebug->setEnabled(true);
@@ -657,7 +622,8 @@ void CIDEWindow::WorkingDirAutoSetPolicy()
 
 void CIDEWindow::SetWorkingDirectoryAtScriptLocation(std::string scriptPath)
 {
-    //Change the application's working directory to the location of the script.
+    //Changes the application's working directory to the location of the script.
+
     QFileInfo info(QString::fromStdString(scriptPath));
     WorkingDir = info.filePath().toStdString();
 
@@ -676,10 +642,12 @@ void CIDEWindow::SetWorkingDirectoryAtScriptLocation(std::string scriptPath)
 
 void CIDEWindow::DeleteLayout()
 {
+    //Delete the saved debugger layout.
     QSettings settings("STNGS", "CATs_IDE");
     settings.remove("debuggerGeometry");
     settings.remove("debuggerWindowState");
 
+    //Restore the default.
     Debugger->standardWindow()->restoreGeometry(DefaultGeometry);
     Debugger->standardWindow()->restoreState(DefaultState);
 }
