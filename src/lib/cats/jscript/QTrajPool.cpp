@@ -103,6 +103,7 @@ QTrajPool::QTrajPool(const QScriptValue& top)
     CurrentSnapshot = 0;
     PrevCurrSnapshot = -1;
     DefaultTmpName = "prod%03d.traj";
+    IgnoreMissingFiles = true;
 }
 
 //------------------------------------------------------------------------------
@@ -173,6 +174,7 @@ QScriptValue QTrajPool::addTrajectory(void)
 
 // execute ---------------------------------------
     if( addTrajFile(name,format) == false ){
+        if( IgnoreMissingFiles == true ) return(true);
         CSmallString error;
         if( format == "unknown" ){
             error << "unable to add file '" << CSmallString(name) << "'";
@@ -228,6 +230,7 @@ QScriptValue QTrajPool::addTrajList(void)
         stringstream str;
         str << format(tmpname.toStdString()) % i;
         if( addTrajFile(str.str().c_str(),tformat) == false ){
+            if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
                 error << "unable to add file '" << str.str() << "'";
@@ -291,6 +294,7 @@ QScriptValue QTrajPool::addTrajListFrom(void)
         str << format(namefmt.toStdString()) % i;
 
         if( addTrajFile(str.str().c_str(),tformat) == false ){
+            if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
                 error << "unable to add file '" << str.str() << "'";

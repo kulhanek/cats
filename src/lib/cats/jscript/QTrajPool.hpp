@@ -107,6 +107,7 @@ private:
     std::vector<CTrajPoolItem>  Items;
     int                         CurrentItem;
     CAmberTrajectory            Trajectory;
+    bool                        IgnoreMissingFiles;
 
     // progress
     bool                ProgressStarted;    
