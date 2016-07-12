@@ -63,7 +63,7 @@ QScriptValue QPMFLib::init(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool PMFLib::init(snapshot,ctrlname)" << endl;
+        sout << "usage: PMFLib::init(snapshot,ctrlname)" << endl;
         return(false);
     }
 
@@ -81,7 +81,8 @@ QScriptValue QPMFLib::init(void)
 
 // execute ---------------------------------------
     if( Initialized ){
-        return( ThrowError("snapshot,ctrlname","already initialized") );
+        Initialized = false;
+        CPMFCATsDriver::Finalize(1);
     }
 
     if( p_snap->Restart.GetNumberOfAtoms() == 0 ){
@@ -131,6 +132,29 @@ QScriptValue QPMFLib::init(void)
     Initialized = true;
 
     return( value );
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPMFLib::finalize(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: PMFLib::finalize()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+    
+// execute ---------------------------------------
+    CPMFCATsDriver::Finalize(0);
+    
+    return( value );    
 }
 
 //------------------------------------------------------------------------------

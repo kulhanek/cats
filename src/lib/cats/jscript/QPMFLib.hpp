@@ -48,8 +48,12 @@ public:
 // methods ---------------------------------------------------------------------
 public slots:
     /// load PMFLib control file
-    /// bool init(snapshot,ctrlname)
+    /// init(snapshot,ctrlname)
     QScriptValue init(void);
+    
+    /// finalize PMFLib
+    /// finalize()
+    QScriptValue finalize(void);    
     
     /// load PMFLib control from string
     /// bool init(snapshot,ctrlstr)
