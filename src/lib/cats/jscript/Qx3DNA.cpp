@@ -447,7 +447,7 @@ QScriptValue Qx3DNA::getBPIndex(void)
     std::map<int,CNABPID>::iterator ie = BPIDs.end();
 
     while( it != ie ){
-        if( (it->second.ResIDA == residA) ||
+        if( (it->second.ResIDA == residA) &&
             (it->second.ResIDB == residB) ){
             return( it->first );
         }
@@ -510,9 +510,9 @@ QScriptValue Qx3DNA::getBPStepIndex(void)
     std::map<int,CNABPStepID>::iterator ie = BPStepIDs.end();
 
     while( it != ie ){
-        if( (it->second.ResIDA == residA) ||
-            (it->second.ResIDB == residB) ||
-            (it->second.ResIDC == residC) ||
+        if( (it->second.ResIDA == residA) &&
+            (it->second.ResIDB == residB) &&
+            (it->second.ResIDC == residC) &&
             (it->second.ResIDD == residD) ){
             return( it->first );
         }
