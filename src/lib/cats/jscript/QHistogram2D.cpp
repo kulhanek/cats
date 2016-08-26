@@ -940,7 +940,7 @@ void QHistogram2D::save(ostream& str)
             str << " " << setw(15) << scientific << rmsd;
         }
         str << endl;
-        if( i%NBinsD2 == 1){
+        if( (i+1) % NBinsD2 == 0){
             str << endl;
         }
     }
