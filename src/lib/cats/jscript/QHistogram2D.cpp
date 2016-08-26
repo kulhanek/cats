@@ -611,12 +611,13 @@ QScriptValue QHistogram2D::addSample(void)
 
     NumOfSamples++;
     if( (numD1 < MinValueD1) || (numD1 >= MaxValueD1) || (numD2 < MinValueD2) || (numD2 >= MaxValueD2) ) return(false);
-    NumOfSamplesWithin++;
-
 
     // calculate index
-    if( BinSize <= 0 ){ /// STACI BINSIZE alebo D1 D2???
+    if( BinSizeD1 <= 0 ){
         return( ThrowError("value,value[,extra]","binD1 width is zero or negative value"));
+    }
+    if( BinSizeD2 <= 0 ){
+        return( ThrowError("value,value[,extra]","binD2 width is zero or negative value"));
     }
 
     int indexD1 = (numD1 - MinValueD1)/BinSizeD1;
@@ -624,6 +625,8 @@ QScriptValue QHistogram2D::addSample(void)
 
     int indexD2 = (numD2 - MinValueD2)/BinSizeD2;
     if( (indexD2 < 0) || (indexD2 >= static_cast<int>(Histogram.size())) ) return(false);
+
+    NumOfSamplesWithin++;
 
     // increment value
     int index = indexD1 * NBinsD2 + indexD2;
@@ -926,8 +929,10 @@ void QHistogram2D::save(ostream& str)
     str << "# --------------- --------------- --------------- --------------- --------------- " << endl;
 
     for(size_t i=0; i < Histogram.size(); i++){
-        double valueD1 = ((i-i%NBinsD2)/NBinsD2 + 0.5)*BinSizeD1 + MinValueD1;
-        double valueD2 = ((i%NBinsD1) + 0.5)*BinSizeD2 + MinValueD2;
+	int ix = i / NBinsD2;
+	int iy = i % NBinsD2;
+        double valueD1 = (ix + 0.5)*BinSizeD1 + MinValueD1;
+        double valueD2 = (iy + 0.5)*BinSizeD2 + MinValueD2;
         double occur = Histogram[i];
         str << " " << setw(15) << scientific << valueD1;
         str << " " << setw(15) << scientific << valueD2;
