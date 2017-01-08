@@ -64,7 +64,7 @@ public:
     "  moveto       mask x   y  z\n"
     "  swap         mask1 maks2\n"
     "  principal    mask\n"
-    "  bondrot      mask1 maks2 angle\n"    
+    "  bondrot      mask1 mask2 angle\n"    
     CSO_PROG_ARGS_LONG_DESC_END
 
 
