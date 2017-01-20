@@ -145,6 +145,21 @@ public slots:
     QScriptValue getBPHelTip(void);
     QScriptValue getBPHelHtwist(void);
 
+    /// get validity of BP Step P params
+    /// bool areBPStepPParamsValid(index)
+    QScriptValue arePParamsValid(void);
+
+    /// get P params
+    /// double getPXXX(index)
+    QScriptValue getPXp(void);
+    QScriptValue getPYp(void);
+    QScriptValue getPZp(void);
+    QScriptValue getPXpH(void);
+    QScriptValue getPYpH(void);
+    QScriptValue getPZpH(void);
+    /// int getPForm(index)
+    QScriptValue getPForm(void);
+
 public:
     /// return current parameter type mode
     QString GetParameterTypeString(void) const;
@@ -168,6 +183,7 @@ private:
     std::vector<CNABPPar>       BPPar;
     std::vector<CNABPStepPar>   BPStepPar;
     std::vector<CNABPHelPar>    BPHelPar;
+    std::vector<CNAPPar>        PPar;
     std::vector<CPoint>         BPOrigins;
     std::vector<CPoint>         HelAxisPositions;
 
@@ -195,19 +211,22 @@ private:
     /// read BP Step indexes
     bool ReadSectionBPStepIDs(std::ifstream& ifs,std::map<int,CNABPID>& bps,std::map<int,CNABPStepID>& bpsteps);
 
-    /// read  BP
+    /// read BP
     bool ReadSectionBPPar(std::ifstream& ifs);
 
-    /// read  BP Step
+    /// read BP Step
     bool ReadSectionBPStepPar(std::ifstream& ifs);
 
-    /// read  BP Helical
+    /// read BP Helical
     bool ReadSectionBPHelPar(std::ifstream& ifs);
 
-    /// read  BP origins
+    /// read P
+    bool ReadSectionPPar(std::ifstream& ifs);
+
+    /// read BP origins
     bool ReadSectionBPOrigins(std::ifstream& ifs);
 
-    /// read  helical axis position
+    /// read helical axis position
     bool ReadSectionHelPos(std::ifstream& ifs);
 
     friend class QNAStat;

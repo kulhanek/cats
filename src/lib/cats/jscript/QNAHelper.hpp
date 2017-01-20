@@ -85,6 +85,26 @@ public:
 
 //------------------------------------------------------------------------------
 
+class CNAPPar {
+public:
+    // constructor
+    CNAPPar(void);
+
+public:
+    bool        Valid;      // determine if data are valid - if reference snapshot is activated
+    int         ID;         // counted from 0
+    std::string Step;       // two base pairs (AT/AT)
+    double      Xp;
+    double      Yp;
+    double      Zp;
+    double      XpH;
+    double      YpH;
+    double      ZpH;
+    int         Form;
+};
+
+//------------------------------------------------------------------------------
+
 class CNABPID {
 public:
     // constructor

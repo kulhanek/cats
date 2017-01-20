@@ -149,3 +149,54 @@ void CNABPHelStat::RegisterData(const CNABPHelPar& data,bool flipped)
 //------------------------------------------------------------------------------
 //==============================================================================
 
+CNAPStat::CNAPStat(void)
+{
+    NumOfSamples = 0;
+    NumOfAForm = 0;
+    NumOfBForm = 0;
+    NumOfAlikeForm = 0;
+    NumOfBlikeForm = 0;
+    NumOfTAlikeForm = 0;
+}
+
+//------------------------------------------------------------------------------
+
+void CNAPStat::RegisterData(const CNAPPar& data,bool flipped)
+{
+    NumOfSamples++;
+
+    // no changes in P parameters when flipped
+//    if( flipped ){
+//        RevertedCases++;
+//    }
+
+    Sum.Xp += data.Xp;
+    Sum.Yp += data.Yp;
+    Sum.Zp += data.Zp;
+    Sum.XpH += data.XpH;
+    Sum.YpH += data.YpH;
+    Sum.ZpH += data.ZpH;
+
+    Sum2.Xp += data.Xp*data.Xp;
+    Sum2.Yp += data.Yp*data.Yp;
+    Sum2.Zp += data.Zp*data.Zp;
+    Sum2.XpH += data.XpH*data.XpH;
+    Sum2.YpH += data.YpH*data.YpH;
+    Sum2.ZpH += data.ZpH*data.ZpH;
+
+    if ( data.Form == 1 ) {
+        NumOfAForm++;
+    } else if ( data.Form == 2 ) {
+        NumOfBForm++;
+    } else if ( data.Form == 3 ) {
+        NumOfAlikeForm++;
+    } else if ( data.Form == 4 ) {
+        NumOfBlikeForm++;
+    } else if ( data.Form == 5 ) {
+        NumOfTAlikeForm++;
+    }
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================

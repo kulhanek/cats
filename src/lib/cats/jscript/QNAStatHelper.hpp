@@ -88,4 +88,28 @@ typedef boost::shared_ptr<CNABPHelStat>   CNABPHelStatPtr;
 
 //------------------------------------------------------------------------------
 
+class CNAPStat {
+public:
+    // constructor
+    CNAPStat(void);
+
+public:
+    int             NumOfSamples;
+    CNAPPar         Sum;
+    CNAPPar         Sum2;
+    int             NumOfAForm;
+    int             NumOfBForm;
+    int             NumOfAlikeForm;
+    int             NumOfBlikeForm;
+    int             NumOfTAlikeForm;
+
+    void RegisterData(const CNAPPar& data,bool flipped=false);
+};
+
+//------------------------------------------------------------------------------
+
+typedef boost::shared_ptr<CNAPStat>   CNAPStatPtr;
+
+//------------------------------------------------------------------------------
+
 #endif

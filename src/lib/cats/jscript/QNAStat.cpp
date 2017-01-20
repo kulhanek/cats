@@ -114,6 +114,7 @@ QScriptValue QNAStat::addSample(void)
     RegisterBPData(p_x3dna);
     RegisterBPStepData(p_x3dna);
     RegisterBPHelData(p_x3dna);
+    RegisterPData(p_x3dna);
 
     return(true);
 }
@@ -178,6 +179,7 @@ QScriptValue QNAStat::printResults(void)
     PrintBPParams(ofs);
     PrintBPStepParams(ofs);
     PrintBPHelParams(ofs);
+    PrintPParams(ofs);
 
     ofs.close();
 
@@ -244,6 +246,7 @@ void QNAStat::ClearAll(void)
     BPStat.clear();
     BPStepStat.clear();
     BPHelStat.clear();
+    PStat.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -397,6 +400,69 @@ void QNAStat::PrintBPHelParams(ofstream& vout)
     vout << endl;
 }
 
+//------------------------------------------------------------------------------
+
+void QNAStat::PrintPParams(ofstream& vout)
+{
+    vout << "#  P Parameters" << endl;
+    vout << "#                                                     |  Mean projection of the two phosphorus atoms onto the x/y/z-axis of the dimer ‘middle frame’  |   Abundance of the duplex form    " << endl;
+    vout << "# index ResIDA ResIDB ResIDC ResIDD  BPStep  Abundance|  <Xp>   s(Xp)    <Yp>   s(Yp)    <Zp>   s(Zp)   <XpH>   s(XpH)  <YpH>   s(YpH)  <ZpH>   s(ZpH)|A-form B-form A-like B-like TA-like" << endl;
+    vout << "#   1      2      3      4      5       6        7    |   8       9       10      11      12     13      14      15       16      17      18      19  |  20     21     22     23      24  " << endl;
+    vout << "#------ ------ ------ ------ ------ -------- --------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------- ------ ------ ------ ------ -------" << endl;
+
+    std::map<CNABPStepID,CNAPStatPtr>::iterator  it = PStat.begin();
+    std::map<CNABPStepID,CNAPStatPtr>::iterator  ie = PStat.end();
+
+    int i = 1;
+    while( it != ie ){
+        CNABPStepID  bpstep_id = it->first;
+
+        CNAPStatPtr bpstep_stat = it->second;
+
+        vout << right << setw(7) << i << " ";
+        // ResIDA ResIDB ResIDC ResIDD  BPStep
+        vout << right << setw(6) << bpstep_id.ResIDA + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDB + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDC + 1 << " "
+             << right << setw(6) << bpstep_id.ResIDD + 1 << " " << right << setw(8) << bpstep_id.Step << " ";
+        // Abundance
+        double abundance = (double)bpstep_stat->NumOfSamples * 100.0 /  (double)NumOfSnapshots;
+        vout << right << fixed << setprecision(2) << setw(9) << abundance  << " ";
+        // Xp
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Xp / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Xp - bpstep_stat->Sum.Xp * bpstep_stat->Sum.Xp )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Yp
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Yp / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Yp - bpstep_stat->Sum.Yp * bpstep_stat->Sum.Yp )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // Zp
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.Zp / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.Zp - bpstep_stat->Sum.Zp * bpstep_stat->Sum.Zp )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // XpH
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.XpH / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.XpH - bpstep_stat->Sum.XpH * bpstep_stat->Sum.XpH )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // YpH
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.YpH / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.YpH - bpstep_stat->Sum.YpH * bpstep_stat->Sum.YpH )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // ZpH
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->Sum.ZpH / bpstep_stat->NumOfSamples << " "; // average
+        vout << right << fixed << setprecision(2) << setw(7) << sqrt( bpstep_stat->NumOfSamples * bpstep_stat->Sum2.ZpH - bpstep_stat->Sum.ZpH * bpstep_stat->Sum.ZpH )  / bpstep_stat->NumOfSamples << " "; // sigma
+        // A-form_Abun
+        vout << right << fixed << setprecision(2) << setw(6) << bpstep_stat->NumOfAForm * 100.0 / bpstep_stat->NumOfSamples << " "; // abundance
+        // B-form_Abun
+        vout << right << fixed << setprecision(2) << setw(6) << bpstep_stat->NumOfBForm * 100.0 / bpstep_stat->NumOfSamples << " "; // abundance
+        // A-like_Abun
+        vout << right << fixed << setprecision(2) << setw(6) << bpstep_stat->NumOfAlikeForm * 100.0 / bpstep_stat->NumOfSamples << " "; // abundance
+        // B-like_Abun
+        vout << right << fixed << setprecision(2) << setw(6) << bpstep_stat->NumOfBlikeForm * 100.0 / bpstep_stat->NumOfSamples << " "; // abundance
+        // TA-like_Abun
+        vout << right << fixed << setprecision(2) << setw(7) << bpstep_stat->NumOfTAlikeForm * 100.0 / bpstep_stat->NumOfSamples << " "; // abundance
+        vout << endl;
+        i++;
+        it++;
+    }
+    vout << endl;
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -500,3 +566,35 @@ void QNAStat::RegisterBPHelData(Qx3DNA* p_data)
 
 //------------------------------------------------------------------------------
 
+void QNAStat::RegisterPData(Qx3DNA* p_data)
+{
+    if( p_data == NULL ) return;    // no valid input
+
+// P parameters
+    std::vector<CNAPPar>::iterator  it = p_data->PPar.begin();
+    std::vector<CNAPPar>::iterator  ie = p_data->PPar.end();
+
+    while( it != ie ){
+        CNAPPar local_p = *it;
+        if( local_p.Valid ){
+            CNABPStepID bpstep_id(p_data->BPStepIDs[local_p.ID]);
+            bool flipped = false;
+            if( FlipHelAxisEnabled ){
+                flipped = bpstep_id.MakeCanonical();
+            }
+            if (PStat.find(bpstep_id) == PStat.end() ){
+                // new data
+                CNAPStatPtr data(new CNAPStat);
+                PStat[bpstep_id] = data;
+            }
+            BPStepIDs.insert(bpstep_id);
+            CNAPStatPtr data = PStat[bpstep_id];
+            if( data ){
+                data->RegisterData(local_p,flipped);
+            }
+        }
+        it++;
+    }
+}
+
+//------------------------------------------------------------------------------
