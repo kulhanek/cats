@@ -1337,7 +1337,7 @@ bool Qx3DNA::ReadSectionPPar(std::ifstream& ifs)
         str >> params.Step; // this should not fail
         params.ID--;
 
-        if( ! ( lbuf.find("----") != string::npos ) ){
+        if( ! ( lbuf.find("---") != string::npos ) ){
             // read the rest of parameters
             // step       Xp      Yp      Zp     XpH     YpH     ZpH    Form
             str >> params.Xp >> params.Yp >> params.Zp >> params.XpH >> params.YpH >> params.ZpH;
@@ -1360,13 +1360,14 @@ bool Qx3DNA::ReadSectionPPar(std::ifstream& ifs)
                 } else if ( tmp == "TA-like" ) {
                     params.Form = 5;
                 } else {
-                    // no form detected
+                    // unknown form
                     params.Form = -1;
                 }
+                tmp.clear();
             } else {
                 params.Form = -1;
             }
-            tmp.clear();
+
             params.Valid = true;  // data are valid
         }
 
