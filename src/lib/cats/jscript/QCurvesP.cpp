@@ -257,7 +257,7 @@ QScriptValue QCurvesP::get##what##param(void)\
 \
     if( (index < 0) || (index >= (int)what##Par.size()) ){\
         CSmallString error; \
-        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size() << ">"; \
+        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size()-1 << ">"; \
         return( ThrowError("index", error) );\
     }\
 \
@@ -288,7 +288,7 @@ QScriptValue QCurvesP::areBPParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 

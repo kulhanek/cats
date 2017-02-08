@@ -186,6 +186,7 @@ private:
     std::vector<CNAPPar>        PPar;
     std::vector<CPoint>         BPOrigins;
     std::vector<CPoint>         HelAxisPositions;
+    std::vector<CPoint>         HelAxisVectors;
 
     /// clear all parsed results
     void ClearAll(void);
@@ -231,6 +232,7 @@ private:
 
     friend class QNAStat;
     friend class QTinySpline;
+    friend class QPoint;
 };
 
 //------------------------------------------------------------------------------

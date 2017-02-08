@@ -23,6 +23,7 @@
 #include <QScriptEngine>
 #include <QPoint.hpp>
 #include <QPoint.moc>
+#include <Qx3DNA.hpp>
 #include <TerminalStr.hpp>
 
 using namespace std;
@@ -268,6 +269,48 @@ QScriptValue QPoint::set(void)
     Point.x = x;
     Point.y = y;
     Point.z = z;
+
+    return(value);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QPoint::setFrom3DNAHelAxis(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Point::setFrom3DNAHelAxis(x3dna,index)" << endl;
+        return(value);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("x3dna,index",2);
+    if( value.isError() ) return(value);
+
+    Qx3DNA* p_x3dna;
+    GetArgAsObject("x3dna,index","x3dna","x3DNA",1,p_x3dna);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("x3dna,index","index",2,index);
+    if( value.isError() ) return(value);
+
+    int size = p_x3dna->HelAxisVectors.size();
+    if( (index < 0) || (index >= size) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << size-1 << ">";
+        return( ThrowError("index", error) );
+    }
+
+// execute ---------------------------------------
+    CPoint vec = p_x3dna->HelAxisVectors[index];
+
+    Point.x = vec.x;
+    Point.y = vec.y;
+    Point.z = vec.z;
 
     return(value);
 }

@@ -546,7 +546,7 @@ QScriptValue Qx3DNA::get##what##param(void)\
 \
     if( (index < 0) || (index >= (int)what##Par.size()) ){\
         CSmallString error; \
-        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size() << ">"; \
+        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size()-1 << ">"; \
         return( ThrowError("index", error) );\
     }\
 \
@@ -577,7 +577,7 @@ QScriptValue Qx3DNA::areBPParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -616,7 +616,7 @@ QScriptValue Qx3DNA::areBPStepParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPStepPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPStepPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPStepPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -655,7 +655,7 @@ QScriptValue Qx3DNA::areBPHelParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPHelPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPHelPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPHelPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -694,7 +694,7 @@ QScriptValue Qx3DNA::arePParamsValid(void)
 
     if( (index < 0) || (index >= (int)PPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)PPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)PPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -729,7 +729,7 @@ QScriptValue Qx3DNA::getPForm(void)
 
     if( (index < 0) || (index >= (int)PPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)PPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)PPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -753,6 +753,7 @@ void Qx3DNA::ClearAll(void)
     PPar.clear();
     BPOrigins.clear();
     HelAxisPositions.clear();
+    HelAxisVectors.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
@@ -1442,6 +1443,7 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
         stringstream    str1(lbuf);
         stringstream    str2(lbuf);
         CPoint          pos;
+        CPoint          vec;
         int             id;
         string          step;
         string          test;
@@ -1449,7 +1451,7 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
         str1 >> id >> step >> test;
         if( test != "----" ){
             // step
-            str2 >> id >> step >> pos.x >> pos.y >> pos.z;
+            str2 >> id >> step >> pos.x >> pos.y >> pos.z >> vec.x >> vec.y >> vec.z;
 
             if( ! str2 ){
                 CSmallString error;
@@ -1459,6 +1461,7 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
             }
 
             HelAxisPositions.push_back(pos);
+            HelAxisVectors.push_back(vec);
         }
 
         getline(ifs,lbuf);
