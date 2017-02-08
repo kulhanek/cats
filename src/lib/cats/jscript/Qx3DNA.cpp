@@ -1136,7 +1136,7 @@ bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
     getline(ifs,lbuf);
 
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPPar
         }
 
@@ -1199,7 +1199,7 @@ bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
     getline(ifs,lbuf);
 
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPStepPar
         }
 
@@ -1260,7 +1260,7 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPHelPar
         }
 
