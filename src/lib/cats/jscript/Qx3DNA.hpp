@@ -160,6 +160,10 @@ public slots:
     /// int getPForm(index)
     QScriptValue getPForm(void);
 
+    /// get validity of Helical Axis Vectors
+    /// bool areBPStepPParamsValid(index)
+    QScriptValue areHelAxisVectorsValid(void);
+
 public:
     /// return current parameter type mode
     QString GetParameterTypeString(void) const;
@@ -186,7 +190,7 @@ private:
     std::vector<CNAPPar>        PPar;
     std::vector<CPoint>         BPOrigins;
     std::vector<CPoint>         HelAxisPositions;
-    std::vector<CPoint>         HelAxisVectors;
+    std::vector<CNAHelAxisVec>  HelAxisVec;
 
     /// clear all parsed results
     void ClearAll(void);

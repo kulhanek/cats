@@ -105,6 +105,22 @@ public:
 
 //------------------------------------------------------------------------------
 
+class CNAHelAxisVec {
+public:
+    // constructor
+    CNAHelAxisVec(void);
+
+public:
+    bool        Valid;      // determine if data are valid - if reference snapshot is activated
+    int         ID;         // counted from 0
+    std::string Step;       // two base pairs (AT/AT)
+    double      Hx;
+    double      Hy;
+    double      Hz;
+};
+
+//------------------------------------------------------------------------------
+
 class CNABPID {
 public:
     // constructor

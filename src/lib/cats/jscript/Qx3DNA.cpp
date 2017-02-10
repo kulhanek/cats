@@ -481,9 +481,9 @@ QScriptValue Qx3DNA::getBPStepIndex(void)
     if( value.isError() ) return(value);
     value = GetArgAsInt("residA,residB,residC,residD","residB",2,residB);
     if( value.isError() ) return(value);
-    value = GetArgAsInt("residA,residB,residC,residD","residC",3,residB);
+    value = GetArgAsInt("residA,residB,residC,residD","residC",3,residC);
     if( value.isError() ) return(value);
-    value = GetArgAsInt("residA,residB,residC,residD","residD",4,residB);
+    value = GetArgAsInt("residA,residB,residC,residD","residD",4,residD);
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
@@ -737,6 +737,38 @@ QScriptValue Qx3DNA::getPForm(void)
     return(num);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::areHelAxisVectorsValid(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::areHelAxisVectorsValid(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= (int)HelAxisVec.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)HelAxisVec.size()-1 << ">";
+        return( ThrowError("index", error) );
+    }
+
+// execute ---------------------------------------
+    bool rvalue = HelAxisVec[index].Valid;
+    return(rvalue);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -753,7 +785,7 @@ void Qx3DNA::ClearAll(void)
     PPar.clear();
     BPOrigins.clear();
     HelAxisPositions.clear();
-    HelAxisVectors.clear();
+    HelAxisVec.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
@@ -1440,29 +1472,32 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
             return(true); // end of HelPos
         }
 
-        stringstream    str1(lbuf);
-        stringstream    str2(lbuf);
+        stringstream    str(lbuf);
         CPoint          pos;
-        CPoint          vec;
-        int             id;
-        string          step;
-        string          test;
+        CNAHelAxisVec   vec;
 
-        str1 >> id >> step >> test;
-        if( test != "----" ){
-            // step
-            str2 >> id >> step >> pos.x >> pos.y >> pos.z >> vec.x >> vec.y >> vec.z;
-
-            if( ! str2 ){
+        str >> vec.ID >> vec.Step;        // this should not fail - but you can test success as well, code is commented below
+        vec.ID--;
+        //        if( ! str ){
+        //            CSmallString error;
+        //            error << "unable to read base-pair parameters in: " << lbuf;
+        //            ES_ERROR(error);
+        //            return(false);
+        //        }
+        if( ! ( lbuf.find("----") != string::npos ) ){
+            //
+            str >> pos.x >> pos.y >> pos.z >> vec.Hx >> vec.Hy >> vec.Hz;
+            if( ! str ){
                 CSmallString error;
                 error << "unable to read helical axis position parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
-
-            HelAxisPositions.push_back(pos);
-            HelAxisVectors.push_back(vec);
+            vec.Valid = true;  // data are valid
         }
+
+        HelAxisPositions.push_back(pos);
+        HelAxisVec.push_back(vec);
 
         getline(ifs,lbuf);
     }

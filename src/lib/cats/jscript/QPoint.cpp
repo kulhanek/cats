@@ -298,7 +298,7 @@ QScriptValue QPoint::setFrom3DNAHelAxis(void)
     value = GetArgAsInt("x3dna,index","index",2,index);
     if( value.isError() ) return(value);
 
-    int size = p_x3dna->HelAxisVectors.size();
+    int size = p_x3dna->HelAxisVec.size();
     if( (index < 0) || (index >= size) ){
         CSmallString error;
         error << "index " << index << " is out-of-range <0;" << size-1 << ">";
@@ -306,11 +306,9 @@ QScriptValue QPoint::setFrom3DNAHelAxis(void)
     }
 
 // execute ---------------------------------------
-    CPoint vec = p_x3dna->HelAxisVectors[index];
-
-    Point.x = vec.x;
-    Point.y = vec.y;
-    Point.z = vec.z;
+    Point.x = p_x3dna->HelAxisVec[index].Hx;
+    Point.y = p_x3dna->HelAxisVec[index].Hy;
+    Point.z = p_x3dna->HelAxisVec[index].Hz;
 
     return(value);
 }
