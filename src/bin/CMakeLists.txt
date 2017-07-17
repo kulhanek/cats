@@ -11,4 +11,4 @@ ADD_SUBDIRECTORY(cpmd)
 
 # cats interpreter -------------------------------------------------------------
 ADD_SUBDIRECTORY(cats)
-ADD_SUBDIRECTORY(cats-ide)
+#ADD_SUBDIRECTORY(cats-ide)

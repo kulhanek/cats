@@ -39,32 +39,23 @@ ENDIF(NOT DEVELOPMENT_ROOT)
 # ==============================================================================
 # external libraries -----------------------------------------------------------
 # ==============================================================================
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEVELOPMENT_ROOT}/projects/cmodules/1.0/lib/cmake")
+
+# boost =======================
+FIND_PACKAGE(Boost REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} SYSTEM)
+
+FIND_PACKAGE(ReadLine REQUIRED)
+INCLUDE_DIRECTORIES(${ReadLine_INCLUDE_DIRS} SYSTEM)
+
+FIND_PACKAGE(FFTW3 REQUIRED)
+INCLUDE_DIRECTORIES(${FFTW3_INCLUDE_DIRS} SYSTEM)
 
 # NetCDFCore ==================
 SET(NETCDF_ROOT ${DEVELOPMENT_ROOT}/thirdparty/netcdfcore/4.0.1)
 INCLUDE_DIRECTORIES(${NETCDF_ROOT}/include SYSTEM)
 LINK_DIRECTORIES(${NETCDF_ROOT}/lib)
 SET(NETCDF_CLIB_NAME cnetcdf)
-
-# boost =======================
-SET(BOOST_ROOT ${DEVELOPMENT_ROOT}/thirdparty/boost/1.59.0)
-INCLUDE_DIRECTORIES(${BOOST_ROOT} SYSTEM)
-
-# readline ====================
-SET(READLINE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/readline/6.2.0)
-INCLUDE_DIRECTORIES(${READLINE_ROOT}/include SYSTEM)
-LINK_DIRECTORIES(${READLINE_ROOT}/lib)
-SET(READLINE_LIB_NAME readline)
-
-# FFTW3 =======================
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/src/lib/cmake/")
-FIND_PACKAGE(FFTW3)
-
-# OpenBabel Core  =============
-SET(OBCORE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/obcore/2.3.1)
-INCLUDE_DIRECTORIES(${OBCORE_ROOT}/include SYSTEM)
-LINK_DIRECTORIES(${OBCORE_ROOT}/lib)
-SET(OBCORE_LIB_NAME obcore)
 
 # HIPOLY ====================
 SET(HIPOLY_ROOT ${DEVELOPMENT_ROOT}/projects/hipoly/1.0)
@@ -129,7 +120,6 @@ LINK_DIRECTORIES(${PMFLIB_ROOT}/lib)
 LINK_DIRECTORIES(${PMFLIB_ROOT}/lib/drivers)
 SET(PMF_LIB_NAME fpmfdrv_cats fpmf cpmf)
 
-
 # QT5 =========================
 SET(CMAKE_AUTOMOC ON)
 SET(CMAKE_AUTORCC ON)
@@ -140,20 +130,19 @@ SET(HAVE_QT5 1)
 ADD_DEFINITIONS(-DHAVE_QT5)
 
 SET(SYSTEM_LIBS
-        ${PMF_LIB_NAME}
-        ${NETCDF_CLIB_NAME}
-        ${NETLIB_LIB_NAME}
-        ${QT_LIBRARIES}
-        ${ASL_LIB_NAME}
-        ${PRMFILE_CLIB_NAME}
-        ${SCIMAFIC_CLIB_NAME}
-        ${HIPOLY_LIB_NAME}
-        )
+    ${PMF_LIB_NAME}
+    ${NETCDF_CLIB_NAME}
+    ${NETLIB_LIB_NAME}
+    ${QT_LIBRARIES}
+    ${ASL_LIB_NAME}
+    ${PRMFILE_CLIB_NAME}
+    ${SCIMAFIC_CLIB_NAME}
+    ${HIPOLY_LIB_NAME}
+    )
 
 SET(CATS_LIBS cats
-		${READLINE_LIB_NAME}
-        ${SYSTEM_LIBS}
-        )
+    ${SYSTEM_LIBS}
+    )
 
 # policies ---------------------------------------
 IF(COMMAND cmake_policy)

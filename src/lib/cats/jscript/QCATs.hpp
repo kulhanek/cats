@@ -61,13 +61,18 @@ public slots:
     /// clearErrors()
     QScriptValue clearErrors(void);
 
-    /// num of arguments
+    /// num of cli arguments
     /// int numOfArguments
     QScriptValue numOfArguments(void);
 
-    /// get argument
+    /// get cli argument
     /// string argument(index)
     QScriptValue argument(void);
+
+    /// include javascript
+    /// a script file is searched in paths provided in CATS_INCLUDE_PATH (colon delimited)
+    /// include(name)
+    QScriptValue include(void);
 
 // global functions ------------------------------------------------------------
 public:
