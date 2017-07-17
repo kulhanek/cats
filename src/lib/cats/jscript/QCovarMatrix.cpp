@@ -589,7 +589,7 @@ bool QCovarMatrix::saveEigenValues(const QString& name)
     fout.open(name.toStdString().c_str());
     if( ! fout ) return(false);
     SaveEigenValues(fout,num);
-    return(fout);
+    return(fout.good());
 }
 
 //------------------------------------------------------------------------------
@@ -629,7 +629,7 @@ bool QCovarMatrix::save(const QString& name)
     fout.open(name.toStdString().c_str());
     if( ! fout ) return(false);
     SaveAll(fout);
-    return(fout);
+    return(fout.good());
 }
 
 //==============================================================================

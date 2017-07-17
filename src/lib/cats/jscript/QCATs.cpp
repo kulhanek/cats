@@ -419,42 +419,42 @@ QScriptValue QCATs::include(void)
 {
     QScriptValue value;
 
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: include(name)" << endl;
-        return(false);
-    }
+//// help ------------------------------------------
+//    if( IsHelpRequested() ){
+//        CTerminalStr sout;
+//        sout << "usage: include(name)" << endl;
+//        return(false);
+//    }
 
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("name",1);
-    if( value.isError() ) return(value);
+//// check arguments -------------------------------
+//    value = CheckNumberOfArguments("name",1);
+//    if( value.isError() ) return(value);
 
-    QString name;
-    value = GetArgAsString("name","name",1,name);
-    if( value.isError() ) return(value);
-// execute ---------------------------------------
+//    QString name;
+//    value = GetArgAsString("name","name",1,name);
+//    if( value.isError() ) return(value);
+//// execute ---------------------------------------
 
-    string include_path;
-    // inlude current working directory
-    include_path += string(".");
-    include_path += string(":");
-    // include paths provided by
-    include_path += string(getenv("CATS_INCLUDE_PATH"));
+//    string include_path;
+//    // inlude current working directory
+//    include_path += string(".");
+//    include_path += string(":");
+//    // include paths provided by
+//    include_path += string(getenv("CATS_INCLUDE_PATH"));
 
-    // split into paths
-    vector<string> paths;
-    split(paths,include_path,any_of(":"));
+//    // split into paths
+//    vector<string> paths;
+//    split(paths,include_path,any_of(":"));
 
-    // find script
-    vector<string>::iterator it = paths.begin();
-    vector<string>::iterator ie = paths.end();
+//    // find script
+//    vector<string>::iterator it = paths.begin();
+//    vector<string>::iterator ie = paths.end();
 
-    while( it != ie ){
-        QString full_name =
-        Qfile::exists()
-        it++;
-    }
+//    while( it != ie ){
+//        QString full_name =
+//        Qfile::exists()
+//        it++;
+//    }
 
     return(value);
 }
