@@ -62,6 +62,10 @@ public slots:
     /// set all
     QScriptValue set(void);
 
+    /// set all from 3DNA helical axis
+    /// setFrom3DNAHelAxis(x3dna,index)
+    QScriptValue setFrom3DNAHelAxis(void);
+
     /// add point
     /// point add(point)
     QScriptValue add(void);

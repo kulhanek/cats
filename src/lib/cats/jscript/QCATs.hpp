@@ -68,6 +68,10 @@ public slots:
     /// get cli argument
     /// string argument(index)
     QScriptValue argument(void);
+    
+    /// include another javascript from file; files are searched 
+    /// bool include(name)
+//    QScriptValue include(void);    
 
     /// include javascript
     /// a script file is searched in paths provided in CATS_INCLUDE_PATH (colon delimited)

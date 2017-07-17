@@ -447,7 +447,7 @@ QScriptValue Qx3DNA::getBPIndex(void)
     std::map<int,CNABPID>::iterator ie = BPIDs.end();
 
     while( it != ie ){
-        if( (it->second.ResIDA == residA) ||
+        if( (it->second.ResIDA == residA) &&
             (it->second.ResIDB == residB) ){
             return( it->first );
         }
@@ -481,9 +481,9 @@ QScriptValue Qx3DNA::getBPStepIndex(void)
     if( value.isError() ) return(value);
     value = GetArgAsInt("residA,residB,residC,residD","residB",2,residB);
     if( value.isError() ) return(value);
-    value = GetArgAsInt("residA,residB,residC,residD","residC",3,residB);
+    value = GetArgAsInt("residA,residB,residC,residD","residC",3,residC);
     if( value.isError() ) return(value);
-    value = GetArgAsInt("residA,residB,residC,residD","residD",4,residB);
+    value = GetArgAsInt("residA,residB,residC,residD","residD",4,residD);
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
@@ -510,9 +510,9 @@ QScriptValue Qx3DNA::getBPStepIndex(void)
     std::map<int,CNABPStepID>::iterator ie = BPStepIDs.end();
 
     while( it != ie ){
-        if( (it->second.ResIDA == residA) ||
-            (it->second.ResIDB == residB) ||
-            (it->second.ResIDC == residC) ||
+        if( (it->second.ResIDA == residA) &&
+            (it->second.ResIDB == residB) &&
+            (it->second.ResIDC == residC) &&
             (it->second.ResIDD == residD) ){
             return( it->first );
         }
@@ -546,7 +546,7 @@ QScriptValue Qx3DNA::get##what##param(void)\
 \
     if( (index < 0) || (index >= (int)what##Par.size()) ){\
         CSmallString error; \
-        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size() << ">"; \
+        error << "index " << index << " is out-of-range <0;" << (int)what##Par.size()-1 << ">"; \
         return( ThrowError("index", error) );\
     }\
 \
@@ -577,7 +577,7 @@ QScriptValue Qx3DNA::areBPParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -616,7 +616,7 @@ QScriptValue Qx3DNA::areBPStepParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPStepPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPStepPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPStepPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -655,7 +655,7 @@ QScriptValue Qx3DNA::areBPHelParamsValid(void)
 
     if( (index < 0) || (index >= (int)BPHelPar.size()) ){
         CSmallString error;
-        error << "index " << index << " is out-of-range <0;" << (int)BPHelPar.size() << ">";
+        error << "index " << index << " is out-of-range <0;" << (int)BPHelPar.size()-1 << ">";
         return( ThrowError("index", error) );
     }
 
@@ -671,6 +671,104 @@ get(BPHel,Incl)
 get(BPHel,Tip)
 get(BPHel,Htwist)
 
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::arePParamsValid(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::arePParamsValid(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= (int)PPar.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)PPar.size()-1 << ">";
+        return( ThrowError("index", error) );
+    }
+
+// execute ---------------------------------------
+    bool rvalue = PPar[index].Valid;
+    return(rvalue);
+}
+
+get(P,Xp)
+get(P,Yp)
+get(P,Zp)
+get(P,XpH)
+get(P,YpH)
+get(P,ZpH)
+
+QScriptValue Qx3DNA::getPForm(void)
+{
+    QScriptValue value;
+
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: int x3DNA::getPForm(index)" << endl;
+        return(false);
+    }
+
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= (int)PPar.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)PPar.size()-1 << ">";
+        return( ThrowError("index", error) );
+    }
+
+    int num = PPar[index].Form;
+    return(num);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue Qx3DNA::areHelAxisVectorsValid(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: bool x3DNA::areHelAxisVectorsValid(index)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("index",1);
+    if( value.isError() ) return(value);
+
+    int index;
+    value = GetArgAsInt("index","index",1,index);
+    if( value.isError() ) return(value);
+
+    if( (index < 0) || (index >= (int)HelAxisVec.size()) ){
+        CSmallString error;
+        error << "index " << index << " is out-of-range <0;" << (int)HelAxisVec.size()-1 << ">";
+        return( ThrowError("index", error) );
+    }
+
+// execute ---------------------------------------
+    bool rvalue = HelAxisVec[index].Valid;
+    return(rvalue);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -684,8 +782,10 @@ void Qx3DNA::ClearAll(void)
     BPPar.clear();
     BPStepPar.clear();
     BPHelPar.clear();
+    PPar.clear();
     BPOrigins.clear();
     HelAxisPositions.clear();
+    HelAxisVec.clear();
 
     if ( AutoReferenceMode == true ){
         // destroy reference data only in the case a new reference structure is going to be analyzed
@@ -927,6 +1027,12 @@ bool Qx3DNA::ParseOutputData(void)
             }
         }
 
+        if( lbuf.find("structure: A-like; B-like; TA-like; intermediate of A and B, or other cases") != string::npos ){
+            getline(ifs,lbuf); // skip empty row
+            getline(ifs,lbuf); // skip heading
+            if( ReadSectionPPar(ifs) == false ) return(false);
+        }
+
         getline(ifs,lbuf);
     }
 
@@ -1063,7 +1169,7 @@ bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
     getline(ifs,lbuf);
 
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPPar
         }
 
@@ -1089,7 +1195,7 @@ bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
             str >> params.Shear >> params.Stretch >> params.Stagger >> params.Buckle >> params.Propeller >> params.Opening;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read  base-pair parameters in: " << lbuf;
+                error << "unable to read base-pair parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -1112,7 +1218,7 @@ bool Qx3DNA::ReadSectionBPPar(std::ifstream& ifs)
     }
 
     CSmallString error;
-    error << "unable to read  base-pair parameters section";
+    error << "unable to read base-pair parameters section";
     ES_ERROR(error);
     return(false);
 }
@@ -1126,7 +1232,7 @@ bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
     getline(ifs,lbuf);
 
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPStepPar
         }
 
@@ -1152,7 +1258,7 @@ bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
             str >> params.Shift >> params.Slide >> params.Rise >> params.Tilt >> params.Roll >> params.Twist;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read  base-pair step parameters in: " << lbuf;
+                error << "unable to read base-pair step parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -1175,7 +1281,7 @@ bool Qx3DNA::ReadSectionBPStepPar(std::ifstream& ifs)
     }
 
     CSmallString error;
-    error << "unable to read  base-pair step parameters section";
+    error << "unable to read base-pair step parameters section";
     ES_ERROR(error);
     return(false);
 }
@@ -1187,7 +1293,7 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
     string lbuf;
     getline(ifs,lbuf);
     while( ifs ){
-        if( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ){
+        if( ( lbuf.find("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") != string::npos ) || ( lbuf.find("****************************************************************************") != string::npos ) ){
             return(true); // end of BPHelPar
         }
 
@@ -1198,7 +1304,7 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
         params.ID--;
         //        if( ! str ){
         //            CSmallString error;
-        //            error << "unable to read  base-pair parameters in: " << lbuf;
+        //            error << "unable to read base-pair parameters in: " << lbuf;
         //            ES_ERROR(error);
         //            return(false);
         //        }
@@ -1207,7 +1313,7 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
             str >> params.Xdisp >> params.Ydisp >> params.Hrise >> params.Incl >> params.Tip >> params.Htwist;
             if( ! str ){
                 CSmallString error;
-                error << "unable to read  base-pair helical parameters in: " << lbuf;
+                error << "unable to read base-pair helical parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
@@ -1230,7 +1336,91 @@ bool Qx3DNA::ReadSectionBPHelPar(std::ifstream& ifs)
     }
 
     CSmallString error;
-    error << "unable to read  base-pair helical parameters section";
+    error << "unable to read base-pair helical parameters section";
+    ES_ERROR(error);
+    return(false);
+}
+
+//------------------------------------------------------------------------------
+
+bool Qx3DNA::ReadSectionPPar(std::ifstream& ifs)
+{
+    string lbuf,tmp;
+
+    getline(ifs,lbuf);
+
+    while( ifs ){
+        if( lbuf.find("****************************************************************************") != string::npos ){
+            return(true); // end of PPar
+        }
+
+        stringstream        str(lbuf);
+        CNAPPar   params;
+
+        // step
+        str >> tmp;
+        if( tmp == "*" ){
+            str >> params.ID;
+        } else {
+            stringstream    tstr(tmp);
+            tstr >> params.ID;
+        }
+        tmp.clear();
+
+        str >> params.Step; // this should not fail
+        params.ID--;
+
+        if( ! ( lbuf.find("---") != string::npos ) ){
+            // read the rest of parameters
+            // step       Xp      Yp      Zp     XpH     YpH     ZpH    Form
+            str >> params.Xp >> params.Yp >> params.Zp >> params.XpH >> params.YpH >> params.ZpH;
+            if( ! str ){
+                CSmallString error;
+                error << "unable to read P parameters in: " << lbuf;
+                ES_ERROR(error);
+                return(false);
+            }
+            // determine form of DNA/RNA
+            if( str >> tmp ){
+                if ( tmp == "A" ) {
+                    params.Form = 1;
+                } else if ( tmp == "B" ) {
+                    params.Form = 2;
+                } else if ( tmp == "A-like" ) {
+                    params.Form = 3;
+                } else if ( tmp == "B-like" ) {
+                    params.Form = 4;
+                } else if ( tmp == "TA-like" ) {
+                    params.Form = 5;
+                } else {
+                    // unknown form
+                    params.Form = -1;
+                }
+                tmp.clear();
+            } else {
+                params.Form = -1;
+            }
+
+            params.Valid = true;  // data are valid
+        }
+
+        // check if the current structure has the same pairing as reference structure
+        if( ReferenceBPStepIDs.size() > 0 ){  // reference pairing is available -> perform test
+            if( ReferenceBPStepIDs[params.ID].Step != params.Step ){
+                CSmallString error;
+                error << "base pair step (" << params.Step << ") with number (" << params.ID << ") is not the same as in reference structure";
+                ES_ERROR(error);
+                return(false);
+            }
+        }
+
+        PPar.push_back(params);
+
+        getline(ifs,lbuf);
+    }
+
+    CSmallString error;
+    error << "unable to read P parameters section";
     ES_ERROR(error);
     return(false);
 }
@@ -1255,7 +1445,7 @@ bool Qx3DNA::ReadSectionBPOrigins(std::ifstream& ifs)
 
         if( ! str ){
             CSmallString error;
-            error << "unable to read  base-pair origin parameters in: " << lbuf;
+            error << "unable to read base-pair origin parameters in: " << lbuf;
             ES_ERROR(error);
             return(false);
         }
@@ -1282,27 +1472,32 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
             return(true); // end of HelPos
         }
 
-        stringstream    str1(lbuf);
-        stringstream    str2(lbuf);
+        stringstream    str(lbuf);
         CPoint          pos;
-        int             id;
-        string          step;
-        string          test;
+        CNAHelAxisVec   vec;
 
-        str1 >> id >> step >> test;
-        if( test != "----" ){
-            // step
-            str2 >> id >> step >> pos.x >> pos.y >> pos.z;
-
-            if( ! str2 ){
+        str >> vec.ID >> vec.Step;        // this should not fail - but you can test success as well, code is commented below
+        vec.ID--;
+        //        if( ! str ){
+        //            CSmallString error;
+        //            error << "unable to read base-pair parameters in: " << lbuf;
+        //            ES_ERROR(error);
+        //            return(false);
+        //        }
+        if( ! ( lbuf.find("----") != string::npos ) ){
+            //
+            str >> pos.x >> pos.y >> pos.z >> vec.Hx >> vec.Hy >> vec.Hz;
+            if( ! str ){
                 CSmallString error;
-                error << "unable to read  helical axis position parameters in: " << lbuf;
+                error << "unable to read helical axis position parameters in: " << lbuf;
                 ES_ERROR(error);
                 return(false);
             }
-
-            HelAxisPositions.push_back(pos);
+            vec.Valid = true;  // data are valid
         }
+
+        HelAxisPositions.push_back(pos);
+        HelAxisVec.push_back(vec);
 
         getline(ifs,lbuf);
     }
@@ -1310,7 +1505,6 @@ bool Qx3DNA::ReadSectionHelPos(std::ifstream& ifs)
     // this is the final section
     return(true);
 }
-
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -1326,7 +1520,7 @@ bool Qx3DNA::WritePDB(CAmberTopology* p_top,CAmberRestart* p_crd,CAmberMaskAtoms
     p_top->InitMoleculeIndexes();
 
     // write header
-    fprintf(p_fout,"REMARK File generated with CATS for 3DNA analysis\n");
+    fprintf(p_fout,"REMARK File generated with CATs for 3DNA analysis\n");
 
     int last_mol_id = -1;
     int resid = 0;

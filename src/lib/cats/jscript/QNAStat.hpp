@@ -74,11 +74,13 @@ private:
     void PrintBPParams(std::ofstream& vout);
     void PrintBPStepParams(std::ofstream& vout);
     void PrintBPHelParams(std::ofstream& vout);
+    void PrintPParams(std::ofstream& vout);
 
     /// register data into the database
     void RegisterBPData(Qx3DNA* p_data);
     void RegisterBPStepData(Qx3DNA* p_data);
     void RegisterBPHelData(Qx3DNA* p_data);
+    void RegisterPData(Qx3DNA* p_data);
 
     bool                                    FlipHelAxisEnabled;   // handle flipped axis cases
     std::set<CNABPID>                       BPIDs;
@@ -88,6 +90,7 @@ private:
     std::map<CNABPID,CNABPStatPtr>          BPStat;
     std::map<CNABPStepID,CNABPStepStatPtr>  BPStepStat;
     std::map<CNABPStepID,CNABPHelStatPtr>   BPHelStat;
+    std::map<CNABPStepID,CNAPStatPtr>       PStat;
 };
 
 

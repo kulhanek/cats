@@ -103,9 +103,21 @@ public slots:
     /// double getBoxCSize()
     QScriptValue getBoxCSize(void);
 
-    /// get radius of largest inscribed sphere
+    /// get radius of largest inscribed sphere in A
     /// double getLargestSphereRadius()
     QScriptValue getLargestSphereRadius(void);
+    
+    /// get box volume in A^3
+    /// double getVolume()
+    QScriptValue getVolume(void);
+
+    /// get density in g/ml
+    /// double getDensity()
+    QScriptValue getDensity(void);      
+    
+    /// get concentration in M
+    /// double getConcentration(number)
+    QScriptValue getConcentration(void);
 
 // manipulation methods --------------------------------------------------------
     /// center snapshot

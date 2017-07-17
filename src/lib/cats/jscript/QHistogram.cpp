@@ -690,7 +690,7 @@ QScriptValue QHistogram::getMaxOccupancy(void)
 
 // execute ---------------------------------------
     double maxoccu = 0;
-    for(size_t i=0; i <= Histogram.size(); i++){
+    for(size_t i=0; i < Histogram.size(); i++){
         if( maxoccu < Histogram[i] ){
             maxoccu = Histogram[i];
         }

@@ -15,33 +15,43 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
  * =====================================================================
  */
 
-#include <QScriptEngineDebugger>
-#include <fstream>
-#include <iostream>
 #include <QCATs.hpp>
 #include <qthread.h>
-#include <QPlainTextEdit>
 #include <QAction>
-
 
 class CJSEngineThread : public QThread
 {
     Q_OBJECT
 
 private:
+    //The script code to be evaluated.
     QString         JSCode;
+
+    //The Qt Script / CATs engine.
     QScriptEngine   *JSEngine;
+
+    //The engine's final result (only used if there was an error).
     QScriptValue    Result;
+
+    //The part of the execution that runs in a thread.
     virtual void run();
 public:
+    //Connects the Abort signal from the main window to the slot in this class.
     CJSEngineThread(QObject *parent);
+
+    //Prepares the engine and the source code and launches the thread.
     void RunCode(const QString &code);
 public slots:
+    //Attempts to abort the execution of the script.
     void AbortEvaluation();
 signals:
+    //Sends an error message to the main window.
     void UncaughtError(QString errorMessage);
 };
 

@@ -711,7 +711,7 @@ bool CTopCrd2Crd::WriteCOM(FILE* p_fout)
         if( p_atom == NULL ) continue;
         fcrg += p_atom->GetStandardCharge();
     }
-    int crg = (int)fcrg;
+    int crg = round(fcrg);
 
     fprintf(p_fout,"%d 1\n",crg);
 
@@ -840,7 +840,7 @@ bool CTopCrd2Crd::WriteADF(FILE* p_fout)
             total_charge += p_atom->GetStandardCharge();
         }
     }
-    int tcharge = total_charge;
+    int tcharge = round(total_charge);
     fprintf(p_fout,"CHARGE %d\n\n",tcharge);
 
     fprintf(p_fout,"XC\n");
@@ -899,7 +899,7 @@ bool CTopCrd2Crd::WriteADFFrag(FILE* p_fout)
         }
         fprintf(p_fout,"END\n\n");
 
-        int tcharge = total_charge;
+        int tcharge = round(total_charge);
         fprintf(p_fout,"CHARGE %d\n\n",tcharge);
 
         fprintf(p_fout,"XC\n");
@@ -953,7 +953,7 @@ bool CTopCrd2Crd::WriteADFFrag(FILE* p_fout)
             total_charge += p_atom->GetStandardCharge();
         }
     }
-    int tcharge = total_charge;
+    int tcharge = round(total_charge);
     fprintf(p_fout,"CHARGE %d\n\n",tcharge);
 
     fprintf(p_fout,"FRAGMENTS\n");
@@ -1041,7 +1041,7 @@ bool CTopCrd2Crd::WriteADF3DRISM(FILE* p_fout)
             total_charge += p_atom->GetStandardCharge();
         }
     }
-    int tcharge = total_charge;
+    int tcharge = round(total_charge);
     fprintf(p_fout,"CHARGE %d\n\n",tcharge);
 
     fprintf(p_fout,"STOFIT\n");

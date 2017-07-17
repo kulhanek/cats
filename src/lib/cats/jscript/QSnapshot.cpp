@@ -613,10 +613,106 @@ QScriptValue QSnapshot::getLargestSphereRadius(void)
 
 // execute code ----------------------------------
     if( Restart.IsBoxPresent() == false ) return(0.0);
+    
     Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
     Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
     Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
     return( Restart.GetTopology()->BoxInfo.GetLargestSphereRadius());
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getVolume(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getVolume()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    return( Restart.GetTopology()->BoxInfo.GetVolume() );    
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getDensity(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getDensity()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    double volume = Restart.GetTopology()->BoxInfo.GetVolume();
+    double totmass = Restart.GetTopology()->GetTotalMass();
+                                    // 10^30 A^3 -> m^3 -> 10^6 cm^3; amu; kg->g
+    double density = totmass / volume * 1e24 * 1.660539040e-27 * 1e3;
+    
+    return( density );
+}
+    
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::getConcentration(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: double Snapshot::getConcentration(number)" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments(1);
+    if( value.isError() ) return(value);
+    
+    int number;
+    value = GetArgAsInt("number","number",1,number);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    if( Restart.IsBoxPresent() == false ) return(0.0);
+    
+    Restart.GetTopology()->BoxInfo.SetBoxDimmensions(Restart.GetBox());
+    Restart.GetTopology()->BoxInfo.SetBoxAngles(Restart.GetAngles());
+    Restart.GetTopology()->BoxInfo.UpdateBoxMatrices();
+    
+    double volume = Restart.GetTopology()->BoxInfo.GetVolume();
+                                    // 10^30 A^3 -> m^3 -> 10^3 L; N_a
+    double conc = (double)number / volume * 1e27 / 6.02214086e23;
+    
+    return( conc );
 }
 
 //==============================================================================
@@ -833,32 +929,32 @@ QScriptValue QSnapshot::rmsdFit(void)
     }
 
 // arguments -------------------------------------
-    value = CheckMinimumNumberOfArguments("snapshot[selection,key1,key2,...]",1);
+    value = CheckMinimumNumberOfArguments("snapshot[,selection,key1,key2,...]",1);
     if( value.isError() ) return(value);
 
     QSnapshot* p_qref;
-    value = GetArgAsObject<QSnapshot*>("snapshot[selection,key1,key2,...]","snapshot","Snapshot",1,p_qref);
+    value = GetArgAsObject<QSnapshot*>("snapshot[,selection,key1,key2,...]","snapshot","Snapshot",1,p_qref);
     if( value.isError() ) return(value);
 
 // options ---------------------------------------
     bool nomass = IsArgumentKeySelected("nomass");
 
     QSelection* p_qsel = NULL;
-    FindArgAsObject<QSelection*>("snapshot[selection,key1,key2,...]","Selection",p_qsel,false);
+    FindArgAsObject<QSelection*>("snapshot[,selection,key1,key2,...]","Selection",p_qsel,false);
 
     value = CheckArgumentsUsage("[key1,key2,...]");
     if( value.isError() ) return(value);
 
 // other checks ----------------------------------
     if( Restart.IsBoxPresent() == true ){
-        return( ThrowError("snapshot[selection,key1,key2,...]","target snapshot cannot contain box") );
+        return( ThrowError("snapshot[,selection,key1,key2,...]","target snapshot cannot contain box") );
     }
 
     if( Restart.GetNumberOfAtoms() != p_qref->Restart.GetNumberOfAtoms() ){
         CSmallString error;
         error << "number of atoms does not match, reference ("
               << p_qref->Restart.GetNumberOfAtoms() << "), target (" << Restart.GetNumberOfAtoms() << ")";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
     }
 
     if( p_qsel ){
@@ -866,7 +962,7 @@ QScriptValue QSnapshot::rmsdFit(void)
         CSmallString error;
         error << "number of atoms does not match, topology associated with selection ("
               << p_qsel->Mask.GetNumberOfTopologyAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
         }
     }
 
@@ -924,7 +1020,7 @@ QScriptValue QSnapshot::rmsdFit(void)
         CSmallString error;
         error << "masses do not match, reference ("
               << CSmallString().DoubleToStr(totalmass2) << "), target (" << CSmallString().DoubleToStr(totalmass1) << ")";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
     }
 
     if( totalmass1 > 0 ){
@@ -937,7 +1033,7 @@ QScriptValue QSnapshot::rmsdFit(void)
     if( totalmass1 < 0.01 ){
         CSmallString error;
         error << "no atoms to fit, total mass is zero";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
     }
 
     // get the transformation matrix
@@ -1118,32 +1214,28 @@ QScriptValue QSnapshot::getRMSD(void)
     }
 
 // arguments -------------------------------------
-    value = CheckMinimumNumberOfArguments("snapshot[selection,key1,key2,...]",1);
+    value = CheckMinimumNumberOfArguments("snapshot[,selection,key1,key2,...]",1);
     if( value.isError() ) return(value);
 
     QSnapshot* p_qref;
-    value = GetArgAsObject<QSnapshot*>("snapshot[selection,key1,key2,...]","snapshot","Snapshot",1,p_qref);
+    value = GetArgAsObject<QSnapshot*>("snapshot[,selection,key1,key2,...]","snapshot","Snapshot",1,p_qref);
     if( value.isError() ) return(value);
 
 // options ---------------------------------------
     bool nomass = IsArgumentKeySelected("nomass");
 
     QSelection* p_qsel = NULL;
-    FindArgAsObject<QSelection*>("snapshot[selection,key1,key2,...]","Selection",p_qsel);
+    FindArgAsObject<QSelection*>("snapshot[,selection,key1,key2,...]","Selection",p_qsel);
 
     value = CheckArgumentsUsage("[key1,key2,...]");
     if( value.isError() ) return(value);
 
 // other checks ----------------------------------
-    if( Restart.IsBoxPresent() == true ){
-        return( ThrowError("snapshot[selection,key1,key2,...]","target snapshot cannot contain box") );
-    }
-
     if( Restart.GetNumberOfAtoms() != p_qref->Restart.GetNumberOfAtoms() ){
         CSmallString error;
         error << "number of atoms does not match, reference ("
               << p_qref->Restart.GetNumberOfAtoms() << "), target (" << Restart.GetNumberOfAtoms() << ")";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
     }
 
     if( p_qsel ){
@@ -1151,7 +1243,7 @@ QScriptValue QSnapshot::getRMSD(void)
         CSmallString error;
         error << "number of atoms does not match, topology associated with selection ("
               << p_qsel->Mask.GetNumberOfTopologyAtoms() << "), target snapshot (" << Restart.GetNumberOfAtoms() << ")";
-        return( ThrowError("snapshot[selection,key1,key2,...]",error) );
+        return( ThrowError("snapshot[,selection,key1,key2,...]",error) );
         }
     }
 

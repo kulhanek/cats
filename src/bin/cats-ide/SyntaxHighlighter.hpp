@@ -3,18 +3,18 @@
 /* =====================================================================
  * This file is part of CATs - Conversion and Analysis Tools.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Based on the official Qt documentation, at:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * http://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * As such, it is licensed under the terms of the GNU Free Documentation
+ * License version 1.3 as published by the Free Software Foundation.
+ *
+ * Adapted for CATs/JavaScript as part of the CATs IDE development.
+ *
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
+ *
  * =====================================================================
  */
 
@@ -33,7 +33,10 @@ protected:
 private:
     struct HighlightingRule
     {
+        //The regular expression that a string needs to match in order to be highlighted.
         QRegExp Pattern;
+
+        //The highlighting font.
         QTextCharFormat Format;
     };
     QVector<HighlightingRule> HighlightingRules;

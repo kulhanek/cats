@@ -103,6 +103,7 @@ QTrajPool::QTrajPool(const QScriptValue& top)
     CurrentSnapshot = 0;
     PrevCurrSnapshot = -1;
     DefaultTmpName = "prod%03d.traj";
+    IgnoreMissingFiles = true;
 }
 
 //------------------------------------------------------------------------------
@@ -173,6 +174,7 @@ QScriptValue QTrajPool::addTrajectory(void)
 
 // execute ---------------------------------------
     if( addTrajFile(name,format) == false ){
+        if( IgnoreMissingFiles == true ) return(true);
         CSmallString error;
         if( format == "unknown" ){
             error << "unable to add file '" << CSmallString(name) << "'";
@@ -228,6 +230,7 @@ QScriptValue QTrajPool::addTrajList(void)
         stringstream str;
         str << format(tmpname.toStdString()) % i;
         if( addTrajFile(str.str().c_str(),tformat) == false ){
+            if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
                 error << "unable to add file '" << str.str() << "'";
@@ -291,6 +294,7 @@ QScriptValue QTrajPool::addTrajListFrom(void)
         str << format(namefmt.toStdString()) % i;
 
         if( addTrajFile(str.str().c_str(),tformat) == false ){
+            if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
                 error << "unable to add file '" << str.str() << "'";
@@ -574,8 +578,10 @@ QScriptValue QTrajPool::printProgress(void)
         // finish previous progress
         if( ProgressSnaphost != PrevCurrSnapshot ){
             for(int i=ProgressSnaphost;i < PrevCurrSnapshot; i++){
-                if( i % (PrevCurrSnapshot/80) == 0 ){
-                    cout << "=";
+		if( PrevCurrSnapshot >= 80 ){ 
+                    if( i % (PrevCurrSnapshot/80) == 0 ){
+                        cout << "=";
+                    }
                 }
                 if( i == PrevCurrSnapshot/4 ){
                     cout << " 25% ";
@@ -603,10 +609,11 @@ QScriptValue QTrajPool::printProgress(void)
     }
     if( ProgressStarted ){
         if( ProgressSnaphost > Trajectory.GetNumberOfSnapshots() ) return(value);
-
         for(int i=ProgressSnaphost;i < CurrentSnapshot; i++){
-            if( i % (Trajectory.GetNumberOfSnapshots()/80) == 0 ){
-                cout << "=";
+	    if( Trajectory.GetNumberOfSnapshots() > 80 ){
+                if( i % (Trajectory.GetNumberOfSnapshots()/80) == 0 ){
+                    cout << "=";
+                }
             }
             if( i == Trajectory.GetNumberOfSnapshots()/4 ){
                 cout << " 25% ";

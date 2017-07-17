@@ -1,18 +1,18 @@
 /* =====================================================================
  * This file is part of CATs - Conversion and Analysis Tools.
  *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
+ * Based on the official Qt documentation, at:
  *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
+ * http://doc.qt.io/qt-5/qtwidgets-richtext-syntaxhighlighter-example.html
  *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * As such, it is licensed under the terms of the GNU Free Documentation
+ * License version 1.3 as published by the Free Software Foundation.
+ *
+ * Adapted for CATs/JavaScript as part of the CATs IDE development.
+ *
+ * CATs developed by: Petr Kulhánek, kulhanek@chemi.muni.cz
+ * CATs IDE developed by: Jaroslav Oľha, jaroslav.olha@gmail.com
+ *
  * =====================================================================
  */
 
@@ -23,88 +23,94 @@ CSyntaxHighlighter::CSyntaxHighlighter(QTextDocument *parent)
 {
     HighlightingRule rule;
 
+    //Highlighting for the reserved JavaScript keywords.
     KeywordFormat.setForeground(Qt::darkBlue);
     KeywordFormat.setFontWeight(QFont::Bold);
     QStringList keywordPatterns;
-    keywordPatterns << "\\bchar\\b" << "\\bclass\\b" << "\\bconst\\b"
-                    << "\\bdouble\\b" << "\\benum\\b" << "\\bexplicit\\b"
-                    << "\\bfriend\\b" << "\\binline\\b" << "\\bint\\b"
-                    << "\\blong\\b" << "\\bnamespace\\b" << "\\boperator\\b"
-                    << "\\bprivate\\b" << "\\bprotected\\b" << "\\bpublic\\b"
-                    << "\\bshort\\b" << "\\bsignals\\b" << "\\bsigned\\b"
-                    << "\\bslots\\b" << "\\bstatic\\b" << "\\bstruct\\b"
-                    << "\\btemplate\\b" << "\\btypedef\\b" << "\\btypename\\b"
-                    << "\\bunion\\b" << "\\bunsigned\\b" << "\\bvirtual\\b"
-                    << "\\bvoid\\b" << "\\bvolatile\\b";
+    keywordPatterns << "\\babstract\\b" << "\\barguments\\b" << "\\bboolean\\b"
+                    << "\\bbreak\\b" << "\\bbyte\\b" << "\\bcase\\b"
+                    << "\\bcatch\\b" << "\\bchar\\b" << "\\bclass\\b"
+                    << "\\bconst\\b" << "\\bcontinue\\b" << "\\bdebugger\\b"
+                    << "\\bdefault\\b" << "\\bdelete\\b" << "\\bdo\\b"
+                    << "\\bdouble\\b" << "\\belse\\b" << "\\benum\\b"
+                    << "\\beval\\b" << "\\bexport\\b" << "\\bextends\\b"
+                    << "\\bfalse\\b" << "\\bfinal\\b" << "\\bfinally\\b"
+                    << "\\bfloat\\b" << "\\bfor\\b" << "\\bfunction\\b"
+                    << "\\bgoto\\b" << "\\bif\\b" << "\\bimplements\\b"
+                    << "\\bimport\\b" << "\\bin\\b" << "\\binstanceof\\b"
+                    << "\\bint\\b" << "\\binterface\\b" << "\\blet\\b"
+                    << "\\blong\\b" << "\\bnative\\b" << "\\bnew\\b"
+                    << "\\bnull\\b" << "\\bpackage\\b" << "\\bprivate\\b"
+                    << "\\bprotected\\b" << "\\bpublic\\b" << "\\breturn\\b"
+                    << "\\bshort\\b" << "\\bstatic\\b" << "\\bsuper\\b"
+                    << "\\bswitch\\b" << "\\bsynchronized\\b" << "\\bthis\\b"
+                    << "\\bthrow\\b" << "\\bthrows\\b" << "\\btransient\\b"
+                    << "\\btrue\\b" << "\\btry\\b" << "\\btypeof\\b"
+                    << "\\bvar\\b" << "\\bvoid\\b" << "\\bvolatile\\b"
+                    << "\\bwhile\\b" << "\\bwith\\b" << "\\byield\\b";
+
     foreach (const QString &pattern, keywordPatterns) {
         rule.Pattern = QRegExp(pattern);
         rule.Format = KeywordFormat;
         HighlightingRules.append(rule);
     }
 
+    //Highlighting for the functions.
+    FunctionFormat.setFontItalic(true);
+    FunctionFormat.setForeground(Qt::blue);
+    rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
+    rule.Format = FunctionFormat;
+    HighlightingRules.append(rule);
 
+    //Highlighting for the CATs class names.
+    KeywordFormat.setForeground(Qt::darkMagenta);
+    KeywordFormat.setFontItalic(true);
+    QStringList CATsKeywords;
+    CATsKeywords << "\\bAtom\\b" << "\\bAverageSnapshot\\b" << "\\bCATs\\b"
+                    << "\\bCATsScriptable\\b" << "\\bCovarMatrix\\b" << "\\bGeometry\\b"
+                    << "\\bHistogram\\b" << "\\bLinStat\\b" << "\\bMinMax\\b"
+                    << "\\bMolSurf\\b" << "\\bNAHelper\\b" << "\\bNAStat\\b"
+                    << "\\bNAStatHelper\\b" << "\\bNetResults\\b" << "\\bNetTrajectory\\b"
+                    << "\\bOBMol\\b" << "\\bOFile\\b" << "\\bPMFLib\\b"
+                    << "\\bPoint\\b" << "\\bPropSum\\b" << "\\bResidue\\b"
+                    << "\\bRSelection\\b" << "\\bSelection\\b" << "\\bSimpleVector\\b"
+                    << "\\bSnapshot\\b" << "\\bThermoIG\\b" << "\\bTopology\\b"
+                    << "\\bTrajectory\\b" << "\\bTrajPool\\b" << "\\bTransformation\\b"
+                    << "\\bVolumeData\\b" << "\\bx3DNA\\b";
+    foreach (const QString &pattern, CATsKeywords) {
+        rule.Pattern = QRegExp(pattern);
+        rule.Format = KeywordFormat;
+        HighlightingRules.append(rule);
+    }
 
-    ClassFormat.setFontWeight(QFont::Bold);
-       ClassFormat.setForeground(Qt::darkMagenta);
-       rule.Pattern = QRegExp("\\bQ[A-Za-z]+\\b");
-       rule.Format = ClassFormat;
-       HighlightingRules.append(rule);
+    //Highlighting for single line comments.
+    SingleLineCommentFormat.setForeground(Qt::darkGreen);
+    rule.Pattern = QRegExp("//[^\n]*");
+    rule.Format = SingleLineCommentFormat;
+    HighlightingRules.append(rule);
 
+    //Highlighting for multiple line comments.
+    MultiLineCommentFormat.setForeground(Qt::darkGreen);
+    CommentStartExpression = QRegExp("/\\*");
+    CommentEndExpression = QRegExp("\\*/");
 
+    //Highlighting for strings denoted by double quotes (escaped double quotes are ignored).
+    QuotationFormat.setForeground(Qt::darkGreen);
+    rule.Pattern = QRegExp("\"[^\"\\\\]*(\\\\.[^\"\\\\]*)*\"");
+    rule.Format = QuotationFormat;
+    HighlightingRules.append(rule);
 
-       FunctionFormat.setFontItalic(true);
-       FunctionFormat.setForeground(Qt::blue);
-       rule.Pattern = QRegExp("\\b[A-Za-z0-9_]+(?=\\()");
-       rule.Format = FunctionFormat;
-       HighlightingRules.append(rule);
-
-
-
-
-
-       KeywordFormat.setForeground(Qt::darkMagenta);
-       KeywordFormat.setFontItalic(true);
-       QStringList CATsKeywords;
-       CATsKeywords << "\\bAtom\\b" << "\\bAverageSnapshot\\b" << "\\bCATs\\b"
-                       << "\\bCATsScriptable\\b" << "\\bCovarMatrix\\b" << "\\bGeometry\\b"
-                       << "\\bHistogram\\b" << "\\bLinStat\\b" << "\\bMinMax\\b"
-                       << "\\bMolSurf\\b" << "\\bNAHelper\\b" << "\\bNAStat\\b"
-                       << "\\bNAStatHelper\\b" << "\\bNetResults\\b" << "\\bNetTrajectory\\b"
-                       << "\\bOBMol\\b" << "\\bOFile\\b" << "\\bPMFLib\\b"
-                       << "\\bPoint\\b" << "\\bPropSum\\b" << "\\bResidue\\b"
-                       << "\\bRSelection\\b" << "\\bSelection\\b" << "\\bSimpleVector\\b"
-                       << "\\bSnapshot\\b" << "\\bThermoIG\\b" << "\\bTopology\\b"
-                       << "\\bTrajectory\\b" << "\\bTrajPool\\b" << "\\bTransformation\\b"
-                       << "\\bVolumeData\\b" << "\\bx3DNA\\b";
-       foreach (const QString &pattern, CATsKeywords) {
-           rule.Pattern = QRegExp(pattern);
-           rule.Format = KeywordFormat;
-           HighlightingRules.append(rule);
-       }
-
-
-       QuotationFormat.setForeground(Qt::darkGreen);
-       //rule.Pattern = QRegExp("\".*\"");
-       rule.Pattern = QRegExp("\"[^\"]*\"");
-       rule.Format = QuotationFormat;
-       HighlightingRules.append(rule);
-
-
-       SingleLineCommentFormat.setForeground(Qt::red);
-           rule.Pattern = QRegExp("//[^\n]*");
-           rule.Format = SingleLineCommentFormat;
-           HighlightingRules.append(rule);
-
-           MultiLineCommentFormat.setForeground(Qt::red);
-
-           CommentStartExpression = QRegExp("/\\*");
-           CommentEndExpression = QRegExp("\\*/");
-
+    //Highlighting for strings denoted by single quotes (escaped single quotes are ignored).
+    QuotationFormat.setForeground(Qt::darkGreen);
+    rule.Pattern = QRegExp("\'[^\'\\\\]*(\\\\.[^\'\\\\]*)*\'");
+    rule.Format = QuotationFormat;
+    HighlightingRules.append(rule);
 }
 
 
 void CSyntaxHighlighter::highlightBlock(const QString &text)
 {
+    //Applies the highlighting rules which only apply for a single line (all except for multiple line comments).
     foreach (const HighlightingRule &rule, HighlightingRules) {
         QRegExp expression(rule.Pattern);
         int index = expression.indexIn(text);
@@ -117,6 +123,7 @@ void CSyntaxHighlighter::highlightBlock(const QString &text)
 
     setCurrentBlockState(0);
 
+    //Applies the highlighting rule for multiple line comments.
     int startIndex = 0;
         if (previousBlockState() != 1)
             startIndex = CommentStartExpression.indexIn(text);
