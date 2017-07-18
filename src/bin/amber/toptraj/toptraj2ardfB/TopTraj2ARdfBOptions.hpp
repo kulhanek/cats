@@ -45,7 +45,7 @@ public:
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
-    CATS_VERSION
+    LibBuildVersion_CATs
     CSO_PROG_VERS_END
 
 // list of all options and arguments ------------------------------------------

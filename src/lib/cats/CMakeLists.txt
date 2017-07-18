@@ -95,7 +95,7 @@ IF(LIBS_SHARED)
     SET_TARGET_PROPERTIES(cats_shared PROPERTIES
                             OUTPUT_NAME cats
                             CLEAN_DIRECT_OUTPUT 1
-                            VERSION ${CATS_VERSION})
+                            VERSION ${LibBuildVersion_CATs})
     QT5_USE_MODULES(cats_shared Core Script)
 
 INSTALL(TARGETS

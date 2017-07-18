@@ -14,7 +14,8 @@ ADD_EXECUTABLE(gauss-aw-gen ${INTEGRATE_SRC})
 ADD_DEPENDENCIES(gauss-aw-gen cats_shared)
 
 QT5_USE_MODULES(gauss-aw-gen Core)
-TARGET_LINK_LIBRARIES(gauss-aw-gen ${HIPOLY_LIB_NAME} ${SYSTEM_LIBS})
+TARGET_LINK_LIBRARIES(gauss-aw-gen
+        ${CATS_LIBS})
 
 INSTALL(TARGETS
             gauss-aw-gen

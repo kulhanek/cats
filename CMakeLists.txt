@@ -19,7 +19,7 @@ SET(CATS_NETWORK    ON  CACHE BOOL "Is network available")
 # ==============================================================================
 
 # define project name ----------------------------
-SET(CATS_VERSION 2.0.x)           # CATs version
+SET(LibBuildVersion_CATs 2.0.x)           # CATs version
 
 # what languages we use --------------------------
 ENABLE_LANGUAGE(CXX)

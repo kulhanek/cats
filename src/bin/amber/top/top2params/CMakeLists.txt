@@ -16,10 +16,7 @@ ADD_DEPENDENCIES(top2params cats_shared)
 
 QT5_USE_MODULES(top2params Core)
 TARGET_LINK_LIBRARIES(top2params
-                ${ASL_LIB_NAME}
-                ${SCIMAFIC_CLIB_NAME}
-                ${HIPOLY_LIB_NAME}
-                ${SYSTEM_LIBS})
+        ${CATS_LIBS})
 
 INSTALL(TARGETS
             top2params

@@ -15,10 +15,7 @@ ADD_DEPENDENCIES(top2delphi cats_shared)
 
 QT5_USE_MODULES(top2delphi Core)
 TARGET_LINK_LIBRARIES(top2delphi
-                ${ASL_LIB_NAME}
-                ${SCIMAFIC_CLIB_NAME}
-                ${HIPOLY_LIB_NAME}
-                ${SYSTEM_LIBS})
+        ${CATS_LIBS})
 
 INSTALL(TARGETS
             top2delphi

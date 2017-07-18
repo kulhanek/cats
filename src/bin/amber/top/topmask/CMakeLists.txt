@@ -15,10 +15,7 @@ ADD_DEPENDENCIES(topmask cats_shared)
 
 QT5_USE_MODULES(topmask Core)
 TARGET_LINK_LIBRARIES(topmask
-                ${ASL_LIB_NAME}
-                ${SCIMAFIC_CLIB_NAME}
-                ${HIPOLY_LIB_NAME}
-                ${SYSTEM_LIBS})
+        ${CATS_LIBS})
 
 INSTALL(TARGETS
             topmask

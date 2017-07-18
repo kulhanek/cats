@@ -14,7 +14,8 @@ ADD_EXECUTABLE(integrate ${INTEGRATE_SRC})
 ADD_DEPENDENCIES(integrate cats_shared)
 
 QT5_USE_MODULES(integrate Core)
-TARGET_LINK_LIBRARIES(integrate ${HIPOLY_LIB_NAME} ${SYSTEM_LIBS})
+TARGET_LINK_LIBRARIES(integrate
+        ${CATS_LIBS})
 
 INSTALL(TARGETS
             integrate

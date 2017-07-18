@@ -28,7 +28,6 @@ TARGET_LINK_LIBRARIES(cats_ide_inter
         readline
 	${QT_LIBRARIES}
         ${CATS_LIBS}
-	${SYSTEM_LIBS}
         )
 
 INSTALL(TARGETS

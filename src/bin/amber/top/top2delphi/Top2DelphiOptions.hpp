@@ -22,6 +22,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <CATsMainHeader.hpp>
 #include <SimpleOptions.hpp>
 
 //------------------------------------------------------------------------------
@@ -51,6 +52,10 @@ public:
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
     CSO_LIST_END
+
+    CSO_PROG_VERS_BEGIN
+    LibBuildVersion_CATs
+    CSO_PROG_VERS_END
 
     CSO_MAP_BEGIN
 // description of arguments ---------------------------------------------------
