@@ -91,12 +91,14 @@ ENDIF(LIBS_STATIC)
 IF(LIBS_SHARED)
     ADD_DEFINITIONS(-DCATS_BUILDING_DLL)
     ADD_LIBRARY(cats_shared SHARED ${CATS_LIB_SRC})
+
+    QT5_USE_MODULES(cats_shared Core Script)
     TARGET_LINK_LIBRARIES(cats_shared ${SYSTEM_LIBS})
+
     SET_TARGET_PROPERTIES(cats_shared PROPERTIES
                             OUTPUT_NAME cats
                             CLEAN_DIRECT_OUTPUT 1
                             VERSION ${LibBuildVersion_CATs})
-    QT5_USE_MODULES(cats_shared Core Script)
 
 INSTALL(TARGETS
             cats_shared
