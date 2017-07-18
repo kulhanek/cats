@@ -9,7 +9,7 @@ The package CATs contains several utilities for AMBER topology and coordinate ma
 * [PMFLib](https://github.com/kulhanek/pmflib) collective variables available in the cats interpreter
 
 ## Building Package
-The procedure is decribed [here](https://github.com/kulhanek/cats-build).
+The building and installation procedure can be found in the [cats-build](https://github.com/kulhanek/cats-build) repository.
 
 ## Documentation
 The documentation is available [here](https://lcc.ncbr.muni.cz/whitezone/development/cats/).

@@ -21,13 +21,14 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QTopology.hpp>
+#include <moc_QTopology.cpp>
 #include <QAtom.hpp>
 #include <QResidue.hpp>
 #include <QSelection.hpp>
 #include <TerminalStr.hpp>
-#include <QTopology.moc>
-
 #include <AmberSubTopology.hpp>
+
+//------------------------------------------------------------------------------
 
 using namespace std;
 

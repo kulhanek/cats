@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QTrajectory.hpp>
-#include <QTrajectory.moc>
+#include <moc_QTrajectory.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <iomanip>

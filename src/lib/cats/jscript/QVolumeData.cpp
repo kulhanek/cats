@@ -21,6 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QVolumeData.hpp>
+#include <moc_QVolumeData.cpp>
 #include <fstream>
 #include <QSnapshot.hpp>
 #include <QPoint.hpp>
@@ -29,7 +30,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QVolumeData.moc>
 using namespace std;
 
 //==============================================================================

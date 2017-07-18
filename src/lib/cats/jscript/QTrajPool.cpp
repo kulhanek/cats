@@ -22,6 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QTrajPool.hpp>
+#include <moc_QTrajPool.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <iomanip>
@@ -32,7 +33,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QTrajPool.moc>
 using namespace std;
 using boost::format;
 

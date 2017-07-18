@@ -21,6 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QTransformation.hpp>
+#include <moc_QTransformation.cpp>
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>
 #include <AmberAtom.hpp>
@@ -30,7 +31,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QTransformation.moc>
 using namespace std;
 
 //==============================================================================

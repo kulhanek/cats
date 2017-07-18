@@ -21,6 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QTinySpline.hpp>
+#include <moc_QTinySpline.cpp>
 #include <TerminalStr.hpp>
 #include <QSnapshot.hpp>
 #include <QTopology.hpp>
@@ -33,7 +34,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QTinySpline.moc>
 using namespace std;
 using boost::format;
 
