@@ -22,6 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QRSelection.hpp>
+#include <moc_QRSelection.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QResidue.hpp>
@@ -30,7 +31,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QRSelection.moc>
 using namespace std;
 
 //==============================================================================

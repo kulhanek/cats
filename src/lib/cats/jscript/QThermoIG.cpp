@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QThermoIG.hpp>
-#include <QThermoIG.moc>
+#include <moc_QThermoIG.cpp>
 #include <TerminalStr.hpp>
 #include <QTopology.hpp>
 

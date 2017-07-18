@@ -8,8 +8,6 @@ INCLUDE_DIRECTORIES(lib/cats/network/result SYSTEM)
 INCLUDE_DIRECTORIES(lib/cats/network/trajectory SYSTEM)
 INCLUDE_DIRECTORIES(lib/cats/maps SYSTEM)
 INCLUDE_DIRECTORIES(lib/cats/jscript SYSTEM)
-INCLUDE_DIRECTORIES(lib/cats/pmflib SYSTEM)
-INCLUDE_DIRECTORIES(lib/cats/pmflib/cvs SYSTEM)
 
 # include subdirectories -------------------------------------------------------
 ADD_SUBDIRECTORY(lib)

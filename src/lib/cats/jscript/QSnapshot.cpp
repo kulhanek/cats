@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QSnapshot.hpp>
-#include <QSnapshot.moc>
+#include <moc_QSnapshot.cpp>
 #include <QTopology.hpp>
 #include <QSelection.hpp>
 #include <QPoint.hpp>

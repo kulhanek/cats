@@ -28,7 +28,7 @@
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <QMolSurf.hpp>
-#include <QMolSurf.moc>
+#include <moc_QMolSurf.cpp>
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
 #include <QTemporaryDir>

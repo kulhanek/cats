@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QPoint.hpp>
-#include <QPoint.moc>
+#include <moc_QPoint.cpp>
 #include <Qx3DNA.hpp>
 #include <TerminalStr.hpp>
 

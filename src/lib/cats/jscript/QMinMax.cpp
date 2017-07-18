@@ -21,13 +21,13 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QMinMax.hpp>
+#include <moc_QMinMax.cpp>
 #include <QSelection.hpp>
 #include <iomanip>
 #include <TerminalStr.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QMinMax.moc>
 using namespace std;
 
 //==============================================================================

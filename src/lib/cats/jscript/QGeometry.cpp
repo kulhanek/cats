@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QGeometry.hpp>
-#include <QGeometry.moc>
+#include <moc_QGeometry.cpp>
 #include <QPoint.hpp>
 #include <TerminalStr.hpp>
 

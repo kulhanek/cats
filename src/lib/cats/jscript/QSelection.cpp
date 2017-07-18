@@ -22,6 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QSelection.hpp>
+#include <moc_QSelection.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QAtom.hpp>
@@ -30,7 +31,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QSelection.moc>
 using namespace std;
 
 //==============================================================================

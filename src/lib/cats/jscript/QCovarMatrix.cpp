@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QCovarMatrix.hpp>
-#include <QCovarMatrix.moc>
+#include <moc_QCovarMatrix.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <Lapack.hpp>

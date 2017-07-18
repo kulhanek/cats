@@ -23,11 +23,10 @@
 #include <iomanip>
 #include <errno.h>
 #include <QNAStat.hpp>
+#include <moc_QNAStat.cpp>
 #include <TerminalStr.hpp>
 #include <Qx3DNA.hpp>
 #include <ErrorSystem.hpp>
-
-#include <QNAStat.moc>
 
 //------------------------------------------------------------------------------
 

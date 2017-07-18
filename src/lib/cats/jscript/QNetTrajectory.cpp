@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QNetTrajectory.hpp>
-#include <QNetTrajectory.moc>
+#include <moc_QNetTrajectory.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 

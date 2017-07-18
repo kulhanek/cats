@@ -21,13 +21,13 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QResidue.hpp>
+#include <moc_QResidue.cpp>
 #include <AmberResidue.hpp>
 #include <TerminalStr.hpp>
 #include <QAtom.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QResidue.moc>
 using namespace std;
 
 //==============================================================================

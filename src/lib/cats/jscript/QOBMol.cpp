@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QOBMol.hpp>
-#include <QOBMol.moc>
+#include <moc_QOBMol.cpp>
 
 using namespace std;
 

@@ -22,7 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QAverageSnapshot.hpp>
-#include <QAverageSnapshot.moc>
+#include <moc_QAverageSnapshot.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <QSelection.hpp>

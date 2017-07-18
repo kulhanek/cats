@@ -29,13 +29,12 @@
 #include <ErrorSystem.hpp>
 #include <QScriptEngine>
 #include <QCurvesP.hpp>
+#include <moc_QCurvesP.cpp>
 #include <TerminalStr.hpp>
 #include <PeriodicTable.hpp>
 #include <QTemporaryDir>
 #include <AmberResidue.hpp>
 #include <boost/format.hpp>
-
-#include <QCurvesP.moc>
 
 //------------------------------------------------------------------------------
 

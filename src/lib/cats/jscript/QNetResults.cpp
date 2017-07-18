@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QNetResults.hpp>
-#include <QNetResults.moc>
+#include <moc_QNetResults.cpp>
 #include <QTopology.hpp>
 
 using namespace std;

@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QPMFLib.hpp>
-#include <QPMFLib.moc>
+#include <moc_QPMFLib.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
 #include <TerminalStr.hpp>

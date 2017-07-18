@@ -20,12 +20,12 @@
 
 #include <QScriptEngine>
 #include <QSimpleVector.hpp>
+#include <moc_QSimpleVector.cpp>
 #include <SmallString.hpp>
 #include <TerminalStr.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QSimpleVector.moc>
 using namespace std;
 
 //==============================================================================

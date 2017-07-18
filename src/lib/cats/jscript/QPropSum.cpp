@@ -21,13 +21,13 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QPropSum.hpp>
+#include <moc_QPropSum.cpp>
 #include <QSelection.hpp>
 #include <iomanip>
 #include <TerminalStr.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QPropSum.moc>
 using namespace std;
 
 //==============================================================================

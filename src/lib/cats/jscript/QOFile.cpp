@@ -21,7 +21,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QOFile.hpp>
-#include <QOFile.moc>
+#include <moc_QOFile.cpp>
 #include <SmallString.hpp>
 #include <TerminalStr.hpp>
 #include <iomanip>

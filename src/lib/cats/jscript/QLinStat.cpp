@@ -21,13 +21,13 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QLinStat.hpp>
+#include <moc_QLinStat.cpp>
 #include <QSelection.hpp>
 #include <iomanip>
 #include <TerminalStr.hpp>
 
 //------------------------------------------------------------------------------
 
-#include <QLinStat.moc>
 using namespace std;
 
 //==============================================================================

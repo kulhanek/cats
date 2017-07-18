@@ -23,7 +23,7 @@
 #include <vector>
 #include <QScriptEngine>
 #include <QCATs.hpp>
-#include <QCATs.moc>
+#include <moc_QCATs.cpp>
 #include <boost/format.hpp>
 #include <ErrorSystem.hpp>
 #include <TerminalStr.hpp>
