@@ -5,4 +5,3 @@
 # include subdirectories -------------------------------------------------------
 ADD_SUBDIRECTORY(top)
 ADD_SUBDIRECTORY(topcrd)
-ADD_SUBDIRECTORY(toptraj)

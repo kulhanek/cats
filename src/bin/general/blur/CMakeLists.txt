@@ -15,6 +15,7 @@ ADD_DEPENDENCIES(blur cats_shared)
 
 QT5_USE_MODULES(blur Core)
 TARGET_LINK_LIBRARIES(blur
+        ${FFTW3_LIBRARY_NAME}
         ${CATS_LIBS})
 
 INSTALL(TARGETS

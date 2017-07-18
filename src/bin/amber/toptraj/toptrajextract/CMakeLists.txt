@@ -11,6 +11,7 @@ SET(TOPCRD2CRD_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(toptrajextract ${TOPCRD2CRD_SRC})
+
 QT5_USE_MODULES(toptrajextract Core)
 TARGET_LINK_LIBRARIES(toptrajextract
         ${CATS_LIBS})

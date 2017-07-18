@@ -4,7 +4,7 @@
 
 # include subdirectories -------------------------------------------------------
 IF(FFTW3_FOUND)
-  #  ADD_SUBDIRECTORY(blur)
+    ADD_SUBDIRECTORY(blur)
 ENDIF(FFTW3_FOUND)
 
 ADD_SUBDIRECTORY(d2u)
