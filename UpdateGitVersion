@@ -11,8 +11,8 @@ GITHASH=`git rev-parse --short HEAD`
 DATE=`date +"%Y-%m-%d %H:%M"`
 
 cat > src/lib/cats/CATsMainHeaderConfig.hpp << EOF
-#define LibBuildVersion_CATs         "2.${GITREVS}.${GITHASH}"
-#define CATS_BUILDTIME       "${DATE}"
+#define CATS_VERSION        "2.${GITREVS}.${GITHASH}"
+#define CATS_BUILDTIME      "${DATE}"
 EOF
 
 echo ""
