@@ -24,10 +24,6 @@
 
 #include <HiPoLyMainHeader.hpp>
 
-#define CATS_VERSION "2.0.SVNVERSION (DATE) [Conversion and Analysis Tools (CATs)]"
-
-//------------------------------------------------------------------------------
-
 extern const char* LibBuildVersion_CATs;
 
 //------------------------------------------------------------------------------

@@ -16,3 +16,4 @@ CATs.*
 CATsWin.*
 test/*
 ui_*.h
+CATsMainHeaderConfig.hpp
