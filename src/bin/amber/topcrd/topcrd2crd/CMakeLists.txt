@@ -11,6 +11,8 @@ SET(TOPCRD2CRD_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcrd2crd ${TOPCRD2CRD_SRC})
+ADD_DEPENDENCIES(topcrd2crd cats_shared)
+
 QT5_USE_MODULES(topcrd2crd Core)
 TARGET_LINK_LIBRARIES(topcrd2crd
         ${CATS_LIBS})
