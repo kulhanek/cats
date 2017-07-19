@@ -22,6 +22,7 @@
 #include <iostream>
 #include <QScriptEngine>
 #include <QHistogram2D.hpp>
+#include <moc_QHistogram2D.cpp>
 #include <iomanip>
 #include <fstream>
 #include <SmallString.hpp>
@@ -30,7 +31,6 @@
 
 //------------------------------------------------------------------------------
 
-#include <QHistogram2D.moc>
 using namespace std;
 
 //==============================================================================
