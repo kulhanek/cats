@@ -173,8 +173,13 @@ SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
 SET(QT_RPATH $ENV{QT_RPATH})
 
-# the RPATH to be used when installing
-SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${QT_RPATH}")
+IF(QT_RPTATH)
+    # the RPATH to be used when installing
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers:${QT_RPATH}")
+ELSE(QT_RPATH)
+    # the RPATH to be used when installing
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers")
+ENDIF(QT_RPATH)
 
 # add the automatically determined parts of the RPATH
 # which point to directories outside the build tree to the install RPATH
