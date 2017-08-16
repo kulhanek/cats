@@ -42,7 +42,7 @@ ENDIF(NOT DEVELOPMENT_ROOT)
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${DEVELOPMENT_ROOT}/projects/cmake-modules/1.0/share/modules")
 
 # boost =======================
-FIND_PACKAGE(Boost REQUIRED)
+FIND_PACKAGE(MyBoost REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS} SYSTEM)
 
 FIND_PACKAGE(ReadLine REQUIRED)
@@ -164,24 +164,26 @@ LINK_DIRECTORIES(${CMAKE_BINARY_DIR}/lib)
 # rpaths -----------------------------------------------------------------------
 # ==============================================================================
 
-# use, i.e. don't skip the full RPATH for the build tree
-SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
+IF(NOT DEFINED COMPOSITE_PROJECT)
+    # use, i.e. don't skip the full RPATH for the build tree
+    SET(CMAKE_SKIP_BUILD_RPATH  FALSE)
 
-# when building, don't use the install RPATH already
-# (but later on when installing)
-SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE) 
+    # when building, don't use the install RPATH already
+    # (but later on when installing)
+    SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
-IF(QT_RPATH)
-    # the RPATH to be used when installing
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers:${QT_RPATH}")
-ELSE(QT_RPATH)
-    # the RPATH to be used when installing
-    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers")
-ENDIF(QT_RPATH)
+    IF(QT_RPATH)
+        # the RPATH to be used when installing
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers:${QT_RPATH}")
+    ELSE(QT_RPATH)
+        # the RPATH to be used when installing
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers")
+    ENDIF(QT_RPATH)
 
-# add the automatically determined parts of the RPATH
-# which point to directories outside the build tree to the install RPATH
-SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+    # add the automatically determined parts of the RPATH
+    # which point to directories outside the build tree to the install RPATH
+    SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+ENDIF(NOT DEFINED COMPOSITE_PROJECT)
 
 # ==============================================================================
 # compiler setups --------------------------------------------------------------
