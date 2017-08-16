@@ -173,12 +173,14 @@ IF(NOT DEFINED COMPOSITE_PROJECT)
     # (but later on when installing)
     SET(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
 
+    # the RPATH to be used when installing
+    SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers")
+
     IF(QT_RPATH)
         # the RPATH to be used when installing
-        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers:${QT_RPATH}")
+        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${QT_RPATH}")
     ELSE(QT_RPATH)
-        # the RPATH to be used when installing
-        SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib:${CMAKE_INSTALL_PREFIX}/lib/drivers")
+
     ENDIF(QT_RPATH)
 
     # add the automatically determined parts of the RPATH
