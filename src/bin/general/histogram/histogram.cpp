@@ -124,7 +124,7 @@ bool CHistogram::Run(void)
     double  dch = 0.0;
 
     tot_count = Data.GetSize();
-    if( tot_count == 0 ) {
+    if( tot_count > 0 ) {
         maxv = Data[0];
         minv = Data[0];
     }
