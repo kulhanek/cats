@@ -182,7 +182,7 @@ void CTopRemixLJ::WriteIITypes(void)
     printf("\n");
     printf("# Summary of II Types\n");
     printf("\n");
-    printf("# Type      Ropt        Eps     \n");
+    printf("# Type   Ropt/2.0        Eps    \n");
     printf("# ---- ------------ ------------\n");
 
     for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++) {
@@ -231,7 +231,7 @@ void CTopRemixLJ::WriteIJTypes(void)
     printf("\n");
     printf("# Summary of IJ Types\n");
     printf("\n");
-    printf("# Type Type    Dijopt        Eps     \n");
+    printf("# Type Type     Ropt          Eps    \n");
     printf("# ---- ---- ------------ ------------\n");
 
     double lbsc = 0;
