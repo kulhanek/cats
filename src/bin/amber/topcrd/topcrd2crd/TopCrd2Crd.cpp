@@ -642,7 +642,7 @@ bool CTopCrd2Crd::WritePQR(FILE* p_fout)
                 atid,(const char*)p_atom->GetPDBName(),p_atom->GetResidue()->GetName(),
                 resid,
                 Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,
-                p_atom->GetStandardCharge(),p_atom->GetRadius());
+                p_atom->GetStandardCharge(),p_atom->GetRadius()*Options.GetOptRScale()+Options.GetOptROffset());
     }
 
     return(true);
@@ -679,7 +679,7 @@ bool CTopCrd2Crd::WriteXYZR(FILE* p_fout)
         if( p_atom == NULL ) continue;
         fprintf(p_fout,"%8.3f%8.3f%8.3f %6.3f\n",
                 Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,
-                p_atom->GetRadius());
+                p_atom->GetRadius()*Options.GetOptRScale()+Options.GetOptROffset());
     }
 
     return(true);

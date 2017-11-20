@@ -38,7 +38,7 @@ public:
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "<red>topcrd2crd</red> converts AMBER topology and coordinates to coordinates in other format."
+    "Converts AMBER topology and coordinates to coordinates in other format."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
@@ -57,6 +57,8 @@ public:
     CSO_OPT(CSmallString,MaskSpec)
     CSO_OPT(CSmallString,MaskFile)
     CSO_OPT(CSmallString,MangleNames)
+    CSO_OPT(double,RScale)
+    CSO_OPT(double,ROffset)
     CSO_OPT(bool,Reindex)
     CSO_OPT(bool,CopyBox)
     CSO_OPT(bool,NoVelocities)
@@ -150,6 +152,25 @@ public:
                 "   <green>pdb</green>    - pdb scheme (4123), keep amber names\n"
                 "   <green>charmm</green> - charmm name scheme (1234), mangle parm99 names\n"
                 )   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                RScale,                        /* option name */
+                1.0,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "rscale",                      /* long option name */
+                NULL,                           /* parametr name */
+                "scale factor for atomic radii (r_new = r * scale + offset)")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                ROffset,                        /* option name */
+                0.0,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "roffset",                      /* long option name */
+                NULL,                           /* parametr name */
+                "offset for atomic radii (r_new = r * scale + offset)")   /* option description */
+
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Reindex,                        /* option name */
