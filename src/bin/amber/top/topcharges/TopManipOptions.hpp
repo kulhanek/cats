@@ -32,11 +32,11 @@ public:
 
 // program name and description -----------------------------------------------
     CSO_PROG_NAME_BEGIN
-    "topmanip"
+    "topcharges"
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Manipulate with topology information."
+    "Manipulate with topology charges."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN

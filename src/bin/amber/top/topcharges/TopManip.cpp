@@ -52,7 +52,7 @@ int CTopManip::Init(int argc,char* argv[])
 
         printf("\n");
         printf("# ==============================================================================\n");
-        printf("# topmanip (CATs utility) started at %s\n",(const char*)dt.GetSDateAndTime());
+        printf("# topcharges (CATs utility) started at %s\n",(const char*)dt.GetSDateAndTime());
         printf("# ==============================================================================\n");
         printf("#\n");
         if( Options.GetArgTopologyName() == "-" ) {
@@ -223,7 +223,7 @@ bool CTopManip::Finalize(void)
 
         fprintf(stdout,"\n");
         fprintf(stdout,"# ==============================================================================\n");
-        fprintf(stdout,"# topmanip terminated at %s\n",(const char*)dt.GetSDateAndTime());
+        fprintf(stdout,"# topcharges terminated at %s\n",(const char*)dt.GetSDateAndTime());
         fprintf(stdout,"# ==============================================================================\n");
     }
 

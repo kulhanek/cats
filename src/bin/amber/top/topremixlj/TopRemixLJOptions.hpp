@@ -79,7 +79,7 @@ public:
                 'r',                           /* short option name */
                 "rule",                      /* long option name */
                 "TYPE",                           /* parametr name */
-                "combining rule: LB, KG, WH")   /* option description */
+                "combining rule: LB (Lorentz-Berthelot), KG (Kong), WH (Waldman-Hagler)")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

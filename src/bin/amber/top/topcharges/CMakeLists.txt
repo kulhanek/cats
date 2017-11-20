@@ -10,15 +10,15 @@ SET(TOPMANIP_SRC
         )
 
 # final build ------------------------------------------------------------------
-ADD_EXECUTABLE(topmanip ${TOPMANIP_SRC})
-ADD_DEPENDENCIES(topmanip cats_shared)
+ADD_EXECUTABLE(topcharges ${TOPMANIP_SRC})
+ADD_DEPENDENCIES(topcharges cats_shared)
 
-QT5_USE_MODULES(topmanip Core)
-TARGET_LINK_LIBRARIES(topmanip
+QT5_USE_MODULES(topcharges Core)
+TARGET_LINK_LIBRARIES(topcharges
         ${CATS_LIBS})
 
 INSTALL(TARGETS
-            topmanip
+            topcharges
         DESTINATION
             bin
         )
