@@ -300,22 +300,22 @@ void CTopRemixLJ::WriteIJTypes(void)
     bool detected = false;
     if( (lbsc < whsc) && (lbsc < kgsc) ){
         printf("\n");
-        printf("# Detected combining rule (based on Dijopt): LB\n");
+        printf("# Detected combining rule (based on Ropt): LB\n");
         detected = true;
     }
     if( (whsc < lbsc) && (whsc < kgsc) ){
         printf("\n");
-        printf("# Detected combining rule (based on Dijopt): WH\n");
+        printf("# Detected combining rule (based on Ropt): WH\n");
         detected = true;
     }
     if( (kgsc < lbsc) && (kgsc < whsc) ){
         printf("\n");
-        printf("# Detected combining rule (based on Dijopt): KG\n");
+        printf("# Detected combining rule (based on Ropt): KG\n");
         detected = true;
     }
     if( detected == false ) {
         printf("\n");
-        printf("# Detected combining rule (based on Dijopt): unknown\n");
+        printf("# Detected combining rule (based on Ropt): unknown\n");
     }
 }
 
