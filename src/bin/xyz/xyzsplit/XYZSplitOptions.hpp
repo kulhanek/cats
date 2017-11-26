@@ -46,6 +46,7 @@ public:
     // arguments ----------------------------
     CSO_ARG(CSmallString,StructureName)
     // options ------------------------------
+    CSO_OPT(bool,EnableCP)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -60,6 +61,15 @@ public:
                 "STRUCTURE",                           /* parametr name */
                 "Structure in the xyz format. If the name is '-' then the structure is read from the standard input.")   /* argument description */
 // description of options -----------------------------------------------------
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(bool,                           /* option type */
+                EnableCP,                        /* option name */
+                false,                          /* default value */
+                false,                          /* is option mandatory */
+                '\0',                           /* short option name */
+                "cp",                      /* long option name */
+                NULL,                           /* parametr name */
+                "save structures in the format for CP correction (orca)")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

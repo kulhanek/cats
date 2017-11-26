@@ -60,6 +60,7 @@ private:
     /// load/save structure
     bool LoadStructure(void);
     bool SaveStructure(const CSmallString& name);
+    bool SaveStructureCP(const CSmallString& name,int molid);
 
     /// detect bonds - use simple criteria
     void FindBonds(void);

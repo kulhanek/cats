@@ -97,10 +97,16 @@ bool CXYZSplit::Run(void)
     char molid = 'A';
     for(int i=0; i < NumberOfMolecules; i++){
         CSmallString name;
-        name << molid << ".xyz";
-        CopyMolecule(i);
-        vout << molid << " " << name << endl;
-        SaveStructure(name);
+        if( Options.GetOptEnableCP() ){
+            name << molid << ".cp";
+            vout << molid << " " << name << endl;
+            SaveStructureCP(name,i);
+        } else {
+            name << molid << ".xyz";
+            vout << molid << " " << name << endl;
+            CopyMolecule(i);
+            SaveStructure(name);
+        }
         molid++;
     }
 
@@ -157,6 +163,32 @@ bool CXYZSplit::SaveStructure(const CSmallString& name)
         vout << "<red>>>> ERROR: Unable to save the XYZ structure: " << name << "</red>" << endl;
         return(false);
     }
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CXYZSplit::SaveStructureCP(const CSmallString& name,int molid)
+{
+    FILE* p_fout = fopen(name,"w");
+    if( p_fout == NULL ) {
+        vout << "<red>>>> ERROR: Unable to save the CP structure: " << name << "</red>" << endl;
+        return(false);
+    }
+
+    for(int i=0; i < Structure.GetNumberOfAtoms(); i++ ){
+        char ghostflag;
+        if( MoleculeId[i] == molid ){
+            ghostflag = ' ';
+        } else {
+            ghostflag = ':';
+        }
+        if( fprintf(p_fout,"%3s %c %16.9f %16.9f %16.9f\n",Structure.GetSymbol(i),ghostflag,Structure.GetPosition(i).x,Structure.GetPosition(i).y,Structure.GetPosition(i).z) <= 0 ) {
+            fclose(p_fout);
+            return(false);
+        }
+    }
+    fclose(p_fout);
     return(true);
 }
 
