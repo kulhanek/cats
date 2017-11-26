@@ -34,7 +34,7 @@ public:
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Split structure read from XYZ format into indivudual molecules."
+    "Split the structure read from the XYZ file into individual molecules."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
