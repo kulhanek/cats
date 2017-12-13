@@ -1,7 +1,7 @@
-#ifndef VSOperationH
-#define VSOperationH
+#ifndef AlterPrjH
+#define AlterPrjH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// VScreen - Virtual Screening Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -20,31 +20,46 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <Operation.hpp>
+#include "AlterPrjOptions.hpp"
+#include <VerboseStr.hpp>
+#include <TerminalStr.hpp>
 
 //------------------------------------------------------------------------------
 
-//! get data from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetVSData);
+class sqlite3;
 
-//! write data to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_WriteVSData);
+//------------------------------------------------------------------------------
 
-//! load structure from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_LoadStructure);
+class CAlterPrj {
+public:
+    // constructor
+    CAlterPrj(void);
 
-//! save structure to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SaveStructure);
+// main methods ----------------------------------------------------------------
+    //! init options
+    int Init(int argc,char* argv[]);
 
-//! reset server selection transaction
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SelReset);
+    //! main part of program
+    bool Run(void);
 
-//! install client package
-DECLARE_OPERATION(CATS_PACKAGE,Operation_InstallPkg);
+    //! finalize program
+    bool Finalize(void);
 
-//! get client application name
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetAppName);
+// section of public data ------------------------------------------------------
+public:
+    CAlterPrjOptions    Options;            // program options
+
+// section of private data ----------------------------------------------------
+private:
+    CTerminalStr        Console;
+    CVerboseStr         MsgOut;             // output messages
+
+    bool ExecSQL(sqlite3* sqldb,const CSmallString& sql);
+};
+
+//------------------------------------------------------------------------------
+
+extern CAlterPrj AlterPrj;
 
 //------------------------------------------------------------------------------
 

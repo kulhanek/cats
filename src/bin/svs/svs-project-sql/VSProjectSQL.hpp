@@ -1,7 +1,7 @@
-#ifndef VSOperationH
-#define VSOperationH
+#ifndef VSProjectSQLH
+#define VSProjectSQLH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// VScreen - Virtual Screening Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -20,31 +20,42 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <Operation.hpp>
+#include "VSProjectSQLOptions.hpp"
+#include <VerboseStr.hpp>
+#include <TerminalStr.hpp>
+
+using namespace std;
 
 //------------------------------------------------------------------------------
 
-//! get data from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetVSData);
+class CVSProjectSQL {
+public:
+    // constructor
+    CVSProjectSQL(void);
 
-//! write data to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_WriteVSData);
+// main methods ----------------------------------------------------------------
+    //! init options
+    int Init(int argc,char* argv[]);
 
-//! load structure from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_LoadStructure);
+    //! main part of program
+    bool Run(void);
 
-//! save structure to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SaveStructure);
+    //! finalize program
+    bool Finalize(void);
 
-//! reset server selection transaction
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SelReset);
+// section of public data -----------------------------------------------------
+public:
+    CVSProjectSQLOptions    Options;        // program options
 
-//! install client package
-DECLARE_OPERATION(CATS_PACKAGE,Operation_InstallPkg);
+// section of private data ----------------------------------------------------
+private:
+    CTerminalStr    Console;
+    CVerboseStr     MsgOut;     // output messages
+};
 
-//! get client application name
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetAppName);
+//------------------------------------------------------------------------------
+
+extern CVSProjectSQL VSProjectSQL;
 
 //------------------------------------------------------------------------------
 

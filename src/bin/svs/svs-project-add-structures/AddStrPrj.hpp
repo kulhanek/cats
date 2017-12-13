@@ -1,7 +1,7 @@
-#ifndef InfMolH
-#define InfMolH
+#ifndef AddStrPrjH
+#define AddStrPrjH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// VScreen - Virtual Screening Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -20,24 +20,52 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <openbabel/mol.h>
-#include <SmallString.hpp>
+#include "AddStrPrjOptions.hpp"
+#include <VerboseStr.hpp>
+#include <TerminalStr.hpp>
+#include <FileName.hpp>
 
 //------------------------------------------------------------------------------
 
-class CATS_PACKAGE CInfMol : public OpenBabel::OBMol {
+class sqlite3;
+
+//------------------------------------------------------------------------------
+
+class CAddStrPrj {
 public:
-// constructor ------------------------------------------------------------------
-    CInfMol(void);
+    // constructor
+    CAddStrPrj(void);
 
 // main methods ----------------------------------------------------------------
-    //! read molecule
-    bool ReadMol(const CSmallString& name,const CSmallString& format);
+    //! init optionsCFirebirdTransaction
+    int Init(int argc,char* argv[]);
 
-    //! write molecule
-    bool WriteMol(const CSmallString& name,const CSmallString& format);
+    //! main part of program
+    bool Run(void);
+
+    //! finalize program
+    bool Finalize(void);
+
+// section of public data ------------------------------------------------------
+public:
+    CAddStrPrjOptions   Options;            // program options
+
+// section of private data ----------------------------------------------------
+private:
+    CTerminalStr        Console;
+    CVerboseStr         MsgOut;             // output messages
+    int                 NumOfMols;
+    int                 NumOfDuplicities;
+    int                 NumOfErrors;
+    CSmallString        UnisID;
+
+    bool AddHiearchy(sqlite3* sqldb,const CFileName& dir,int level);
+    bool AddStructures(sqlite3* sqldb,const CFileName& dir);
 };
+
+//------------------------------------------------------------------------------
+
+extern CAddStrPrj AddStrPrj;
 
 //------------------------------------------------------------------------------
 

@@ -18,35 +18,54 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
+#include <stdio.h>
+#include <ErrorSystem.hpp>
 #include <VSOperation.hpp>
+#include "VSProcessor.hpp"
+#include "VSServer.hpp"
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-DEFINE_OPERATION(Operation_GetVSData,
-                 "{GET_VS_DATA:1eaf3548-8b99-493c-885b-d0aa7ac53d3f}");
+CVSProcessor::CVSProcessor(CServerCommand* p_cmd)
+    : CCmdProcessor(p_cmd)
+{
 
-DEFINE_OPERATION(Operation_WriteVSData,
-                 "{WRITE_VS_DATA:344d230e-04ae-4ae9-b14e-abaf0afc2f93}");
-
-DEFINE_OPERATION(Operation_LoadStructure,
-                 "{LOAD_STRUCTURE:8b673072-9c7d-4acd-9985-69c71608d87e}");
-
-DEFINE_OPERATION(Operation_SaveStructure,
-                 "{SEND_STRUCTURE:1799bf8f-c8ea-4244-85fa-50db4f028eb2}");
-
-DEFINE_OPERATION(Operation_SelReset,
-                 "{SEL_RESET:8a5916f7-a483-41c4-8d5a-2867240975a9}");
-
-DEFINE_OPERATION(Operation_InstallPkg,
-                 "{INSTALL_PKG:2cbd93ad-9996-4103-8490-e10828edd62c}");
-
-DEFINE_OPERATION(Operation_GetAppName,
-                 "{GET_APP_NAME:e4fc1d09-78fe-4365-9e6c-5cddf306a00e}");
+}
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
+bool CVSProcessor::ProcessCommand(void)
+{
+    if(Operation == Operation_GetVSData) {
+        return(GetData());
+    }
+    if(Operation == Operation_WriteVSData) {
+        return(WriteData());
+    }
+    if(Operation == Operation_LoadStructure) {
+        return(LoadStructure());
+    }
+    if(Operation == Operation_SaveStructure) {
+        return(SaveStructure());
+    }
+    if(Operation == Operation_InstallPkg) {
+        return(InstallPkg());
+    }
+    if(Operation == Operation_GetAppName) {
+        return(GetClientAppName());
+    }
 
+    CSmallString error;
+    error << "operation " << Operation.GetStringForm() << " is not implemented";
+    ES_ERROR(error);
+
+    return(false);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================

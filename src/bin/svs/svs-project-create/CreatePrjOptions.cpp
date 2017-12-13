@@ -1,5 +1,5 @@
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// VScreen - Virtual Screening Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -18,35 +18,62 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <VSOperation.hpp>
+#include "CreatePrjOptions.hpp"
+#include <cctype>
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
 
-DEFINE_OPERATION(Operation_GetVSData,
-                 "{GET_VS_DATA:1eaf3548-8b99-493c-885b-d0aa7ac53d3f}");
+CCreatePrjOptions::CCreatePrjOptions(void)
+{
+    SetShowMiniUsage(true);
+}
 
-DEFINE_OPERATION(Operation_WriteVSData,
-                 "{WRITE_VS_DATA:344d230e-04ae-4ae9-b14e-abaf0afc2f93}");
+//------------------------------------------------------------------------------
 
-DEFINE_OPERATION(Operation_LoadStructure,
-                 "{LOAD_STRUCTURE:8b673072-9c7d-4acd-9985-69c71608d87e}");
+int CCreatePrjOptions::CheckOptions(void)
+{
+    return(SO_CONTINUE);
+}
 
-DEFINE_OPERATION(Operation_SaveStructure,
-                 "{SEND_STRUCTURE:1799bf8f-c8ea-4244-85fa-50db4f028eb2}");
+//------------------------------------------------------------------------------
 
-DEFINE_OPERATION(Operation_SelReset,
-                 "{SEL_RESET:8a5916f7-a483-41c4-8d5a-2867240975a9}");
+int CCreatePrjOptions::FinalizeOptions(void)
+{
+    bool ret_opt = false;
 
-DEFINE_OPERATION(Operation_InstallPkg,
-                 "{INSTALL_PKG:2cbd93ad-9996-4103-8490-e10828edd62c}");
+    if(GetOptHelp() == true) {
+        PrintUsage();
+        ret_opt = true;
+    }
 
-DEFINE_OPERATION(Operation_GetAppName,
-                 "{GET_APP_NAME:e4fc1d09-78fe-4365-9e6c-5cddf306a00e}");
+    if(GetOptVersion() == true) {
+        PrintVersion();
+        ret_opt = true;
+    }
+
+    if(ret_opt == true) {
+        printf("\n");
+        return(SO_EXIT);
+    }
+
+    return(SO_CONTINUE);
+}
+
+//------------------------------------------------------------------------------
+
+int CCreatePrjOptions::CheckArguments(void)
+{
+    if(GetArgProjectName().GetLength() == 0) {
+        if(IsError == false) fprintf(stderr,"\n");
+        fprintf(stderr,"%s: project name is empty\n",(const char*)GetProgramName());
+        IsError = true;
+    }
+    if(IsError == true) return(SO_OPTS_ERROR);
+    return(SO_CONTINUE);
+}
 
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
-
-

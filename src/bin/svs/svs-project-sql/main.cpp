@@ -1,9 +1,7 @@
-#ifndef InfMolH
-#define InfMolH
-// =============================================================================
-// ChemInfo - Chemoinformatics Tools
-// -----------------------------------------------------------------------------
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+// ===============================================================================
+// PMFLib - Library Supporting Potential of Mean Force Calculations
+// -------------------------------------------------------------------------------
+//    Copyright (C) 2008 Petr Kulhanek, kulhanek@enzim.hu
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -18,27 +16,21 @@
 //     You should have received a copy of the GNU General Public License along
 //     with this program; if not, write to the Free Software Foundation, Inc.,
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-// =============================================================================
+// ===============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <openbabel/mol.h>
-#include <SmallString.hpp>
+#include "VSProjectSQL.hpp"
+#include <ErrorSystem.hpp>
 
+//==============================================================================
 //------------------------------------------------------------------------------
+//==============================================================================
 
-class CATS_PACKAGE CInfMol : public OpenBabel::OBMol {
-public:
-// constructor ------------------------------------------------------------------
-    CInfMol(void);
+int main(int argc, char* argv[])
+{
+    CVSProjectSQL object;
+    TRY_OBJECT(object);
+}
 
-// main methods ----------------------------------------------------------------
-    //! read molecule
-    bool ReadMol(const CSmallString& name,const CSmallString& format);
-
-    //! write molecule
-    bool WriteMol(const CSmallString& name,const CSmallString& format);
-};
-
+//==============================================================================
 //------------------------------------------------------------------------------
-
-#endif
+//==============================================================================

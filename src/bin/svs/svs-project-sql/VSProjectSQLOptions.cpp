@@ -1,7 +1,5 @@
-#ifndef VSOperationH
-#define VSOperationH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// VScreen - Virtual Screening Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
@@ -20,32 +18,48 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <Operation.hpp>
+#include "VSProjectSQLOptions.hpp"
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+CVSProjectSQLOptions::CVSProjectSQLOptions(void)
+{
+    SetShowMiniUsage(true);
+}
 
 //------------------------------------------------------------------------------
 
-//! get data from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetVSData);
-
-//! write data to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_WriteVSData);
-
-//! load structure from the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_LoadStructure);
-
-//! save structure to the server
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SaveStructure);
-
-//! reset server selection transaction
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SelReset);
-
-//! install client package
-DECLARE_OPERATION(CATS_PACKAGE,Operation_InstallPkg);
-
-//! get client application name
-DECLARE_OPERATION(CATS_PACKAGE,Operation_GetAppName);
+int CVSProjectSQLOptions::CheckOptions(void)
+{
+    return(SO_CONTINUE);
+}
 
 //------------------------------------------------------------------------------
 
-#endif
+int CVSProjectSQLOptions::FinalizeOptions(void)
+{
+    bool ret_opt = false;
+
+    if(GetOptHelp() == true) {
+        PrintUsage();
+        ret_opt = true;
+    }
+
+    if(GetOptVersion() == true) {
+        PrintVersion();
+        ret_opt = true;
+    }
+
+    if(ret_opt == true) {
+        printf("\n");
+        return(SO_EXIT);
+    }
+
+    return(SO_CONTINUE);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================

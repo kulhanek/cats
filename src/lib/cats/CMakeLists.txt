@@ -28,6 +28,9 @@ SET(CATS_JSCRIPT_SRC
         jscript/QCATs.cpp
         jscript/QCATsScriptable.cpp
 
+    # sqlite support -----------------------------
+        sqlite3/sqlite3.c
+
     # core support -------------------------------
         jscript/QTopology.cpp
         jscript/QSnapshot.cpp        
@@ -70,6 +73,10 @@ SET(CATS_JSCRIPT_SRC
 
     # i/o suuport --------------------------------
         jscript/QOFile.cpp
+
+    # vs support ---------------------------------
+        vs/VSOperation.cpp
+        vs/InfMol.cpp
 
     # helpers ------------------------------------
         jscript/tinyspline/tinyspline.c

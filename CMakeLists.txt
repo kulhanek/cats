@@ -52,6 +52,12 @@ INCLUDE_DIRECTORIES(${ReadLine_INCLUDE_DIRS} SYSTEM)
 FIND_PACKAGE(FFTW3)
 INCLUDE_DIRECTORIES(${FFTW3_INCLUDE_DIRS} SYSTEM)
 
+# OBCore ====================
+SET(OBCORE_ROOT ${DEVELOPMENT_ROOT}/thirdparty/obcore/2.4.0)
+INCLUDE_DIRECTORIES(${OBCORE_ROOT}/include SYSTEM)
+LINK_DIRECTORIES(${OBCORE_ROOT}/lib)
+SET(OBCORE_LIB_NAME obcore)
+
 # NetCDFCore ==================
 SET(NETCDF_ROOT ${DEVELOPMENT_ROOT}/thirdparty/netcdfcore/4.0.1)
 INCLUDE_DIRECTORIES(${NETCDF_ROOT}/include SYSTEM)
@@ -130,11 +136,15 @@ FIND_PACKAGE(Qt5Widgets REQUIRED)
 SET(HAVE_QT5 1)
 ADD_DEFINITIONS(-DHAVE_QT5)
 
+# setup for sqlite
+ADD_DEFINITIONS(-DHAVE_READLINE)
+
 # libraries
 SET(SYSTEM_LIBS
     ${PMF_LIB_NAME}
     ${NETCDF_CLIB_NAME}
     ${NETLIB_LIB_NAME}
+    ${OBCORE_LIB_NAME}
     ${QT_LIBRARIES}
     ${ASL_LIB_NAME}
     ${PRMFILE_CLIB_NAME}
@@ -194,8 +204,8 @@ IF(NOT DEFINED COMPOSITE_PROJECT)
     SET(CMAKE_C_FLAGS_DEBUG "-g -O0 -Wall -pedantic-errors -Wundef -Wno-long-long")
     SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -pedantic-errors -Wundef -Wno-long-long")
 
-    #SET(CMAKE_BUILD_TYPE Release)
-    SET(CMAKE_BUILD_TYPE Debug)
+    SET(CMAKE_BUILD_TYPE Release)
+    #SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT DEFINED COMPOSITE_PROJECT)
 
 # ==============================================================================
