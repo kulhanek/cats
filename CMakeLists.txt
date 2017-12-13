@@ -201,11 +201,11 @@ IF(NOT DEFINED COMPOSITE_PROJECT)
     SET(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
     # debug setup
-    SET(CMAKE_C_FLAGS_DEBUG "-g -O0 -Wall -pedantic-errors -Wundef -Wno-long-long")
-    SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -pedantic-errors -Wundef -Wno-long-long")
+    SET(CMAKE_C_FLAGS_DEBUG "-g -O0 -Wall -Wno-long-long")
+    SET(CMAKE_CXX_FLAGS_DEBUG "-g -O0 -Wall -pedantic-errors -Wno-long-long")
 
-    SET(CMAKE_BUILD_TYPE Release)
-    #SET(CMAKE_BUILD_TYPE Debug)
+    #SET(CMAKE_BUILD_TYPE Release)
+    SET(CMAKE_BUILD_TYPE Debug)
 ENDIF(NOT DEFINED COMPOSITE_PROJECT)
 
 # ==============================================================================

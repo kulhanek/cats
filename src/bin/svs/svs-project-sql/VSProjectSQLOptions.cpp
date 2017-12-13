@@ -27,6 +27,7 @@
 CVSProjectSQLOptions::CVSProjectSQLOptions(void)
 {
     SetShowMiniUsage(true);
+    SetAllowProgArgs(true);
 }
 
 //------------------------------------------------------------------------------

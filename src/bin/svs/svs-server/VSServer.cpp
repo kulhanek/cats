@@ -41,6 +41,8 @@ using namespace boost;
 
 CVSServer VSServer;
 
+int CVSServer::NItems = 0;
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -278,6 +280,32 @@ bool CVSServer::Run(void)
         return(false);
     }
 
+    // number of total items
+    int nitems = GetNumberFromSQL(SqlDB,"");
+    if(nitems != -1) {
+        cout << "Number of items              : " << nitems << endl;
+
+        // number of unprocessed items
+        nitems = GetNumberFromSQL(SqlDB,"WHERE \"Flag\" = 0");
+    }
+    if(nitems != -1) {
+        cout << "Number of unprocessed items  : " << nitems << endl;
+
+        // number of processing items
+        nitems = GetNumberFromSQL(SqlDB,"WHERE \"Flag\" = 1");
+    }
+    if(nitems != -1) {
+        cout << "Number of processing items   : " << nitems << endl;
+
+        // number of processed items
+        nitems = GetNumberFromSQL(SqlDB,"WHERE \"Flag\" = 2");
+    }
+    if(nitems != -1) {
+        cout << "Number of processed items    : " << nitems << endl;
+    } else {
+        rcode = -1;
+    }
+
     MsgOut << endl;
     MsgOut << ":::::::::::::::::::::::::::::::::::: VS Server :::::::::::::::::::::::::::::::::" << endl;
 
@@ -311,6 +339,40 @@ bool CVSServer::Run(void)
     MsgOut << endl;
 
     return(true);
+}
+
+//------------------------------------------------------------------------------
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName)
+{
+    CVSServer::NItems = 0;
+    if( (argc == 1) && (argv[0] != NULL) ){
+        CVSServer::NItems = atoi(argv[0]);
+    }
+    return 0;
+}
+
+//------------------------------------------------------------------------------
+
+int CVSServer::GetNumberFromSQL(sqlite3* sqldb,const CSmallString& cond)
+{
+    CSmallString sql;
+
+    sql << "SELECT count(ID) FROM PROJECT " << cond;
+
+    char*   zErrMsg;
+    int     rcode;
+
+    rcode = sqlite3_exec(sqldb, sql, callback, 0, &zErrMsg);
+    if( rcode != SQLITE_OK ){
+        ES_ERROR(zErrMsg);
+        sqlite3_free(zErrMsg);
+        MsgOut << endl;
+        MsgOut << "<red><b>>>> ERROR: Unable to query the project information!</b></red>" << endl;
+        return(-1);
+    }
+
+    return(NItems);
 }
 
 //------------------------------------------------------------------------------

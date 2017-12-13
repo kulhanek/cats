@@ -49,6 +49,7 @@ public:
 // section of public data ------------------------------------------------------
 public:
     CVSServerOptions    Options;        // program options
+    static int          NItems;
 
 // section of private data ----------------------------------------------------
 private:
@@ -62,19 +63,19 @@ private:
     int                 NumOfResults;   // number of results
 
     // client package -----------------------------
-    bool                    ClientPackageAvailable;
-    CSmallString            ClientPackageDir;
-    CSmallString            ClientAppName;
+    bool                ClientPackageAvailable;
+    CSmallString        ClientPackageDir;
+    CSmallString        ClientAppName;
 
     // DB access -------------------------------
-    CSimpleMutex            DBMutex;
-    sqlite3*                SqlDB;
-    sqlite3_stmt*           SelectSTM;
-    sqlite3_stmt*           P1STM;
-    sqlite3_stmt*           P2STM;
-    int                     NumOfItems;
-    int                     CommitTreshold;
-    CSmallString            UnisID;
+    CSimpleMutex        DBMutex;
+    sqlite3*            SqlDB;
+    sqlite3_stmt*       SelectSTM;
+    sqlite3_stmt*       P1STM;
+    sqlite3_stmt*       P2STM;
+    int                 NumOfItems;
+    int                 CommitTreshold;
+    CSmallString        UnisID;
 
     //! Ctrl+C signal handler
     static void CtrlCSignalHandler(int signal);
@@ -84,6 +85,9 @@ private:
 
     //! process client package control section
     bool ProcessClientPkgControl(CPrmFile& prmfile);
+
+    //! get project db stat
+    int GetNumberFromSQL(sqlite3* sqldb,const CSmallString& cond);
 
     friend class CVSProcessor;
 };
