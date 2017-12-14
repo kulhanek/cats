@@ -59,7 +59,7 @@ public:
                 ProjectName,                          /* argument name */
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
-                "project",                        /* parametr name */
+                "projectdb",                        /* parametr name */
                 "filename with the project database")   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */

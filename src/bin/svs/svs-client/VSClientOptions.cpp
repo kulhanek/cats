@@ -74,7 +74,7 @@ int CVSClientOptions::FinalizeOptions(void)
 int CVSClientOptions::CheckArguments(void)
 {
     CActionRequest server_desc;
-    server_desc.SetProtocolName("cheminfo");
+    server_desc.SetProtocolName("svs");
 
     try {
         server_desc.SetQualifiedName(GetArgCommand());

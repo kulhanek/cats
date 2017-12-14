@@ -66,7 +66,7 @@ bool CVSClient::GetData(CSmallString& molid)
 
     CSmallString str_type;
     if(ActionRequest.GetParameterKeyValue("type",str_type) == false) {
-        str_type="pdbqt";
+        str_type="xyz";
     }
 
     bool result = true;
@@ -164,7 +164,7 @@ bool CVSClient::LoadStructure(void)
 
     CSmallString str_type;
     if(ActionRequest.GetParameterKeyValue("type",str_type) == false) {
-        str_type="pdbqt";
+        str_type="xyz";
     }
 
     bool result = true;

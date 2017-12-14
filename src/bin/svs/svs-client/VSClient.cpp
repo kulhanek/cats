@@ -55,7 +55,7 @@ int CVSClient::Init(int argc,char* argv[])
 
 // set server description - there should no be any problem
 // syntax was already checked
-    ActionRequest.SetProtocolName("cheminfo");
+    ActionRequest.SetProtocolName("svs");
     ActionRequest.SetQualifiedName(Options.GetArgCommand());
 
     if(Options.IsOptServerKeySet()) {

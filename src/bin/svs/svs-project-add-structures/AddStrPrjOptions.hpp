@@ -47,11 +47,11 @@ public:
     CSO_LIST_BEGIN
     // arguments ----------------------------
     CSO_ARG(CSmallString,ProjectName)
+    CSO_ARG(CSmallString,StructurePath)
     // options ------------------------------
     CSO_OPT(CSmallString,InputFormat)
     CSO_OPT(bool,Progress)
     CSO_OPT(bool,UseHiearchy)
-    CSO_OPT(bool,InitStaticProperties)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -63,8 +63,15 @@ public:
                 ProjectName,                          /* argument name */
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
-                "project",                        /* parametr name */
+                "projectdb",                        /* parametr name */
                 "filename with the project database")   /* argument description */
+    //----------------------------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                StructurePath,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "structuredb",                        /* parametr name */
+                "pathname to the structure database")   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 InputFormat,                        /* option name */
@@ -92,15 +99,6 @@ public:
                 "usehiearchy",                      /* long option name */
                 NULL,                           /* parametr name */
                 "use hiearchy")   /* option description */
-    //----------------------------------------------------------------------
-    CSO_MAP_OPT(bool,                           /* option type */
-                InitStaticProperties,                        /* option name */
-                false,                          /* default value */
-                false,                          /* is option mandatory */
-                's',                           /* short option name */
-                "initstaticprops",                      /* long option name */
-                NULL,                           /* parametr name */
-                "init static properties")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

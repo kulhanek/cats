@@ -73,7 +73,11 @@ bool CVSProcessor::GetData(void)
 
     // select new item
     sqlite3_reset(VSServer.SelectSTM);
-    if( sqlite3_step(VSServer.SelectSTM) != SQLITE_ROW ){
+    int rcode = sqlite3_step(VSServer.SelectSTM);
+    if( rcode != SQLITE_ROW ){
+        if( rcode != SQLITE_DONE ){
+            ES_ERROR(sqlite3_errmsg(VSServer.SqlDB));
+        }
         ResultElement->SetAttribute("molid","eof");     // no more structures
         VSServer.DBMutex.Unlock();
         return(true);
@@ -84,9 +88,14 @@ bool CVSProcessor::GetData(void)
 
     // update FLAG to 1
     sqlite3_reset(VSServer.P1STM);
-    sqlite3_bind_int(VSServer.P1STM,1,molid);
 
-    if( sqlite3_step(VSServer.P1STM) != SQLITE_DONE ){
+    CSmallString smolid;
+    smolid.IntToStr(molid,"%08d");
+
+    rcode =  sqlite3_bind_text(VSServer.P1STM,1,smolid,-1,SQLITE_TRANSIENT);
+
+    rcode = sqlite3_step(VSServer.P1STM);
+    if( rcode != SQLITE_DONE ){
         CMD_ERROR(Command,"unable to update FLAG to 1");
         VSServer.DBMutex.Unlock();
         return(false);
@@ -114,9 +123,6 @@ bool CVSProcessor::GetData(void)
     }
 
     CFileName molname(VSServer.StructureDir);
-
-    CSmallString smolid;
-    smolid.IntToStr(molid,"%08d");
 
     if(VSServer.UseHiearchy) {
         molname = molname / CFileName(smolid.GetSubString(0,2)) / CFileName(smolid.GetSubString(2,2))

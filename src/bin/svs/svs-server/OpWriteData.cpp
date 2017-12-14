@@ -89,7 +89,7 @@ bool CVSProcessor::WriteData(void)
     CXMLBinData* p_sele = CommandElement->GetFirstChildBinData("STRUCTURE");
     if(p_sele != NULL) {
         CSmallString str_type;
-        str_type = "rpdbqt";
+        str_type = "log";
         CommandElement->GetAttribute("type",str_type);
 
         CFileName molname(VSServer.StructureDir);
@@ -160,7 +160,7 @@ bool CVSProcessor::SaveStructure(void)
     CXMLBinData* p_sele = CommandElement->GetFirstChildBinData("STRUCTURE");
     if(p_sele != NULL) {
         CSmallString str_type;
-        str_type = "rpdbqt";
+        str_type = "log";
         CommandElement->GetAttribute("type",str_type);
 
         CFileName molname(VSServer.StructureDir);

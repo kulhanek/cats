@@ -49,7 +49,7 @@ int CVSServer::NItems = 0;
 
 CVSServer::CVSServer(void)
 {
-    SetProtocolName("cheminfo");
+    SetProtocolName("svs");
     UseHiearchy = false;
     NumOfResults = 0;
     NumOfItems = 0;
@@ -148,17 +148,17 @@ bool CVSServer::ProcessProjectControl(CPrmFile& prmfile)
         return(false);
     }
 
-    if(prmfile.GetStringByKey("project",ProjectName) == true) {
-        MsgOut << "Project name (project)                         = " << ProjectName << endl;
+    if(prmfile.GetStringByKey("projectdb",ProjectName) == true) {
+        MsgOut << "Project database file (projectdb)              = " << ProjectName << endl;
     } else {
-        ES_ERROR("project name (project) is not specified");
+        ES_ERROR("project database file (projectdb) is not specified");
         return(false);
     }
 
-    if(prmfile.GetStringByKey("strdir",StructureDir) == true) {
-        MsgOut << "Structure database directory (strdir)          = " << StructureDir << endl;
+    if(prmfile.GetStringByKey("structuredb",StructureDir) == true) {
+        MsgOut << "Structure database directory (structuredb)     = " << StructureDir << endl;
     } else {
-        ES_ERROR("structure database directory (strdir) is not specified");
+        ES_ERROR("structure database directory (structuredb) is not specified");
         return(false);
     }
 
@@ -250,7 +250,7 @@ bool CVSServer::Run(void)
 
     CSmallString sql;
 
-    sql = "SELECT ID FROM PROJECT WHERE FLAG = 1 LIMIT 1";
+    sql = "SELECT ID FROM PROJECT WHERE FLAG = 0 LIMIT 1";
     rcode = sqlite3_prepare_v2(SqlDB,sql,-1,&SelectSTM,NULL);
     if( rcode != SQLITE_OK ) {
         ES_ERROR(sql);
@@ -314,7 +314,6 @@ bool CVSServer::Run(void)
     CmdProcessorList.RegisterProcessor(Operation_WriteVSData,&VSFactory);
     CmdProcessorList.RegisterProcessor(Operation_LoadStructure,&VSFactory);
     CmdProcessorList.RegisterProcessor(Operation_SaveStructure,&VSFactory);
-    CmdProcessorList.RegisterProcessor(Operation_SelReset,&VSFactory);
     CmdProcessorList.RegisterProcessor(Operation_InstallPkg,&VSFactory);
     CmdProcessorList.RegisterProcessor(Operation_GetAppName,&VSFactory);
 

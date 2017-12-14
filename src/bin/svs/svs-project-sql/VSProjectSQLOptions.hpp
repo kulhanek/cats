@@ -39,6 +39,10 @@ public:
     "SQL command line interface to virtual screening projects."
     CSO_PROG_DESC_END
 
+    CSO_PROG_ARGS_SHORT_DESC_BEGIN
+    "[projectdb ...]"
+    CSO_PROG_ARGS_SHORT_DESC_END
+
     CSO_PROG_VERS_BEGIN
     LibBuildVersion_CATs
     CSO_PROG_VERS_END

@@ -50,6 +50,7 @@ public:
     CSO_LIST_BEGIN
     // arguments ----------------------------
     CSO_ARG(CSmallString,InputFile)
+    CSO_ARG(CSmallString,StructurePath)
     // options ------------------------------
     CSO_OPT(CSmallString,InFormat)
     CSO_OPT(CSmallString,IDFormat)
@@ -69,7 +70,13 @@ public:
                 true,                           /* is argument mandatory */
                 "input",                        /* parametr name */
                 "name of input file or - for input from the standard input stream")   /* argument description */
-
+    //----------------------------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                StructurePath,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "structuredb",                        /* parametr name */
+                "pathname to the structure database")   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 InFormat,                        /* option name */

@@ -36,9 +36,6 @@ DEFINE_OPERATION(Operation_LoadStructure,
 DEFINE_OPERATION(Operation_SaveStructure,
                  "{SEND_STRUCTURE:1799bf8f-c8ea-4244-85fa-50db4f028eb2}");
 
-DEFINE_OPERATION(Operation_SelReset,
-                 "{SEL_RESET:8a5916f7-a483-41c4-8d5a-2867240975a9}");
-
 DEFINE_OPERATION(Operation_InstallPkg,
                  "{INSTALL_PKG:2cbd93ad-9996-4103-8490-e10828edd62c}");
 

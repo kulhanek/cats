@@ -158,9 +158,6 @@ bool CMolSplit::ProcessLineStream(istream& is)
             ES_ERROR(error);
             return(false);
         }
-
-
-
     }
 
     return(true);
@@ -188,11 +185,11 @@ bool CMolSplit::WriteUNISLine(const CSmallString& name,const CSmallString& line)
         return(false);
     }
 
-    CSmallString lname = name;
+    CSmallString lname;
 
     if(Options.GetOptCreateHiearchy()) {
-        CFileName dir;
-        dir = CFileName(name.GetSubString(4,2)) / CFileName(name.GetSubString(6,2))
+        CFileName dir = Options.GetArgStructurePath();
+        dir = dir / CFileName(name.GetSubString(4,2)) / CFileName(name.GetSubString(6,2))
               / CFileName(name.GetSubString(8,2));
         if(CFileSystem::CreateDir(dir) == false) {
             CSmallString error;
@@ -201,6 +198,15 @@ bool CMolSplit::WriteUNISLine(const CSmallString& name,const CSmallString& line)
             return(false);
         }
 
+        lname = dir / name;
+    } else {
+        CFileName dir = Options.GetArgStructurePath();
+        if(CFileSystem::CreateDir(dir) == false) {
+            CSmallString error;
+            error << "unable to create directory (" << dir << ")";
+            ES_ERROR(error);
+            return(false);
+        }
         lname = dir / name;
     }
 

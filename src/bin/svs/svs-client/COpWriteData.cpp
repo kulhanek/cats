@@ -176,7 +176,7 @@ bool CVSClient::WriteStructure(CXMLElement* p_root)
     if(ActionRequest.GetParameterKeyValue("structure",str_file_name) == false) return(true);
 
     if(ActionRequest.GetParameterKeyValue("type",str_type) == false) {
-        str_type="rpdbqt";
+        str_type="log";
     }
 
     // append structure if it is provided ----------------------------

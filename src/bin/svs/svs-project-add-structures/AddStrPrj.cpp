@@ -25,19 +25,16 @@
 #include <DirectoryEnum.hpp>
 #include <FileSystem.hpp>
 #include <sstream>
-#include <InfMol.hpp>
 #include <iomanip>
 
 #include "AddStrPrj.hpp"
 #include "AddStrPrjOptions.hpp"
 
-#include <openbabel/obconversion.h>
-#include <openbabel/oberror.h>
-
 #include <sqlite3.h>
 
+//------------------------------------------------------------------------------
+
 using namespace std;
-using namespace OpenBabel;
 
 //------------------------------------------------------------------------------
 
@@ -76,10 +73,10 @@ int CAddStrPrj::Init(int argc,char* argv[])
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-add-structures started at " << dt.GetSDateAndTime() << endl;
     MsgOut << "# ==============================================================================" << endl;
-    MsgOut << "# Name of project        : " << Options.GetArgProjectName() << endl;
+    MsgOut << "# Project database   : " << Options.GetArgProjectName() << endl;
+    MsgOut << "# Structure database : " << Options.GetArgProjectName() << endl;
     MsgOut << "# ------------------------------------------------------------------------------" << endl;
-    MsgOut << "# Use hiearchy           : " << bool_to_str(Options.GetOptUseHiearchy()) << endl;
-    MsgOut << "# Init static properties : " << bool_to_str(Options.GetOptInitStaticProperties()) << endl;
+    MsgOut << "# Use hiearchy       : " << bool_to_str(Options.GetOptUseHiearchy()) << endl;
 
     return(SO_CONTINUE);
 }
@@ -105,11 +102,12 @@ bool CAddStrPrj::Run(void)
         return(false);
     }
 
+
     bool result;
     if(Options.GetOptUseHiearchy() == true) {
-        result = AddHiearchy(sqldb,".",0);
+        result = AddHiearchy(sqldb,Options.GetArgStructurePath(),0);
     } else {
-        result = AddStructures(sqldb,".");
+        result = AddStructures(sqldb,Options.GetArgStructurePath());
     }
 
     MsgOut << "Number of added molecules    : " << NumOfMols << endl;
@@ -162,21 +160,6 @@ bool CAddStrPrj::AddHiearchy(sqlite3* sqldb,const CFileName& dir,int level)
 
 bool CAddStrPrj::AddStructures(sqlite3* sqldb,const CFileName& dir)
 {
-    OBConversion   conv;
-
-    OpenBabel::OBFormat* outFormat;
-    outFormat = conv.FindFormat("inchi");
-
-    if(outFormat == NULL) {
-        ES_ERROR("unable to find inchi output format");
-        return(false);
-    }
-
-    if(! conv.SetOutFormat(outFormat)) {
-        ES_ERROR("unable to select inchi output format");
-        return(false);
-    }
-
     CDirectoryEnum  denum(dir);
 
     CSmallString filter;
@@ -189,15 +172,7 @@ bool CAddStrPrj::AddStructures(sqlite3* sqldb,const CFileName& dir)
 
     CSmallString sql;
 
-    obErrorLog.SetOutputStream(&MsgOut);
-
-    if(Options.GetOptInitStaticProperties()) {
-        sql << "INSERT INTO PROJECT (\"ID\",\"Flag\",\"InChiKey\",\"NA\",\"TC\",\"MW\") ";
-        sql << "VALUES (?,?,?,?,?,?)";
-    } else {
-        sql << "INSERT INTO PROJECT (\"ID\",\"Flag\") ";
-        sql << "VALUES (?,?)";
-    }
+    sql << "INSERT INTO PROJECT (ID,FLAG) VALUES (?,?)";
 
     sqlite3_stmt* sqlstm;
 
@@ -247,42 +222,8 @@ bool CAddStrPrj::AddStructures(sqlite3* sqldb,const CFileName& dir)
             continue;
         }
 
-        if(Options.GetOptInitStaticProperties()) {
-            CInfMol mol;
-
-            if(mol.ReadMol(dir/file,"auto") == false) {
-                ES_ERROR("unable to load structure");
-                NumOfErrors++;
-                cout << " error-> " << name << endl;
-                // reset bindings
-                sqlite3_reset(sqlstm);
-                continue;
-            }
-
-            sqlite3_bind_text(sqlstm,1,name.GetSubString(4,8),-1,SQLITE_TRANSIENT); // exsql.GetInputItem(0)->SetString(name.GetSubString(4,8));
-            sqlite3_bind_int(sqlstm,2,0); // exsql.GetInputItem(1)->SetInt(0);
-
-            conv.SetOptions("K",OBConversion::OUTOPTIONS);
-            string inchi_key;
-            inchi_key = conv.WriteString(&mol);
-
-            sqlite3_bind_text(sqlstm,3,inchi_key.c_str(),-1,SQLITE_TRANSIENT); // exsql.GetInputItem(2)->SetString(inchi_key.c_str());
-            sqlite3_bind_int(sqlstm,4,mol.NumAtoms()); // exsql.GetInputItem(3)->SetInt(mol.NumAtoms());
-
-            OBMolAtomIter  ita;
-            double         pcharge = 0.0;
-
-            for(ita = mol; ita == true ; ita++) {
-                OBAtom* p_atom = &(*ita);
-                pcharge += p_atom->GetPartialCharge();
-            }
-            // mol.GetTotalCharge() - does not work as expected
-            sqlite3_bind_int(sqlstm,5,pcharge); // exsql.GetInputItem(4)->SetInt(pcharge);
-            sqlite3_bind_double(sqlstm,6,mol.GetMolWt()); // exsql.GetInputItem(5)->SetString(mw);
-        } else {
-            sqlite3_bind_text(sqlstm,1,name.GetSubString(4,8),-1,SQLITE_TRANSIENT);
-            sqlite3_bind_int(sqlstm,2,0);
-        }
+        sqlite3_bind_text(sqlstm,1,name.GetSubString(4,8),-1,SQLITE_TRANSIENT);
+        sqlite3_bind_int(sqlstm,2,0);
 
         if( sqlite3_step(sqlstm) != SQLITE_DONE ) {
             CSmallString error;

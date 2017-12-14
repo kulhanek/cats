@@ -37,9 +37,6 @@ DECLARE_OPERATION(CATS_PACKAGE,Operation_LoadStructure);
 //! save structure to the server
 DECLARE_OPERATION(CATS_PACKAGE,Operation_SaveStructure);
 
-//! reset server selection transaction
-DECLARE_OPERATION(CATS_PACKAGE,Operation_SelReset);
-
 //! install client package
 DECLARE_OPERATION(CATS_PACKAGE,Operation_InstallPkg);
 
