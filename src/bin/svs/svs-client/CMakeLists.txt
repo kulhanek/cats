@@ -15,6 +15,7 @@ SET(VS_CLIENT_SRC
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(svs-client ${VS_CLIENT_SRC})
 QT5_USE_MODULES(svs-client Core)
+ADD_DEPENDENCIES(svs-client cats_shared)
 
 TARGET_LINK_LIBRARIES(svs-client
         ${CATS_LIBS}

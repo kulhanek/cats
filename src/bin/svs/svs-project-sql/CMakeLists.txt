@@ -13,6 +13,7 @@ SET(VS_PROJECT_SQL_SRC
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(svs-project-sql ${VS_PROJECT_SQL_SRC})
 QT5_USE_MODULES(svs-project-sql Core)
+ADD_DEPENDENCIES(svs-project-sql cats_shared)
 
 TARGET_LINK_LIBRARIES(svs-project-sql
         readline
