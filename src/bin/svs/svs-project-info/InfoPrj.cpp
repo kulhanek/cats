@@ -60,10 +60,12 @@ int CInfoPrj::Init(int argc,char* argv[])
 
     // set output stream
     MsgOut.Attach(&Console);
+    MsgOut.Verbosity(CVerboseStr::low);
     if(Options.GetOptVerbose()) MsgOut.Verbosity(CVerboseStr::high);
 
     CSmallTimeAndDate dt;
     dt.GetActualTimeAndDate();
+    MsgOut << high;
     MsgOut << endl;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-info started at " << dt.GetSDateAndTime() << endl;
@@ -93,6 +95,8 @@ bool CInfoPrj::Run(void)
         MsgOut << "<red><b>>>> ERROR: Unable to open the '" << Options.GetArgProjectName() << "' project database!</b></red>" << endl;
         return(false);
     }
+
+    MsgOut << low;
 
     // number of total items
     int nitems = GetNumberFromSQL(sqldb,"");
@@ -169,6 +173,7 @@ bool CInfoPrj::Finalize(void)
     CSmallTimeAndDate dt;
     dt.GetActualTimeAndDate();
 
+    MsgOut << high;
     MsgOut << endl;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-info terminated at " << dt.GetSDateAndTime() << endl;
@@ -176,9 +181,10 @@ bool CInfoPrj::Finalize(void)
 
     if(ErrorSystem.IsError() || Options.GetOptVerbose()) {
         ErrorSystem.PrintErrors(stderr);
+        fprintf(stderr,"\n");
+    } else{
+        MsgOut << endl;
     }
-
-    MsgOut << endl;
 
     return(true);
 }

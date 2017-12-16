@@ -51,6 +51,7 @@ int CVSClient::Init(int argc,char* argv[])
     if(result != SO_CONTINUE) return(result);
 
     MsgOut.Attach(Terminal);
+    MsgOut.Verbosity(CVerboseStr::low);
     if(Options.GetOptVerbose()) MsgOut.Verbosity(CVerboseStr::high);
 
 // set server description - there should no be any problem

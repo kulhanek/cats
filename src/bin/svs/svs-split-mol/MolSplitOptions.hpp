@@ -53,7 +53,8 @@ public:
     CSO_ARG(CSmallString,StructurePath)
     // options ------------------------------
     CSO_OPT(CSmallString,InFormat)
-    CSO_OPT(CSmallString,IDFormat)
+    CSO_OPT(CSmallString,OutFormat)
+    CSO_OPT(CSmallString,UnisID)
     CSO_OPT(bool,LineEntries)
     CSO_OPT(bool,CreateHiearchy)
     CSO_OPT(bool,PrintDuplicit)
@@ -83,18 +84,27 @@ public:
                 "auto",                          /* default value */
                 false,                          /* is option mandatory */
                 'f',                           /* short option name */
-                "format",                      /* long option name */
+                "informat",                      /* long option name */
                 "FORMAT",                           /* parametr name */
-                "molecule format")   /* option description */
+                "input molecule format")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
-                IDFormat,                        /* option name */
-                "UNIS",                          /* default value */
+                OutFormat,                        /* option name */
+                "xyz",                          /* default value */
                 false,                          /* is option mandatory */
-                'i',                           /* short option name */
-                "idformat",                      /* long option name */
-                "TYPE",                           /* parametr name */
-                "ID format type, supported types: UNIS or CAS. Use UNIS type for ZINC entries.")   /* option description */
+                'o',                           /* short option name */
+                "outformat",                      /* long option name */
+                "FORMAT",                           /* parametr name */
+                "output molecule format")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                UnisID,                        /* option name */
+                "title",                          /* default value */
+                false,                          /* is option mandatory */
+                'a',                           /* short option name */
+                "unisID",                      /* long option name */
+                "NAME",                           /* parametr name */
+                "UNIS type (four characters) with autoindexing or 'title' for UNIS ID extracted from molecule title")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 LineEntries,                        /* option name */

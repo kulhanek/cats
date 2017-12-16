@@ -46,8 +46,8 @@ public:
 // list of all options and arguments ------------------------------------------
     CSO_LIST_BEGIN
     // arguments ----------------------------
-    CSO_ARG(CSmallString,ProjectName)
     CSO_ARG(CSmallString,StructurePath)
+    CSO_ARG(CSmallString,ProjectName)
     // options ------------------------------
     CSO_OPT(CSmallString,InputFormat)
     CSO_OPT(bool,Progress)
@@ -59,23 +59,24 @@ public:
 
     CSO_MAP_BEGIN
 // description of arguments ---------------------------------------------------
-    CSO_MAP_ARG(CSmallString,                   /* argument type */
-                ProjectName,                          /* argument name */
-                NULL,                           /* default value */
-                true,                           /* is argument mandatory */
-                "projectdb",                        /* parametr name */
-                "filename with the project database")   /* argument description */
-    //----------------------------------------------------------------------
+
     CSO_MAP_ARG(CSmallString,                   /* argument type */
                 StructurePath,                          /* argument name */
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
                 "structuredb",                        /* parametr name */
                 "pathname to the structure database")   /* argument description */
+    //----------------------------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                ProjectName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "projectdb",                        /* parametr name */
+                "filename with the project database")   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 InputFormat,                        /* option name */
-                "mol2",                          /* default value */
+                "xyz",                          /* default value */
                 false,                          /* is option mandatory */
                 'i',                           /* short option name */
                 "input",                      /* long option name */

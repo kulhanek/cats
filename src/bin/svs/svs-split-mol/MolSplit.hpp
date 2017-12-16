@@ -59,6 +59,7 @@ private:
     int                 NumOfMols;
     int                 NumOfDuplicities;
     CSmallString        UnisID;
+    int                 AutoIndex;
 
     bool SplitOpenBabelStream(void);
     bool SplitLineStream(void);
@@ -66,9 +67,7 @@ private:
 // helper methods
     bool ProcessLineStream(istream& is);
     bool WriteUNISLine(const CSmallString& name,const CSmallString& line);
-    bool WriteCASLine(const CSmallString& name,const CSmallString& line);
     bool WriteUNISMol(OBMol& mol);
-    bool WriteCASMol(OBMol& mol);
 };
 
 //------------------------------------------------------------------------------

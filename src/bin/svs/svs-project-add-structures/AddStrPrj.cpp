@@ -65,10 +65,12 @@ int CAddStrPrj::Init(int argc,char* argv[])
 
     // set output stream
     MsgOut.Attach(Console);
+    MsgOut.Verbosity(CVerboseStr::low);
     if(Options.GetOptVerbose()) MsgOut.Verbosity(CVerboseStr::high);
 
     CSmallTimeAndDate dt;
     dt.GetActualTimeAndDate();
+    MsgOut << high;
     MsgOut << endl;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-add-structures started at " << dt.GetSDateAndTime() << endl;
@@ -102,6 +104,7 @@ bool CAddStrPrj::Run(void)
         return(false);
     }
 
+    MsgOut << low;
 
     bool result;
     if(Options.GetOptUseHiearchy() == true) {
@@ -110,6 +113,7 @@ bool CAddStrPrj::Run(void)
         result = AddStructures(sqldb,Options.GetArgStructurePath());
     }
 
+    MsgOut << low;
     MsgOut << "Number of added molecules    : " << NumOfMols << endl;
     MsgOut << "Number of duplicit molecules : " << NumOfDuplicities << endl;
     MsgOut << "Number of errors             : " << NumOfErrors << endl;
@@ -117,6 +121,7 @@ bool CAddStrPrj::Run(void)
     // close database
     sqlite3_close(sqldb);
 
+    MsgOut << high;
     if( result ) {
         MsgOut << "Done." << endl;
     }
@@ -257,6 +262,7 @@ bool CAddStrPrj::Finalize(void)
     CSmallTimeAndDate dt;
     dt.GetActualTimeAndDate();
 
+    MsgOut << high;
     MsgOut << endl;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-add-structures terminated at " << dt.GetSDateAndTime() << endl;
@@ -264,9 +270,10 @@ bool CAddStrPrj::Finalize(void)
 
     if(ErrorSystem.IsError() ||  Options.GetOptVerbose() || (NumOfErrors > 0)) {
         ErrorSystem.PrintErrors(stderr);
+        fprintf(stderr,"\n");
+    } else{
+        MsgOut << endl;
     }
-
-    MsgOut << endl;
 
     return(true);
 }

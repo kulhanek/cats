@@ -58,10 +58,12 @@ int CAlterPrj::Init(int argc,char* argv[])
 
     // set output stream
     MsgOut.Attach(Console);
+    MsgOut.Verbosity(CVerboseStr::low);
     if(Options.GetOptVerbose()) MsgOut.Verbosity(CVerboseStr::high);
 
     CSmallTimeAndDate dt;
     dt.GetActualTimeAndDate();
+    MsgOut << high;
     MsgOut << endl;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-project-alter started at " << dt.GetSDateAndTime() << endl;
@@ -176,9 +178,10 @@ bool CAlterPrj::Finalize(void)
 
     if(ErrorSystem.IsError() || Options.GetOptVerbose()) {
         ErrorSystem.PrintErrors(stderr);
+        fprintf(stderr,"\n");
+    } else{
+        MsgOut << endl;
     }
-
-    MsgOut << endl;
 
     return(true);
 }

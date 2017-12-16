@@ -33,6 +33,14 @@ CMolSplitOptions::CMolSplitOptions(void)
 
 int CMolSplitOptions::CheckOptions(void)
 {
+    if(GetOptUnisID() != "title") {
+        if( GetOptUnisID().GetLength() != 4 ){
+            if(IsError == false) fprintf(stderr,"\n");
+            fprintf(stderr,"%s: UnisID must be either 'title' or 4 character long identifier but '%s' is provided\n",(const char*)GetProgramName(),(const char*)GetOptUnisID());
+            IsError = true;
+        }
+    }
+    if(IsError == true) return(SO_OPTS_ERROR);
     return(SO_CONTINUE);
 }
 
