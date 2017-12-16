@@ -53,7 +53,6 @@ CVSServer::CVSServer(void)
     UseHiearchy = false;
     NumOfResults = 0;
     NumOfItems = 0;
-    CommitTreshold = 100000;
     UnisID = "UNIS";
     SqlDB = NULL;
     SelectSTM = NULL;
@@ -166,12 +165,6 @@ bool CVSServer::ProcessProjectControl(CPrmFile& prmfile)
         MsgOut << format("Use hiearchy in structure database (hiearchy)  = %6s") % bool_to_str(UseHiearchy) << endl;
     } else {
         MsgOut << format("Use hiearchy in structure database (hiearchy)  = %6s                (default)") % bool_to_str(UseHiearchy) << endl;
-    }
-
-    if(prmfile.GetIntegerByKey("selthr",CommitTreshold) == true) {
-        MsgOut << format("Selection transaction commit interval (selthr) = %6d") % CommitTreshold << endl;
-    } else {
-        MsgOut << format("Selection transaction commit interval (selthr) = %6d                (default)") % CommitTreshold << endl;
     }
 
     if(prmfile.GetStringByKey("unisid",UnisID) == true) {

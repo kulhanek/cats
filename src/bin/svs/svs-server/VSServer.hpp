@@ -74,7 +74,6 @@ private:
     sqlite3_stmt*       P1STM;
     sqlite3_stmt*       P2STM;
     int                 NumOfItems;
-    int                 CommitTreshold;
     CSmallString        UnisID;
 
     //! Ctrl+C signal handler

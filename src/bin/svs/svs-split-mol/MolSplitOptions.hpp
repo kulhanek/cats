@@ -99,7 +99,7 @@ public:
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 UnisID,                        /* option name */
-                "title",                          /* default value */
+                "UNIS",                          /* default value */
                 false,                          /* is option mandatory */
                 'a',                           /* short option name */
                 "unisID",                      /* long option name */
