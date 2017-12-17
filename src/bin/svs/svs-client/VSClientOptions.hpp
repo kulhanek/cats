@@ -66,7 +66,7 @@ public:
                 "   register   = register client on server side\n"
                 "   unregister = unregister client on server side (unregister?id=client_id)\n"
                 "   get        = get unprocessed structure from database (get?id=client_id,structure=file.ext[,type=xyz])\n"
-                "   write      = write data to database (write?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
+                "   write      = write data to database and set structure as processed (write?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
                 "   load       = load structure from database (load?id=client_id,molid=molecule_id[,structure=file.ext,type=xyz])\n"
                 "   save       = save structure to database (save?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
                 "   installpkg = install client package to current directory\n"
