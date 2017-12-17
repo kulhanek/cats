@@ -120,10 +120,12 @@ bool CVSClient::Run(void)
     bool result;
 
     if(ActionRequest.GetAction() == "info") {
+        MsgOut << low;
         result = GetServerInfo(MsgOut);
     } else if(ActionRequest.GetAction() == "shutdown") {
         result = ShutdownServer(MsgOut);
     } else if(ActionRequest.GetAction() == "errors") {
+        MsgOut << low;
         result = GetServerErrors(MsgOut);
     } else if(ActionRequest.GetAction() == "register") {
         int client_id = -1;
@@ -188,15 +190,17 @@ bool CVSClient::Finalize(void)
     dt.GetActualTimeAndDate();
 
     MsgOut << endl;
+    MsgOut << high;
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# svs-client terminated at " << dt.GetSDateAndTime() << endl;
     MsgOut << "# ==============================================================================" << endl;
 
     if(ErrorSystem.IsError() || Options.GetOptVerbose()) {
         ErrorSystem.PrintErrors(stderr);
+        fprintf(stderr,"\n");
+    } else{
+        MsgOut << endl;
     }
-
-    MsgOut << endl;
 
     return(true);
 }
