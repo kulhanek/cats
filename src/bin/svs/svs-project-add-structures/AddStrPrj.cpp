@@ -227,7 +227,8 @@ bool CAddStrPrj::AddStructures(sqlite3* sqldb,const CFileName& dir)
             continue;
         }
 
-        sqlite3_bind_text(sqlstm,1,name.GetSubString(4,8),-1,SQLITE_TRANSIENT);
+        int id = name.GetSubString(4,8).ToInt();
+        sqlite3_bind_int(sqlstm,1,id);
         sqlite3_bind_int(sqlstm,2,0);
 
         if( sqlite3_step(sqlstm) != SQLITE_DONE ) {
