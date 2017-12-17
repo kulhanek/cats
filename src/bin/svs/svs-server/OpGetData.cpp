@@ -92,7 +92,7 @@ bool CVSProcessor::GetData(void)
     CSmallString smolid;
     smolid.IntToStr(molid,"%08d");
 
-    rcode =  sqlite3_bind_text(VSServer.P1STM,1,smolid,-1,SQLITE_TRANSIENT);
+    rcode =  sqlite3_bind_int(VSServer.P1STM,1,molid);
 
     rcode = sqlite3_step(VSServer.P1STM);
     if( rcode != SQLITE_DONE ){
