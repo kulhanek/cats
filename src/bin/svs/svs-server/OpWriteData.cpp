@@ -124,7 +124,7 @@ bool CVSProcessor::WriteData(void)
 bool CVSProcessor::SaveStructure(void)
 {
     int client_id = -1;
-    CSmallString molid;
+    int molid;
 
     // get client ID --------------------------------
     if(CommandElement->GetAttribute("client_id",client_id) == false) {
@@ -165,12 +165,15 @@ bool CVSProcessor::SaveStructure(void)
 
         CFileName molname(VSServer.StructureDir);
 
+        CSmallString smolid;
+        smolid.IntToStr(molid,"%08d");
+
         if(VSServer.UseHiearchy) {
-            molname = molname / CFileName(molid.GetSubString(0,2)) / CFileName(molid.GetSubString(2,2))
-                      / CFileName(molid.GetSubString(4,2));
+            molname = molname / CFileName(smolid.GetSubString(0,2)) / CFileName(smolid.GetSubString(2,2))
+                      / CFileName(smolid.GetSubString(4,2));
         }
 
-        molname = molname / VSServer.UnisID + molid + "." + str_type;
+        molname = molname / VSServer.UnisID + smolid + "." + str_type;
 
         FILE* p_fout = fopen(molname,"wb");
         if(p_fout == NULL) {
