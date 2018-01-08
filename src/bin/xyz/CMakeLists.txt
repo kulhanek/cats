@@ -4,6 +4,7 @@
 
 # include subdirectories -------------------------------------------------------
 ADD_SUBDIRECTORY(xyzsplit)
+ADD_SUBDIRECTORY(xyzfit)
 
 
 
