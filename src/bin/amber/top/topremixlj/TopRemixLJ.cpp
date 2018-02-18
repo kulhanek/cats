@@ -250,7 +250,7 @@ void CTopRemixLJ::WriteIJTypes(void)
 
             double epsii = 0.0;
             double rii = 0.0;
-            if( aii != 0.0 ) {
+            if( (aii != 0.0) || (bii != 0.0) ) {
                 epsii = bii*bii / (4.0 * aii);
                 rii = pow(2*aii/bii,1.0/6.0) * 0.5;
             }
@@ -260,7 +260,7 @@ void CTopRemixLJ::WriteIJTypes(void)
 
             double epsjj = 0.0;
             double rjj = 0.0;
-            if( ajj != 0.0 ) {
+            if( (ajj != 0.0) && (bjj != 0.0) ) {
                 epsjj = bjj*bjj / (4.0 * ajj);
                 rjj = pow(2*ajj/bjj,1.0/6.0) * 0.5;
             }
@@ -275,7 +275,7 @@ void CTopRemixLJ::WriteIJTypes(void)
 
             epsij = 0.0;
             rij = 0.0;
-            if( aij != 0.0 ) {
+            if( (aij != 0.0) && (bij != 0.0) ) {
                 epsij = bij*bij / (4.0 * aij);
                 rij = pow(2*aij/bij,1.0/6.0) * 0.5;
             }
@@ -285,15 +285,26 @@ void CTopRemixLJ::WriteIJTypes(void)
             // determine combining rules
             double rijn;
 
-            rijn = (rii+rjj)*0.5;
+            rijn = 0.0;
+            if( (rii != 0) && (rjj != 0) ){
+                rijn = (rii+rjj)*0.5;
+            }
             lbsc = lbsc + pow(rijn-rij,2.0);
 
-            rijn = pow( (pow(rii,6)+pow(rjj,6))*0.5, 1.0/6.0);
+            rijn = 0.0;
+            if( (rii != 0) && (rjj != 0) ){
+                rijn = pow( (pow(rii,6)+pow(rjj,6))*0.5, 1.0/6.0);
+            }
             whsc = whsc + pow(rijn-rij,2.0);
 
-            double k = sqrt(epsii*pow(rii,6)*epsjj*pow(rjj,6));
-            double l = pow( (pow(epsii*pow(rii,12),1.0/13.0) + pow(epsjj*pow(rjj,12),1.0/13.0))*0.5, 13);
-            rijn = pow(l/k,1.0/6.0);
+            rijn = 0.0;
+            if( (rii != 0) && (rjj != 0) ){
+                double k = sqrt(epsii*pow(rii,6)*epsjj*pow(rjj,6));
+                double l = pow( (pow(epsii*pow(rii,12),1.0/13.0) + pow(epsjj*pow(rjj,12),1.0/13.0))*0.5, 13);
+                if( k != 0 ){
+                    rijn = pow(l/k,1.0/6.0);
+                }
+            }
             kgsc = kgsc + pow(rijn-rij,2.0);
         }
     }
@@ -313,6 +324,7 @@ void CTopRemixLJ::WriteIJTypes(void)
         printf("# Detected combining rule (based on Ropt): KG\n");
         detected = true;
     }
+    // cout << lbsc << " " << whsc << " " << kgsc << endl;
     if( detected == false ) {
         printf("\n");
         printf("# Detected combining rule (based on Ropt): unknown\n");
@@ -363,7 +375,7 @@ void CTopRemixLJ::ApplyCombiningRule(void)
 
             double epsii = 0.0;
             double rii = 0.0;
-            if( aii != 0.0 ) {
+            if( (aii != 0.0) && (bii != 0.0) ) {
                 epsii = bii*bii / (4.0 * aii);
                 rii = pow(2*aii/bii,1.0/6.0) * 0.5;
             }
@@ -373,7 +385,7 @@ void CTopRemixLJ::ApplyCombiningRule(void)
 
             double epsjj = 0.0;
             double rjj = 0.0;
-            if( ajj != 0.0 ) {
+            if( (ajj != 0.0) && (bjj != 0.0) ) {
                 epsjj = bjj*bjj / (4.0 * ajj);
                 rjj = pow(2*ajj/bjj,1.0/6.0) * 0.5;
             }
@@ -386,18 +398,31 @@ void CTopRemixLJ::ApplyCombiningRule(void)
 
             switch(rule){
                 case CR_LB:
-                    rij = (rii+rjj)*0.5;
+                    rij = 0.0;
+                    if( (rii != 0) && (rjj != 0) ){
+                        rij = (rii+rjj)*0.5;
+                    }
                     epsij = sqrt(epsii*epsjj);
                     break;
                 case CR_WH:
-                    rij = pow( (pow(rii,6)+pow(rjj,6))*0.5, 1.0/6.0);
-                    epsij = sqrt(epsii*pow(rii,6)*epsjj*pow(rjj,6))/pow(rij,6);
+                    rij = 0.0;
+                    if( (rii != 0) && (rjj != 0) ){
+                        rij = pow( (pow(rii,6)+pow(rjj,6))*0.5, 1.0/6.0);
+                    }
+                    epsij = 0.0;
+                    if( rij != 0.0 ){
+                        epsij = sqrt(epsii*pow(rii,6)*epsjj*pow(rjj,6))/pow(rij,6);
+                    }
                     break;
                 case CR_KG:{
                     double k = sqrt(epsii*pow(rii,6)*epsjj*pow(rjj,6));
                     double l = pow( (pow(epsii*pow(rii,12),1.0/13.0) + pow(epsjj*pow(rjj,12),1.0/13.0))*0.5, 13);
-                    rij = pow(l/k,1.0/6.0);
-                    epsij = k / pow(rij,6);
+                    if( (k != 0.0) && (l != 0.0) ){
+                        rij = pow(l/k,1.0/6.0);
+                    }
+                    if( rij != 0.0 ){
+                        epsij = k / pow(rij,6);
+                    }
                     }
                     break;
                 default:
@@ -416,8 +441,6 @@ void CTopRemixLJ::ApplyCombiningRule(void)
     }
 
 }
-
-
 
 //==============================================================================
 //------------------------------------------------------------------------------
