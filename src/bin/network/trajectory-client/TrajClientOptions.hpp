@@ -62,14 +62,17 @@ public:
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
                 "trj://server[:port]/command",                        /* parametr name */
-                "specifies fully qualified administration request. Trasport protocol cats:// has to be always specified. It is followed by server parameter which could be either DNS name or IP address of server. Optional port parameter is port number used in a communication. Finally, the command is a task, which can be one of the following:\n"
-                "   register   = register client on server side\n"
-                "   unregister = unregister client on server side (unregister?id=client_id)\n"
-                "   getcrd     = get coordinate snapshot (getcrd?id=client_id,topology=file1.top,coords=file2.crd)\n"
-                "   getvel     = get velocities (getvel?id=client_id,topology=file1.top,coords=file2.crd)\n"
-                "   info       = prints information about registered clients\n"
-                "   shutdown   = stops server execution\n"
-                "   errors     = prints errors from server stack\n"
+                "specifies fully qualified administration request. The trasport protocol trj:// has to be always specified. "
+                "It is followed by a server parameter, which could be either DNS name or IP address of server. "
+                "Optional port parameter is port number used in a communication. Finally, the command is a task, "
+                "which can be one of the following:\n"
+                "   <green>register</green>   = register client on server side\n"
+                "   <green>unregister</green> = unregister client on server side (unregister?id=client_id)\n"
+                "   <green>getcrd</green>     = get coordinate snapshot (getcrd?id=client_id,topology=file1.top,coords=file2.crd)\n"
+                "   <green>getvel</green>     = get velocities (getvel?id=client_id,topology=file1.top,coords=file2.crd)\n"
+                "   <green>info</green>       = prints information about registered clients\n"
+                "   <green>shutdown</green>   = stops server execution\n"
+                "   <green>errors</green>     = prints errors from server stack\n"
                )   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */

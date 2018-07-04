@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <ErrorSystem.hpp>
 #include <RegClient.hpp>
-#include "RSProcessor.h"
-#include "RSServer.h"
+#include "RSProcessor.hpp"
+#include "RSServer.hpp"
 #include <XMLElement.hpp>
 
 //==============================================================================

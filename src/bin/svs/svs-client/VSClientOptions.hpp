@@ -62,18 +62,20 @@ public:
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
                 "svs://server[:port]/command",                        /* parametr name */
-                "Specifies fully qualified administration request. Trasport protocol svs:// has to be always specified, which is followed by the server specification (DNS name or IP address of the server and optionally by the server port). This is followed by the command, which can be one of the following:\n"
-                "   register   = register client on server side\n"
-                "   unregister = unregister client on server side (unregister?id=client_id)\n"
-                "   get        = get unprocessed structure from database (get?id=client_id,structure=file.ext[,type=xyz])\n"
-                "   write      = write data to database and set structure as processed (write?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
-                "   load       = load structure from database (load?id=client_id,molid=molecule_id[,structure=file.ext,type=xyz])\n"
-                "   save       = save structure to database (save?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
-                "   installpkg = install client package to current directory\n"
-                "   appname    = get client application name\n"
-                "   info       = prints information about registered clients\n"
-                "   shutdown   = stops server execution\n"
-                "   errors     = prints errors from the server stack\n"
+                "Specifies fully qualified administration request. Trasport protocol svs:// has to be always specified, "
+                "which is followed by the server specification (DNS name or IP address of the server and optionally "
+                "by the server port). This is followed by the command, which can be one of the following:\n"
+                "   <green>register</green>   = register client on server side\n"
+                "   <green>unregister</green> = unregister client on server side (unregister?id=client_id)\n"
+                "   <green>get</green>        = get unprocessed structure from database (get?id=client_id,structure=file.ext[,type=xyz])\n"
+                "   <green>write</green>      = write data to database and set structure as processed (write?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
+                "   <green>load</green>       = load structure from database (load?id=client_id,molid=molecule_id[,structure=file.ext,type=xyz])\n"
+                "   <green>save</green>       = save structure to database (save?id=client_id,molid=molecule_id[,structure=file.ext,type=log])\n"
+                "   <green>installpkg</green> = install client package to current directory\n"
+                "   <green>appname</green>    = get client application name\n"
+                "   <green>info</green>       = prints information about registered clients\n"
+                "   <green>shutdown</green>   = stops server execution\n"
+                "   <green>errors</green>     = prints errors from the server stack\n"
                )   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */

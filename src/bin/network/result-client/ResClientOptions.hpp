@@ -62,15 +62,18 @@ public:
                 NULL,                           /* default value */
                 true,                           /* is argument mandatory */
                 "res://server[:port]/command",                        /* parametr name */
-                "specifies fully qualified administration request. Trasport protocol cats:// has to be always specified. It is followed by server parameter which could be either DNS name or IP address of server. Optional port parameter is port number used in a communication. Finally, the command is a task, which can be one of the following:\n"
-                "   register   = register client on server side (register?template=file.tmp)\n"
-                "   unregister = unregister client on server side (unregister?id=client_id)\n"
-                "   write      = write data to server (write?id=client_id,data=file.dat)\n"
-                "   getstat    = get data statistics (getstat?file=file.stat)\n"
-                "   flush      = flush accumulated statistics to output server file\n"
-                "   info       = prints information about registered clients\n"
-                "   shutdown   = stops server execution\n"
-                "   errors     = prints errors from server stack\n"
+                "specifies fully qualified administration request. Trasport protocol res:// has to be always specified. "
+                " It is followed by server parameter, which could be either DNS name or IP address of the server. "
+                " Optional port parameter is a port number used in a communication. Finally, the command is a task, "
+                "which can be one of the following:\n"
+                "   <green>register</green>   = register client on server side (register?template=file.tmp)\n"
+                "   <green>unregister</green> = unregister client on server side (unregister?id=client_id)\n"
+                "   <green>write</green>      = write data to server (write?id=client_id,data=file.dat)\n"
+                "   <green>getstat</green>    = get data statistics (getstat?file=file.stat)\n"
+                "   <green>flush</green>      = flush accumulated statistics to output server file\n"
+                "   <green>info</green>       = prints information about registered clients\n"
+                "   <green>shutdown</green>   = stops server execution\n"
+                "   <green>errors</green>     = prints errors from server stack\n"
                )   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */

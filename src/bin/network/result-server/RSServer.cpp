@@ -25,9 +25,9 @@
 #include <CmdProcessorList.hpp>
 #include <CATsOperation.hpp>
 #include <PrmUtils.hpp>
-#include "RSServer.h"
-#include "RSProcessor.h"
-#include "RSFactory.h"
+#include "RSServer.hpp"
+#include "RSProcessor.hpp"
+#include "RSFactory.hpp"
 #include <ExtraOperation.hpp>
 
 //------------------------------------------------------------------------------

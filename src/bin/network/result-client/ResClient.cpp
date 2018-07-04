@@ -25,6 +25,10 @@
 #include <XMLElement.hpp>
 #include <XMLBinData.hpp>
 
+//------------------------------------------------------------------------------
+
+using namespace std;
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -45,6 +49,14 @@ int CResClient::Init(int argc,char* argv[])
 
     // should we exit or was it error?
     if( result != SO_CONTINUE ) return(result);
+
+// attach verbose stream to terminal stream and set desired verbosity level
+    vout.Attach(Console);
+    if( Options.GetOptVerbose() ) {
+        vout.Verbosity(CVerboseStr::debug);
+    } else {
+        vout.Verbosity(CVerboseStr::high);
+    }
 
     // set server description - there should no be any problem
     // syntax was already checked
@@ -68,29 +80,29 @@ int CResClient::Init(int argc,char* argv[])
         CSmallTimeAndDate dt;
         dt.GetActualTimeAndDate();
 
-        printf("\n");
-        printf("# ==============================================================================\n");
-        printf("# result-client started at %s\n",(const char*)dt.GetSDateAndTime());
-        printf("# ==============================================================================\n");
-        printf("#\n");
-        printf("# Server request (by user)   : %s\n",(const char*)Options.GetArgCommand());
-        printf("# Server request (processed) : %s\n",(const char*)ActionRequest.GetQualifiedName());
-        printf("#\n");
-        printf("# ------------------------------------------------------------------------------\n");
-        printf("# Server name                : %s\n",(const char*)ActionRequest.GetName());
-        printf("# Server IP                  : %s\n",(const char*)ActionRequest.GetIP());
-        printf("# Server port                : %d\n",ActionRequest.GetPort());
-        printf("# Command                    : %s\n",(const char*)ActionRequest.GetAction());
-        printf("# ------------------------------------------------------------------------------\n");
+        vout << endl;
+        vout << "# ==============================================================================" << endl;
+        vout << "# result-client started at " << dt.GetSDateAndTime() << endl;
+        vout << "# ==============================================================================" << endl;
+        vout << "#" << endl;
+        vout << "# Server request (by user)   : " << Options.GetArgCommand() << endl;
+        vout << "# Server request (processed) : " << ActionRequest.GetQualifiedName() << endl;
+        vout << "#" << endl;
+        vout << "# ------------------------------------------------------------------------------" << endl;
+        vout << "# Server name                : " << ActionRequest.GetName() << endl;
+        vout << "# Server IP                  : " << ActionRequest.GetIP() << endl;
+        vout << "# Server port                : " << ActionRequest.GetPort() << endl;
+        vout << "# Command                    : " << ActionRequest.GetAction() << endl;
+        vout << "# ------------------------------------------------------------------------------" << endl;
         CSmallString passfile;
         bool         passfile_set;
         passfile = Options.GetOptPassword(passfile_set);
         if( passfile_set == true ) {
-            printf("# Password                   : from file '%s'\n",(const char*)passfile);
+            vout << "# Password                   : from file '" << passfile << "'" << endl;
         } else {
-            printf("# Password                   : from command line or server key file\n");
+            vout << "# Password                   : from command line or server key file" << endl;
         }
-        printf("# ------------------------------------------------------------------------------\n");
+        vout << "# ------------------------------------------------------------------------------" << endl;
     }
 
     return( result );
@@ -102,7 +114,7 @@ int CResClient::Init(int argc,char* argv[])
 
 bool CResClient::Run(void)
 {
-    if( Options.GetOptVerbose() == true ) printf("\n");
+    if( Options.GetOptVerbose() == true ) vout << endl;
 
     if( ! Options.IsOptServerKeySet() ){
        if( ReadPassword(Options.IsOptPasswordSet(),Options.GetOptPassword(),
@@ -110,17 +122,17 @@ bool CResClient::Run(void)
        }
 
     if( Options.GetOptVerbose() == true ){
-       printf("Sending request ... %s.\n",(const char*)ActionRequest.GetAction());
+       vout << "Sending request ... " << ActionRequest.GetAction() << endl;
        }
 
     bool result;
 
     if( ActionRequest.GetAction() == "info" ) {
-        result = GetServerInfo();
+        result = GetServerInfo(vout);
     } else if( ActionRequest.GetAction() == "shutdown" ) {
-        result = ShutdownServer();
+        result = ShutdownServer(vout);
     } else if( ActionRequest.GetAction() == "errors" ) {
-        result = GetServerErrors();
+        result = GetServerErrors(vout);
     } else if( ActionRequest.GetAction() == "register" ) {
         result = RegisterClient();
     } else if( ActionRequest.GetAction() == "unregister" ) {
@@ -140,7 +152,7 @@ bool CResClient::Run(void)
 
     if( Options.GetOptVerbose() == true ) {
         if( result == false ) {
-            printf("Command execution failed.\n");
+            vout << "Command execution failed." << endl;
         }
     }
 
@@ -151,24 +163,22 @@ bool CResClient::Run(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-bool CResClient::Finalize(void)
+void CResClient::Finalize(void)
 {
-    if( Options.GetOptVerbose() ) {
-        CSmallTimeAndDate dt;
-        dt.GetActualTimeAndDate();
+    CSmallTimeAndDate dt;
+    dt.GetActualTimeAndDate();
 
-        fprintf(stdout,"\n");
-        fprintf(stdout,"# ==============================================================================\n");
-        fprintf(stdout,"# %s terminated at %s\n",(const char*)Options.GetProgramName(),(const char*)dt.GetSDateAndTime());
-        fprintf(stdout,"# ==============================================================================\n");
+    vout << debug;
+    vout << endl;
+    vout << "# ==============================================================================" << endl;
+    vout << "# result-client terminated at " << dt.GetSDateAndTime() << endl;
+    vout << "# ==============================================================================" << endl;
+
+    if( ErrorSystem.IsError() ){
+        vout << high;
+        ErrorSystem.PrintErrors(vout);
     }
-
-    if( Options.GetOptVerbose() || ErrorSystem.IsError() ) {
-        ErrorSystem.PrintErrors(stderr);
-        fprintf(stdout,"\n");
-    }
-
-    return(true);
+    vout << endl;
 }
 
 //==============================================================================
@@ -188,7 +198,7 @@ bool CResClient::RegisterClient(void)
         ES_TRACE_ERROR("unable to register client");
         return(false);
     }
-    printf("%d",id);
+    vout << id;
     return(true);
 }
 

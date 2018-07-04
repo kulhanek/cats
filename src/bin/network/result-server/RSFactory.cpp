@@ -19,8 +19,8 @@
 // =============================================================================
 
 #include <stdio.h>
-#include "RSProcessor.h"
-#include "RSFactory.h"
+#include "RSProcessor.hpp"
+#include "RSFactory.hpp"
 
 //------------------------------------------------------------------------------
 

@@ -40,11 +40,13 @@ public:
     bool Run(void);
 
     /// finalize program
-    bool Finalize(void);
+    void Finalize(void);
 
 // section of private data ----------------------------------------------------
 private:
-    CResClientOptions      Options;            // program options
+    CResClientOptions   Options;            // program options
+    CTerminalStr        Console;
+    CVerboseStr         vout;
 
 // supported operations -------------------------------------------------------
     /// register client to server with data template

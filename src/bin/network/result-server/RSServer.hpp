@@ -27,7 +27,7 @@
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
 
-#include "RSServerOptions.h"
+#include "RSServerOptions.hpp"
 
 //------------------------------------------------------------------------------
 

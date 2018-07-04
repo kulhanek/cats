@@ -21,8 +21,8 @@
 #include <stdio.h>
 #include <ErrorSystem.hpp>
 #include <RegClient.hpp>
-#include "RSProcessor.h"
-#include "RSServer.h"
+#include "RSProcessor.hpp"
+#include "RSServer.hpp"
 #include <XMLElement.hpp>
 
 //==============================================================================
@@ -56,10 +56,7 @@ bool CRSProcessor::RegisterClient(void)
     }
 
     //  and register it to the list
-    if( RSServer.RegClients.RegisterClient(p_rc) == false ){
-        ES_ERROR("unable to register client");
-        return(false);
-    }
+    RSServer.RegClients.RegisterClient(p_rc);
 
     // get client ID
     int client_id = p_rc->GetClientID();

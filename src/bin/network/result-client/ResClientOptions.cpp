@@ -18,7 +18,7 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // ===============================================================================
 
-#include "ResClientOptions.h"
+#include "ResClientOptions.hpp"
 #include <ActionRequest.hpp>
 #include <ErrorSystem.hpp>
 
@@ -76,7 +76,10 @@ int CResClientOptions::CheckArguments(void)
     CActionRequest server_desc;
     server_desc.SetProtocolName("res");
 
-    if( server_desc.SetQualifiedName(GetArgCommand()) == false ) {
+    try{
+        server_desc.SetQualifiedName(GetArgCommand());
+    }
+    catch(...){
         if( IsVerbose() ) {
             if( IsError == false ) fprintf(stderr,"\n");
             fprintf(stderr,"%s: %s\n", (const char*)GetProgramName(), (const char*)ErrorSystem.GetLastError());

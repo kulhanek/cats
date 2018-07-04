@@ -36,7 +36,7 @@ public:
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "CATs QScript interpretter."
+    "CATs QScript interpreter."
     CSO_PROG_DESC_END
 
     CSO_PROG_ARGS_SHORT_DESC_BEGIN
@@ -44,8 +44,8 @@ public:
     CSO_PROG_ARGS_SHORT_DESC_END
 
     CSO_PROG_ARGS_LONG_DESC_BEGIN
-    "Arguments:\n"
-    "   SCRIPT                    file to be interpreted\n"
+    "<b><cyan>SCRIPT</cyan></b>  file to be interpreted\n"
+    "<b><cyan>ARGn</cyan></b>    optional arguments available via the CATs object"
     CSO_PROG_ARGS_LONG_DESC_END
 
     CSO_PROG_VERS_BEGIN
