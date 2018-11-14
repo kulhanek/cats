@@ -111,12 +111,15 @@ public:
                 "output",                      /* long option name */
                 "FORMAT",                           /* parametr name */
                 "specify output format for coordinates:\n"
-                "   <green>crd</green>        - amber restart file\n"
+                "   <green>crd</green>        - amber restart file (ASCII)\n"
+                "   <green>bcrd</green>       - amber restart file (NetCDF)\n"
                 "   <green>pdb</green>        - PDB file\n"
                 "   <green>pqr</green>        - PDB file with atomic radii and charges\n"
                 "   <green>xyz</green>        - xyz file\n"
                 "   <green>xyzr</green>       - xyz file with atomic radii\n"
                 "   <green>com</green>        - gaussian input file\n"
+                "   <green>orca</green>       - orca input file\n"
+                "   <green>pc</green>         - point charges file\n"
                 "   <green>rbox</green>       - rbox format for qhull\n"
                 "   <green>traj</green>       - amber trajectory file\n"
                 "   <green>adf</green>        - plain ADF input\n"

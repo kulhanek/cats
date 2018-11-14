@@ -264,6 +264,14 @@ bool CTopCrd2Crd::Run(void)
         recognized = true;
         result = WriteCOM(p_fout);
     }
+    if( Options.GetOptOutputFormat() == "orca" ) {
+        recognized = true;
+        result = WriteORCA(p_fout);
+    }
+    if( Options.GetOptOutputFormat() == "pc" ) {
+        recognized = true;
+        result = WritePC(p_fout);
+    }
     if( Options.GetOptOutputFormat() == "rbox" ) {
         recognized = true;
         result = WriteRBOX(p_fout);
@@ -805,6 +813,79 @@ bool CTopCrd2Crd::WriteCOM(FILE* p_fout)
         }
         fprintf(p_fout,"\n");
     }
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CTopCrd2Crd::WriteORCA(FILE* p_fout)
+{
+    fprintf(p_fout,"! <- setup for method ->\n");
+    fprintf(p_fout,"\n");
+    fprintf(p_fout,"# Top(%s) Crd(%s) Mask(%s)\n",
+            (const char*)Options.GetArgTopologyName(),
+            (const char*)Options.GetArgCrdName(),
+            (const char*)Mask.GetMask());
+    fprintf(p_fout,"\n");
+
+    // calculate total charge
+    double fcrg = 0;
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+        fcrg += p_atom->GetStandardCharge();
+    }
+    int crg = round(fcrg);
+
+    fprintf(p_fout,"*xyz %d 1\n",crg);
+
+    // write coordinates --------------------
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+        int z = p_atom->GuessZ();
+        if( z == 0 ) z = 1;
+        const char* p_symbol = PeriodicTable.GetSymbol(z);
+        fprintf(p_fout,"%2s              %12.6f %12.6f %12.6f\n",
+                p_symbol,Coordinates.GetPosition(i).x,
+                Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z);
+    }
+
+    // write charges --------------------
+    if( ChrgMask.GetNumberOfSelectedAtoms() > 0 ){
+        for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+            CAmberAtom* p_atom = ChrgMask.GetSelectedAtom(i);
+            if( p_atom == NULL ) continue;
+            fprintf(p_fout," Q %12.6f %12.6f %12.6f %12.6f\n",
+                    p_atom->GetStandardCharge(),
+                    Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z);
+        }
+    }
+
+    fprintf(p_fout,"*\n\n");
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CTopCrd2Crd::WritePC(FILE* p_fout)
+{
+    fprintf(p_fout,"%d\n",Mask.GetNumberOfSelectedAtoms());
+
+    // write charges --------------------
+    if( Mask.GetNumberOfSelectedAtoms() > 0 ){
+        for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+            CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+            if( p_atom == NULL ) continue;
+            fprintf(p_fout,"%12.6f %12.6f %12.6f %12.6f\n",
+                    p_atom->GetStandardCharge(),
+                    Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z);
+        }
+    }
+
+    fprintf(p_fout,"\n");
 
     return(true);
 }

@@ -66,6 +66,8 @@ private:
     bool WriteXYZ(FILE* p_fout);
     bool WriteXYZR(FILE* p_fout);
     bool WriteCOM(FILE* p_fout);
+    bool WriteORCA(FILE* p_fout);
+    bool WritePC(FILE* p_fout);
     bool WriteRBOX(FILE* p_fout);
     bool WriteTRAJ(FILE* p_fout);
     bool WriteADF(FILE* p_fout);
