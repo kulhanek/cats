@@ -81,13 +81,19 @@ int CTopCrd2Crd::Init(int argc,char* argv[])
         printf("# Input format       : %s\n",(const char*)Options.GetOptInputFormat());
         printf("# Output format      : %s\n",(const char*)Options.GetOptOutputFormat());
         if( Options.IsOptMaskSpecSet() == true ) {
-            printf("# Mask specification : %s\n",(const char*)Options.GetOptMaskSpec());
+        printf("# Mask specification : %s\n",(const char*)Options.GetOptMaskSpec());
         }
         if( Options.IsOptMaskFileSet() == true ) {
-            printf("# Mask file name     : %s\n",(const char*)Options.GetOptMaskFile());
+        printf("# Mask file name     : %s\n",(const char*)Options.GetOptMaskFile());
         }
         if( (Options.IsOptMaskSpecSet() != true) && (Options.IsOptMaskFileSet() != true) ) {
-            printf("# Mask specification : all atoms\n");
+        printf("# Mask specification : all atoms\n");
+        }
+        if( Options.IsOptMaskSpecSet() == true ) {
+        printf("# Charge mask spec.  : %s\n",(const char*)Options.GetOptChrgMaskSpec());
+        }
+        if( Options.IsOptMaskFileSet() == true ) {
+        printf("# Charge mask file   : %s\n",(const char*)Options.GetOptChrgMaskFile());
         }
         printf("# ------------------------------------------------------------------------------\n");
         printf("\n");
@@ -111,7 +117,7 @@ bool CTopCrd2Crd::Run(void)
     }
 
     // open input file
-    FILE* p_fin;
+    FILE* p_fin = NULL;
     if( Options.GetArgCrdName() != "-" ) {
         if( (p_fin = fopen(Options.GetArgCrdName(),"r")) == NULL ) {
             CSmallString error;
@@ -131,11 +137,22 @@ bool CTopCrd2Crd::Run(void)
     bool result = false;
     if( Options.GetOptInputFormat() == "crd" ) {
         recognized = true;
-        result = ReadCRD(p_fin);
+        if( p_fin == stdin ) {
+            result = ReadCRD(p_fin);
+        } else {
+            fclose(p_fin);
+            p_fin = NULL;
+            result = ReadCRD(Options.GetArgCrdName()); // NetCDF requires to use a file directly
+        }
     }
     if( Options.GetOptInputFormat() == "xyz" ) {
         recognized = true;
         result = ReadXYZ(p_fin);
+    }
+
+    if( p_fin != NULL ){
+        fclose(p_fin);
+        p_fin = NULL;
     }
 
     if( recognized == false ) {
@@ -180,6 +197,26 @@ bool CTopCrd2Crd::Run(void)
         return(false);
     }
 
+    // assign topology and coordinates to the mask -------------
+    ChrgMask.AssignTopology(&Topology);
+    ChrgMask.AssignCoordinates(&Coordinates);
+
+    // init charge mask ----------------------------------------------
+    // do we have user specified mask?
+    if( Options.IsOptChrgMaskSpecSet() == true ) {
+        result = ChrgMask.SetMask(Options.GetOptChrgMaskSpec());
+    }
+
+    // do we have user specified mask?
+    if( Options.IsOptChrgMaskFileSet() == true ) {
+        result = ChrgMask.SetMaskFromFile(Options.GetOptChrgMaskFile());
+    }
+
+    if( result == false ) {
+        fprintf(stderr,">>> ERROR: Unable to set specified charge mask!\n");
+        return(false);
+    }
+
     // open output file
     FILE* p_fout;
     if( Options.GetArgOutName() != "-" ) {
@@ -198,7 +235,14 @@ bool CTopCrd2Crd::Run(void)
     recognized = false;
     if( Options.GetOptOutputFormat() == "crd" ) {
         recognized = true;
-        result = WriteCRD(p_fout);
+        result = WriteCRD(p_fout,false);
+    }
+    if( Options.GetOptOutputFormat() == "bcrd" ) {
+        // close the output file we need to open it as a netcdf file
+        if( Options.GetArgOutName() != "-" ) fclose(p_fout);
+        p_fout = NULL;
+        recognized = true;
+        result = WriteCRD(p_fout,true);
     }
     if( Options.GetOptOutputFormat() == "pdb" ) {
         recognized = true;
@@ -243,7 +287,7 @@ bool CTopCrd2Crd::Run(void)
 
     // close output file if necessary
     if( Options.GetArgOutName() != "-" ) {
-        fclose(p_fout);
+        if( p_fout ) fclose(p_fout);
     }
 
     if( recognized == false ) {
@@ -301,6 +345,20 @@ bool CTopCrd2Crd::ReadCRD(FILE* p_fin)
 
 //------------------------------------------------------------------------------
 
+bool CTopCrd2Crd::ReadCRD(const CSmallString& name)
+{
+    if( Coordinates.Load(name,false,AMBER_RST_UNKNOWN) == false ) {
+        CSmallString error;
+        error << "unable to load input coordinates (crd): " << Options.GetArgCrdName();
+        ES_ERROR(error);
+        return(false);
+    }
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
 bool CTopCrd2Crd::ReadXYZ(FILE* p_fin)
 {
     CXYZStructure xyz_str;
@@ -334,7 +392,7 @@ bool CTopCrd2Crd::ReadXYZ(FILE* p_fin)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-bool CTopCrd2Crd::WriteCRD(FILE* p_fout)
+bool CTopCrd2Crd::WriteCRD(FILE* p_fout,bool binary)
 {
     CAmberTopology cut_topology;
     CAmberRestart  cut_coordinates;
@@ -375,8 +433,15 @@ bool CTopCrd2Crd::WriteCRD(FILE* p_fout)
         cut_coordinates.SetAngles(Coordinates.GetAngles());
     }
 
+    // copy time
+    cut_coordinates.SetTime(Coordinates.GetTime());
+
     bool result;
-    result = cut_coordinates.Save(p_fout);
+    if( binary ){
+        result = cut_coordinates.Save(Options.GetArgOutName(),false,AMBER_RST_NETCDF);
+    } else {
+        result = cut_coordinates.Save(p_fout);
+    }
 
     return(result);
 }
@@ -728,6 +793,18 @@ bool CTopCrd2Crd::WriteCOM(FILE* p_fout)
     }
 
     fprintf(p_fout,"\n");
+
+    // write charges --------------------
+    if( ChrgMask.GetNumberOfSelectedAtoms() > 0 ){
+        for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+            CAmberAtom* p_atom = ChrgMask.GetSelectedAtom(i);
+            if( p_atom == NULL ) continue;
+            fprintf(p_fout,"   %12.6f %12.6f %12.6f %12.6f\n",
+                    Coordinates.GetPosition(i).x,
+                    Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,p_atom->GetStandardCharge());
+        }
+        fprintf(p_fout,"\n");
+    }
 
     return(true);
 }

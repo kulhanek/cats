@@ -81,7 +81,7 @@ QScriptValue QSnapshot::New(QScriptContext *context,
     if( value.isError() ) return(value);
 
     QSnapshot* p_snap = new QSnapshot(scriptable.GetArgument(1));
-    if( p_snap->Restart.Load(name) == false ) {
+    if( p_snap->Restart.Load(name,false,AMBER_RST_UNKNOWN) == false ) {
         delete p_snap;
         return( scriptable.ThrowError("topology,name","unable to load restart file") );
     }
@@ -203,7 +203,7 @@ QScriptValue QSnapshot::load(void)
     if( value.isError() ) return(value);
 
 // execute code ----------------------------------
-    bool result = Restart.Load(name);
+    bool result = Restart.Load(name,false,AMBER_RST_UNKNOWN);
     return(result);
 }
 
@@ -294,6 +294,7 @@ QScriptValue QSnapshot::copyFrom(void)
                 Restart.SetBox(p_src->GetBox());
                 Restart.SetAngles(p_src->GetAngles());
             }
+            Restart.SetTime(p_src->GetTime());
             return(value);
         }
     }
@@ -344,6 +345,7 @@ QScriptValue QSnapshot::copyFrom(void)
                 Restart.SetBox(p_src->GetBox());
                 Restart.SetAngles(p_src->GetAngles());
             }
+            Restart.SetTime(p_src->GetTime());
             return(value);
         }
     }
@@ -370,7 +372,6 @@ QScriptValue QSnapshot::clear(void)
 
 // execute code ----------------------------------
     CPoint zero;
-
     for(int i=0; i < Restart.GetNumberOfAtoms(); i++){
         Restart.SetPosition(i,zero);
         if( Restart.AreVelocitiesLoaded() ){
@@ -381,6 +382,7 @@ QScriptValue QSnapshot::clear(void)
         Restart.SetBox(zero);
         Restart.SetAngles(zero);
     }
+    Restart.SetTime(0.0);
     return(value);
 }
 

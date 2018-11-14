@@ -115,7 +115,7 @@ bool CTopCrd2MMCom::Run(void)
 
     // load coordinates
     Coordinates.AssignTopology(&Topology);
-    if( Coordinates.Load(Options.GetArgCrdName()) == false ) {
+    if( Coordinates.Load(Options.GetArgCrdName(),false,AMBER_RST_UNKNOWN) == false ) {
         fprintf(stderr,">>> ERROR: Unable to load specified coordinates: %s\n",
                 (const char*)Options.GetArgCrdName());
         return(false);

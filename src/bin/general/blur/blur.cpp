@@ -250,15 +250,18 @@ bool CBlur::ReadDataXPLOR(FILE *fin)
     cret = fgets(buf, sizeof(buf), fin);
     cret = fgets(buf, sizeof(buf), fin);
     cret = fgets(buf, sizeof(buf), fin);
+    if( cret == NULL ) return(false);
 
     // read header
     cret = fgets(buf, sizeof(buf), fin);
+    if( cret == NULL ) return(false);
     if( sscanf(buf, "%d%d%d%d%d%d%d%d%d", &Nx, &startX, &stopX, &Ny, &startY, &stopY, &Nz, &startZ, &stopZ) != 9 ) {
         ES_ERROR("incorrect number of items in header of input xplor file or stream");
         return(false);
     }
 
     cret = fgets(buf, sizeof(buf), fin);
+    if( cret == NULL ) return(false);
     if( sscanf(buf, "%lf%lf%lf%lf%lf%lf",&minX, &minY, &minZ, &maxX, &maxY, &maxZ) != 6 ) {
         ES_ERROR("incorrect number of items in header of input xplor file or stream");
         return(false);
@@ -280,6 +283,7 @@ bool CBlur::ReadDataXPLOR(FILE *fin)
 
     // skip line
     cret = fgets(buf, sizeof(buf), fin);
+    if( cret == NULL ) return(false);
 
     for(int k=0; k<Nz; k++) {
         int idxZ;

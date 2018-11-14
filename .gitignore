@@ -17,3 +17,5 @@ CATsWin.*
 test/*
 ui_*.h
 CATsMainHeaderConfig.hpp
+*_autogen
+test/

@@ -56,6 +56,8 @@ public:
     CSO_OPT(CSmallString,OutputFormat)
     CSO_OPT(CSmallString,MaskSpec)
     CSO_OPT(CSmallString,MaskFile)
+    CSO_OPT(CSmallString,ChrgMaskSpec)
+    CSO_OPT(CSmallString,ChrgMaskFile)
     CSO_OPT(CSmallString,MangleNames)
     CSO_OPT(double,RScale)
     CSO_OPT(double,ROffset)
@@ -129,7 +131,7 @@ public:
                 'm',                           /* short option name */
                 "mask",                      /* long option name */
                 "MASK",                           /* parametr name */
-                "only atoms selected according to MASK will be converted. Mutually exclusive with 'maskfile' option.")   /* option description */
+                "only atoms selected according to MASK will be converted otherwise all atoms are used. Mutually exclusive with 'maskfile' option.")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 MaskFile,                        /* option name */
@@ -138,7 +140,25 @@ public:
                 'f',                           /* short option name */
                 "maskfile",                      /* long option name */
                 "MASKFILE",                           /* parametr name */
-                "only atoms selected according to the mask will be converted. The mask specification is read from the first line of the file of name MASKFILE. This option is suitable for the specification of very long masks. Mutually exclusive with 'mask' option.")   /* option description */
+                "only atoms selected according to the mask will be converted otherwise all atoms are used. The mask specification is read from the first line of the file of name MASKFILE. This option is suitable for the specification of very long masks. Mutually exclusive with 'mask' option.")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                ChrgMaskSpec,                        /* option name */
+                "",                          /* default value */
+                false,                          /* is option mandatory */
+                '\0',                           /* short option name */
+                "chrgmask",                      /* long option name */
+                "MASK",                           /* parametr name */
+                "only atoms selected according to MASK will be included as point charges. Mutually exclusive with 'chrgmaskfile' option.")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                ChrgMaskFile,                        /* option name */
+                NULL,                          /* default value */
+                false,                          /* is option mandatory */
+                '\0',                           /* short option name */
+                "chrgmaskfile",                      /* long option name */
+                "MASKFILE",                           /* parametr name */
+                "only atoms selected according to the mask will be included as point charges. The mask specification is read from the first line of the file of name MASKFILE. This option is suitable for the specification of very long masks. Mutually exclusive with 'chrgmask' option.")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 MangleNames,                        /* option name */

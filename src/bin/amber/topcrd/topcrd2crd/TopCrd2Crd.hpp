@@ -52,13 +52,15 @@ private:
     CAmberTopology          Topology;
     CAmberRestart           Coordinates;
     CAmberMaskAtoms         Mask;
+    CAmberMaskAtoms         ChrgMask;
 
     // input methods
     bool ReadCRD(FILE* p_fin);
+    bool ReadCRD(const CSmallString& name);
     bool ReadXYZ(FILE* p_fin);
 
     // output methods
-    bool WriteCRD(FILE* p_fout);
+    bool WriteCRD(FILE* p_fout,bool binary);
     bool WritePDB(FILE* p_fout);
     bool WritePQR(FILE* p_fout);
     bool WriteXYZ(FILE* p_fout);
