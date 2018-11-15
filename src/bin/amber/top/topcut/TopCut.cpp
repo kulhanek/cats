@@ -119,7 +119,7 @@ bool CTopCut::Run(void)
     // load optional coordinates
     if( Options.IsOptCrdNameSet() == true ) {
         Coordinates.AssignTopology(&Topology);
-        if( Coordinates.Load(Options.GetOptCrdName()) == false ) {
+        if( Coordinates.Load(Options.GetOptCrdName(),false,AMBER_RST_UNKNOWN) == false ) {
             fprintf(stderr,">>> ERROR: Unable to load specified coordinates: %s\n",
                     (const char*)Options.GetOptCrdName());
             return(false);
