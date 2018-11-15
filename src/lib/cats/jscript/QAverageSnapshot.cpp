@@ -280,7 +280,7 @@ QScriptValue QAverageSnapshot::save(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: AverageSnapshot::save(name)" << endl;
+        sout << "usage: AverageSnapshot::save(name[,\"netcdf\"])" << endl;
         return(false);
     }
 
@@ -292,6 +292,9 @@ QScriptValue QAverageSnapshot::save(void)
     value = GetArgAsString("name","name",1,name);
     if( value.isError() ) return(value);
 
+    // options
+    bool binary = IsArgumentKeySelected("netcdf");
+
 // execute ---------------------------------------
     if( SamplingMode == true ){
         FinishAccumulation();
@@ -299,7 +302,13 @@ QScriptValue QAverageSnapshot::save(void)
 
     // execute code
     Restart.SetTitle("average_structure");
-    bool result = Restart.Save(name.toLatin1().constData());
+
+    bool result;
+    if( binary ){
+        result = Restart.Save(name.toLatin1().constData(),false,AMBER_RST_NETCDF);
+    } else {
+        result = Restart.Save(name.toLatin1().constData(),false,AMBER_RST_ASCII);
+    }
     return(result);
 }
 

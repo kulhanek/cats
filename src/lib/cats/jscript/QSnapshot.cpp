@@ -216,7 +216,7 @@ QScriptValue QSnapshot::save(void)
 // help ------------------------------------------
     if( IsHelpRequested() ){
         CTerminalStr sout;
-        sout << "usage: bool Snapshot::save(name)" << endl;
+        sout << "usage: bool Snapshot::save(name[,\"netcdf\"])" << endl;
         return(false);
     }
 
@@ -228,8 +228,16 @@ QScriptValue QSnapshot::save(void)
     value = GetArgAsString("name","name",1,name);
     if( value.isError() ) return(value);
 
+    // options
+    bool binary = IsArgumentKeySelected("netcdf");
+
 // execute code ----------------------------------
-    bool result = Restart.Save(name.toLatin1().constData());
+    bool result;
+    if( binary ){
+        result = Restart.Save(name.toLatin1().constData(),false,AMBER_RST_NETCDF);
+    } else {
+        result = Restart.Save(name.toLatin1().constData(),false,AMBER_RST_ASCII);
+    }
     return(result);
 }
 
