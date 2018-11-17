@@ -75,35 +75,33 @@ int CResClient::Init(int argc,char* argv[])
         return(SO_ERROR);
     }
 
-    if( Options.GetOptVerbose() == true ) {
-        // print header --------------------------------------------------------------
-        CSmallTimeAndDate dt;
-        dt.GetActualTimeAndDate();
+    // print header --------------------------------------------------------------
+    CSmallTimeAndDate dt;
+    dt.GetActualTimeAndDate();
 
-        vout << endl;
-        vout << "# ==============================================================================" << endl;
-        vout << "# result-client started at " << dt.GetSDateAndTime() << endl;
-        vout << "# ==============================================================================" << endl;
-        vout << "#" << endl;
-        vout << "# Server request (by user)   : " << Options.GetArgCommand() << endl;
-        vout << "# Server request (processed) : " << ActionRequest.GetQualifiedName() << endl;
-        vout << "#" << endl;
-        vout << "# ------------------------------------------------------------------------------" << endl;
-        vout << "# Server name                : " << ActionRequest.GetName() << endl;
-        vout << "# Server IP                  : " << ActionRequest.GetIP() << endl;
-        vout << "# Server port                : " << ActionRequest.GetPort() << endl;
-        vout << "# Command                    : " << ActionRequest.GetAction() << endl;
-        vout << "# ------------------------------------------------------------------------------" << endl;
-        CSmallString passfile;
-        bool         passfile_set;
-        passfile = Options.GetOptPassword(passfile_set);
-        if( passfile_set == true ) {
-            vout << "# Password                   : from file '" << passfile << "'" << endl;
-        } else {
-            vout << "# Password                   : from command line or server key file" << endl;
-        }
-        vout << "# ------------------------------------------------------------------------------" << endl;
+    vout << endl;
+    vout << "# ==============================================================================" << endl;
+    vout << "# result-client started at " << dt.GetSDateAndTime() << endl;
+    vout << "# ==============================================================================" << endl;
+    vout << "#" << endl;
+    vout << "# Server request (by user)   : " << Options.GetArgCommand() << endl;
+    vout << "# Server request (processed) : " << ActionRequest.GetQualifiedName() << endl;
+    vout << "#" << endl;
+    vout << "# ------------------------------------------------------------------------------" << endl;
+    vout << "# Server name                : " << ActionRequest.GetName() << endl;
+    vout << "# Server IP                  : " << ActionRequest.GetIP() << endl;
+    vout << "# Server port                : " << ActionRequest.GetPort() << endl;
+    vout << "# Command                    : " << ActionRequest.GetAction() << endl;
+    vout << "# ------------------------------------------------------------------------------" << endl;
+    CSmallString passfile;
+    bool         passfile_set;
+    passfile = Options.GetOptPassword(passfile_set);
+    if( passfile_set == true ) {
+        vout << "# Password                   : from file '" << passfile << "'" << endl;
+    } else {
+        vout << "# Password                   : from command line or server key file" << endl;
     }
+    vout << "# ------------------------------------------------------------------------------" << endl;
 
     return( result );
 }

@@ -9,6 +9,7 @@ ADD_SUBDIRECTORY(network)
 ADD_SUBDIRECTORY(pdb)
 ADD_SUBDIRECTORY(xyz)
 ADD_SUBDIRECTORY(svs)
+ADD_SUBDIRECTORY(cube)
 
 # cats interpreter -------------------------------------------------------------
 ADD_SUBDIRECTORY(cats)
