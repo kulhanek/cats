@@ -171,7 +171,7 @@ public:
                 false,                          /* is option mandatory */
                 '\0',                           /* short option name */
                 "symbol",                      /* long option name */
-                NULL,                           /* parametr name */
+                "NAME",                           /* parametr name */
                 "atom symbol for the xyz file")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
@@ -180,7 +180,7 @@ public:
                 false,                          /* is option mandatory */
                 '\0',                           /* short option name */
                 "structure",                      /* long option name */
-                NULL,                           /* parametr name */
+                "NAME",                           /* parametr name */
                 "structure in the xyz format for grid point filtereing")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(double,                           /* option type */
