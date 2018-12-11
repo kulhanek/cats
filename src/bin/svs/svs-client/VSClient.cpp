@@ -123,6 +123,7 @@ bool CVSClient::Run(void)
         MsgOut << low;
         result = GetServerInfo(MsgOut);
     } else if(ActionRequest.GetAction() == "shutdown") {
+        MsgOut << low;
         result = ShutdownServer(MsgOut);
     } else if(ActionRequest.GetAction() == "errors") {
         MsgOut << low;
