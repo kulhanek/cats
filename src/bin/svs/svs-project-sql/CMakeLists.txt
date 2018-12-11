@@ -16,7 +16,7 @@ QT5_USE_MODULES(svs-project-sql Core)
 ADD_DEPENDENCIES(svs-project-sql cats_shared)
 
 TARGET_LINK_LIBRARIES(svs-project-sql
-        readline
+        readline ncurses
         ${CATS_LIBS}
         )
 

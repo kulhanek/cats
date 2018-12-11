@@ -19,7 +19,7 @@ SET_TARGET_PROPERTIES(cats_inter PROPERTIES
                         )
 
 TARGET_LINK_LIBRARIES(cats_inter
-        readline
+        readline ncurses
         ${CATS_LIBS}
         )
 
