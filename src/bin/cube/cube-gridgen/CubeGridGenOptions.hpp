@@ -36,7 +36,7 @@ public:
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Generate grid points for a CUBE file suitable for calculation of properties at their positions. The cube file has rectangular axes and it is centered at the origin."
+    "Generate grid points for a CUBE file suitable for calculation of properties at their positions. The cube file has rectangular shape and it is centered at the origin."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
@@ -181,7 +181,7 @@ public:
                 '\0',                           /* short option name */
                 "structure",                      /* long option name */
                 "NAME",                           /* parametr name */
-                "structure in the xyz format for grid point filtereing")   /* option description */
+                "structure in the xyz format for grid point filtering")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(double,                           /* option type */
                 Treshold,                        /* option name */
