@@ -4,4 +4,5 @@
 
 # include subdirectories -------------------------------------------------------
 ADD_SUBDIRECTORY(cube-gridgen)
+ADD_SUBDIRECTORY(cube-assembly)
 
