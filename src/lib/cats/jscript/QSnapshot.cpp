@@ -947,7 +947,8 @@ QScriptValue QSnapshot::rmsdFit(void)
     if( value.isError() ) return(value);
 
 // options ---------------------------------------
-    bool nomass = IsArgumentKeySelected("nomass");
+    bool nomass   = IsArgumentKeySelected("nomass");
+    bool rmsdonly = IsArgumentKeySelected("rmsdonly");
 
     QSelection* p_qsel = NULL;
     FindArgAsObject<QSelection*>("snapshot[,selection,key1,key2,...]","Selection",p_qsel,false);
@@ -956,8 +957,10 @@ QScriptValue QSnapshot::rmsdFit(void)
     if( value.isError() ) return(value);
 
 // other checks ----------------------------------
-    if( Restart.IsBoxPresent() == true ){
-        return( ThrowError("snapshot[,selection,key1,key2,...]","target snapshot cannot contain box") );
+    if( ! rmsdonly ){
+        if( Restart.IsBoxPresent() == true ){
+            return( ThrowError("snapshot[,selection,key1,key2,...]","target snapshot cannot contain box") );
+        }
     }
 
     if( Restart.GetNumberOfAtoms() != p_qref->Restart.GetNumberOfAtoms() ){
@@ -1187,10 +1190,11 @@ QScriptValue QSnapshot::rmsdFit(void)
         }
         CPoint tpos = Restart.GetPosition(i);
         trans.Apply(tpos);
-        Restart.SetPosition(i,tpos);
+        if( ! rmsdonly ) Restart.SetPosition(i,tpos);
         if( Restart.AreVelocitiesLoaded() ){
             CPoint vel;
-            Restart.SetVelocity(i,vel);
+            // FIXME - should velocity be rotated as well?
+            if( ! rmsdonly ) Restart.SetVelocity(i,vel);
         }
         if( selected ){
             CPoint rpos = p_qref->Restart.GetPosition(i);
