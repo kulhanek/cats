@@ -527,8 +527,10 @@ QScriptValue  QTrajectory::printProgress(void)
         if( ProgressSnapshot > Trajectory.GetNumberOfSnapshots() ) return(value);
 
         for(int i=ProgressSnapshot;i < CurrentSnapshot; i++){
-            if( i % (Trajectory.GetNumberOfSnapshots()/80) == 0 ){
-                cout << "=";
+            if( Trajectory.GetNumberOfSnapshots() > 80 ){
+                if( i % (Trajectory.GetNumberOfSnapshots()/80) == 0 ){
+                    cout << "=";
+                }
             }
             if( i == Trajectory.GetNumberOfSnapshots()/4 ){
                 cout << " 25% ";

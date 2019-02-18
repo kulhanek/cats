@@ -578,7 +578,7 @@ QScriptValue QTrajPool::printProgress(void)
         // finish previous progress
         if( ProgressSnaphost != PrevCurrSnapshot ){
             for(int i=ProgressSnaphost;i < PrevCurrSnapshot; i++){
-		if( PrevCurrSnapshot >= 80 ){ 
+                if( PrevCurrSnapshot >= 80 ){
                     if( i % (PrevCurrSnapshot/80) == 0 ){
                         cout << "=";
                     }
@@ -610,7 +610,7 @@ QScriptValue QTrajPool::printProgress(void)
     if( ProgressStarted ){
         if( ProgressSnaphost > Trajectory.GetNumberOfSnapshots() ) return(value);
         for(int i=ProgressSnaphost;i < CurrentSnapshot; i++){
-	    if( Trajectory.GetNumberOfSnapshots() > 80 ){
+            if( Trajectory.GetNumberOfSnapshots() > 80 ){
                 if( i % (Trajectory.GetNumberOfSnapshots()/80) == 0 ){
                     cout << "=";
                 }
