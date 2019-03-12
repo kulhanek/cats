@@ -151,9 +151,43 @@ bool CTopRMLA::Run(void)
         if( Mask.IsAtomSelected(p_angle->GetJT()) == true ){
             if( abs(a1-a2) > Options.GetOptMaxDeviation() ){
                 if( Options.GetOptVerbose() ){
-                    fprintf(stdout,"REMOVED\n");
+                    fprintf(stdout,"REMOVED");
                 }
                 p_angle->SetICT(-1);
+
+                // remove also dihedral angles
+                for(int j=0; j < Topology.AngleList.GetNumberOfAngles();j++){
+                    bool removed = false;
+                    CAmberDihedral* p_dih = Topology.DihedralList.GetDihedral(j);
+                    if( (p_dih->GetIP() == p_angle->GetIT()) &&
+                        (p_dih->GetJP() == p_angle->GetJT()) &&
+                        (p_dih->GetKP() == p_angle->GetKT()) ){
+                        p_dih->SetICP(-1);
+                        removed = true;
+                    }
+                    if( (p_dih->GetIP() == p_angle->GetKT()) &&
+                        (p_dih->GetJP() == p_angle->GetJT()) &&
+                        (p_dih->GetKP() == p_angle->GetIT()) ){
+                        p_dih->SetICP(-1);
+                        removed = true;
+                    }
+                    if( (p_dih->GetJP() == p_angle->GetIT()) &&
+                        (p_dih->GetKP() == p_angle->GetJT()) &&
+                        (p_dih->GetLP() == p_angle->GetKT()) ){
+                        p_dih->SetICP(-1);
+                        removed = true;
+                    }
+                    if( (p_dih->GetJP() == p_angle->GetKT()) &&
+                        (p_dih->GetKP() == p_angle->GetJT()) &&
+                        (p_dih->GetLP() == p_angle->GetIT()) ){
+                        p_dih->SetICP(-1);
+                        removed = true;
+                    }
+                    if( removed && Options.GetOptVerbose() ){
+                        fprintf(stdout,"+");
+                    }
+                }
+                fprintf(stdout,"\n");
             } else {
                 if( Options.GetOptVerbose() ){
                     fprintf(stdout,"  OK\n");
@@ -168,6 +202,7 @@ bool CTopRMLA::Run(void)
 
     // clean topology
     Topology.AngleList.RemoveIllegalAngles();
+    Topology.DihedralList.RemoveIllegalDihedrals();
 
     // save topology
     if( Topology.Save(Options.GetArgNewTopName(),AMBER_VERSION_7,true) == false ) {
