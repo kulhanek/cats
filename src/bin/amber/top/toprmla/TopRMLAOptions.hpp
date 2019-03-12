@@ -37,7 +37,8 @@ public:
 
     CSO_PROG_DESC_BEGIN
     "Remove incorrect angles from the topology. The incorrect angle has deviation between equilibrium "
-    "and real angle value larger than specified treshold. Typicaly these are linear angles around the AB6 centers."
+    "and real angle value larger than specified treshold. Typicaly these are linear angles around the AB6 centers. "
+    " In addition, the program removes also corresponding dihedral angles."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
