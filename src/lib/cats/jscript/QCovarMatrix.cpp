@@ -25,7 +25,7 @@
 #include <moc_QCovarMatrix.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
-#include <Lapack.hpp>
+#include <SciLapack.hpp>
 #include <iomanip>
 #include <fstream>
 #include <ErrorSystem.hpp>
@@ -247,7 +247,7 @@ bool QCovarMatrix::diagonalize(void)
     NumOfVectors = GetDimension();
 
     // syev(char jobz,char uplo,CFortranMatrix& a,CVector& w);
-    int result = CLapack::syev('V','U',Matrix,EigenValues);
+    int result = CSciLapack::syev('V','U',Matrix,EigenValues);
 
     return(result == 0);
 }

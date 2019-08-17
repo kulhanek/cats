@@ -187,7 +187,9 @@ bool CTopRMLA::Run(void)
                         fprintf(stdout,"+");
                     }
                 }
-                fprintf(stdout,"\n");
+                if( Options.GetOptVerbose() ){
+                    fprintf(stdout,"\n");
+                }
             } else {
                 if( Options.GetOptVerbose() ){
                     fprintf(stdout,"  OK\n");
