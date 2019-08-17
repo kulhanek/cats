@@ -12,6 +12,8 @@ SET(TOPCRD2VMDBOX_SRC
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcrd2vmdbox ${TOPCRD2VMDBOX_SRC})
 QT5_USE_MODULES(topcrd2vmdbox Core)
+ADD_DEPENDENCIES(topcrd2vmdbox cats_shared)
+
 TARGET_LINK_LIBRARIES(topcrd2vmdbox
                 cats
                 ${ASL_LIB_NAME}
