@@ -149,7 +149,7 @@ QScriptValue QTrajectory::getTopology(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return(Topology);
+    return(JSTopology);
 }
 
 //------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ QScriptValue QTrajectory::read(void)
         value = GetArgAsObject<QSnapshot*>("snapshot","snapshot","Snapshot",1,p_qsnap);
         if( value.isError() ) return(value);
     } else {
-        p_qsnap = new QSnapshot(Topology);
+        p_qsnap = new QSnapshot(JSTopology);
     }
 
 // execute ---------------------------------------

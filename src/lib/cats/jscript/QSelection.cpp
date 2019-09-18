@@ -126,7 +126,7 @@ QScriptValue QSelection::getTopology(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return(Topology);
+    return(JSTopology);
 }
 
 //------------------------------------------------------------------------------
@@ -317,7 +317,7 @@ QScriptValue QSelection::getAtom(void)
     }
 
     if( GetArgumentCount() == 1 ){
-        QAtom* p_obj = new QAtom(Topology);
+        QAtom* p_obj = new QAtom(JSTopology);
         p_obj->Atom = Mask.GetSelectedAtomCondensed(index);
         value = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
         return( value );

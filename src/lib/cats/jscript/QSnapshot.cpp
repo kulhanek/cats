@@ -178,7 +178,7 @@ QScriptValue QSnapshot::getTopology(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return(Topology);
+    return(JSTopology);
 }
 
 //------------------------------------------------------------------------------

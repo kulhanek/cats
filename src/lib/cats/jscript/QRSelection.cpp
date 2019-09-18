@@ -96,8 +96,9 @@ QRSelection::QRSelection(const QScriptValue& top)
     : QCATsScriptable("RSelection")
 {
     RegisterAsWeakObject(top);
-    QTopology* p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    Mask.AssignTopology(&p_qtop->Topology);
+    if( Topology ){
+        Mask.AssignTopology(&Topology->Topology);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -127,7 +128,7 @@ QScriptValue QRSelection::getTopology(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return(Topology);
+    return(JSTopology);
 }
 
 //------------------------------------------------------------------------------
@@ -275,7 +276,7 @@ QScriptValue QRSelection::getResidue(void)
     }
 
     if( GetArgumentCount() == 1 ){
-        QResidue* p_obj = new QResidue(Topology);
+        QResidue* p_obj = new QResidue(JSTopology);
         p_obj->Residue = Mask.GetSelectedResidueCondensed(index);
         value = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
         return( value );

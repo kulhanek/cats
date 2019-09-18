@@ -174,7 +174,8 @@ public:
 
 // section of private data -----------------------------------------------------
 protected:
-    QScriptValue    Topology;
+    QTopology*      Topology;
+    QScriptValue    JSTopology;
 };
 
 //------------------------------------------------------------------------------

@@ -102,7 +102,7 @@ QScriptValue QAtom::getTopology(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return(Topology);
+    return(JSTopology);
 }
 
 //------------------------------------------------------------------------------
@@ -181,7 +181,7 @@ QScriptValue QAtom::getResidue(void)
     }
 
 // execute ---------------------------------------
-    QResidue* p_obj = new QResidue(Topology);
+    QResidue* p_obj = new QResidue(JSTopology);
     p_obj->Residue = Atom->GetResidue();
     return(engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
@@ -302,7 +302,7 @@ QScriptValue QAtom::getNeighbourAtom(void)
     }
 
 // execute ---------------------------------------
-    QAtom* p_obj = new QAtom(Topology);
+    QAtom* p_obj = new QAtom(JSTopology);
     p_obj->Atom = GetQTopology()->Topology.AtomList.GetAtom(Atom->GetNeighbourAtomIndex(index));
     return(engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }
@@ -404,7 +404,7 @@ QScriptValue QAtom::getNextAtom(void)
     }
 
 // execute ---------------------------------------
-    QAtom* p_obj = new QAtom(Topology);
+    QAtom* p_obj = new QAtom(JSTopology);
     p_obj->Atom = GetQTopology()->Topology.AtomList.GetAtom(index);
     return(engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership));
 }

@@ -38,35 +38,33 @@ using namespace std;
 
 QTopologyObject::QTopologyObject(void)
 {
-    Topology = QScriptValue();
+    Topology = NULL;
 }
 
 //------------------------------------------------------------------------------
 
 QTopologyObject::~QTopologyObject(void)
 {
-    QTopology* p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    if( p_qtop ){
-        p_qtop->ChildObjects.removeAll(this);
-        p_qtop->WeakObjects.removeAll(this);
+    if( Topology ){
+        Topology->ChildObjects.removeAll(this);
+        Topology->WeakObjects.removeAll(this);
     }
 
-    Topology = QScriptValue();
+    Topology = NULL;
 }
 
 //------------------------------------------------------------------------------
 
 void QTopologyObject::RegisterAsChildObject(const QScriptValue& top)
 {
-    QTopology* p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    if( p_qtop ){
-        p_qtop->ChildObjects.removeAll(this);
+    if( Topology ){
+        Topology->ChildObjects.removeAll(this);
     }
 
-    Topology = top;
-    p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    if( p_qtop ){
-        p_qtop->ChildObjects.append(this);
+    JSTopology = top;
+    Topology = dynamic_cast<QTopology*>(top.toQObject());
+    if( Topology ){
+        Topology->ChildObjects.append(this);
     }
 }
 
@@ -74,15 +72,14 @@ void QTopologyObject::RegisterAsChildObject(const QScriptValue& top)
 
 void QTopologyObject::RegisterAsWeakObject(const QScriptValue& top)
 {
-    QTopology* p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    if( p_qtop ){
-        p_qtop->WeakObjects.removeAll(this);
+    if( Topology ){
+        Topology->WeakObjects.removeAll(this);
     }
 
-    Topology = top;
-    p_qtop = dynamic_cast<QTopology*>(Topology.toQObject());
-    if( p_qtop ){
-        p_qtop->WeakObjects.append(this);
+    JSTopology = top;
+    Topology = dynamic_cast<QTopology*>(top.toQObject());
+    if( Topology ){
+        Topology->WeakObjects.append(this);
     }
 }
 
@@ -90,7 +87,7 @@ void QTopologyObject::RegisterAsWeakObject(const QScriptValue& top)
 
 void QTopologyObject::UnlinkTopologyObject(void)
 {
-    Topology = QScriptValue();
+    Topology = NULL;
 }
 
 //------------------------------------------------------------------------------
@@ -111,7 +108,7 @@ void QTopologyObject::UpdateData(void)
 
 QTopology* QTopologyObject::GetQTopology(void)
 {
-   return(dynamic_cast<QTopology*>(Topology.toQObject()));
+   return(Topology);
 }
 
 //==============================================================================
@@ -770,28 +767,28 @@ QScriptValue QTopology::getFirstResidue(void)
 
 void QTopology::DestroyWeakObjects(void)
 {
-    foreach(QObject* p_obj,WeakObjects){
+    while( ! WeakObjects.isEmpty() ){
+        QObject* p_obj = WeakObjects.takeFirst();
         QTopologyObject* p_topobj = dynamic_cast<QTopologyObject*>(p_obj);
         if( p_topobj != NULL ){
             p_topobj->UnlinkTopologyObject();
         }
-        delete p_obj;
+        //p_obj->deleteLater();
     }
-    WeakObjects.clear();
 }
 
 //------------------------------------------------------------------------------
 
 void QTopology::DestroyChildObjects(void)
 {
-    foreach(QObject* p_obj,ChildObjects){
+    while( ! ChildObjects.isEmpty() ){
+        QObject* p_obj = ChildObjects.takeFirst();
         QTopologyObject* p_topobj = dynamic_cast<QTopologyObject*>(p_obj);
         if( p_topobj != NULL ){
             p_topobj->UnlinkTopologyObject();
         }
-        delete p_obj;
+        //p_obj->deleteLater();
     }
-    ChildObjects.clear();
 }
 
 //------------------------------------------------------------------------------
