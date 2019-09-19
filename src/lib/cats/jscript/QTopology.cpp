@@ -49,7 +49,7 @@ QTopologyObject::~QTopologyObject(void)
         Topology->ChildObjects.removeAll(this);
         Topology->WeakObjects.removeAll(this);
     }
-
+    JSTopology = QScriptValue();;
     Topology = NULL;
 }
 
@@ -87,6 +87,7 @@ void QTopologyObject::RegisterAsWeakObject(const QScriptValue& top)
 
 void QTopologyObject::UnlinkTopologyObject(void)
 {
+    JSTopology = QScriptValue();
     Topology = NULL;
 }
 
@@ -773,7 +774,7 @@ void QTopology::DestroyWeakObjects(void)
         if( p_topobj != NULL ){
             p_topobj->UnlinkTopologyObject();
         }
-        //p_obj->deleteLater();
+        p_obj->deleteLater();
     }
 }
 
@@ -787,7 +788,7 @@ void QTopology::DestroyChildObjects(void)
         if( p_topobj != NULL ){
             p_topobj->UnlinkTopologyObject();
         }
-        //p_obj->deleteLater();
+        p_obj->deleteLater();
     }
 }
 
