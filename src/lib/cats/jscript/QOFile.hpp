@@ -43,7 +43,7 @@ public:
 // methods ---------------------------------------------------------------------
 public slots:
     /// open file
-    /// open(name)
+    /// open(name,[mode])
     QScriptValue open(void);
 
     /// close file
@@ -56,10 +56,12 @@ public slots:
 
 // section of private data -----------------------------------------------------
 private:
-    std::ofstream   vout;
+    std::ofstream           vout;
+    QString                 name;
+    std::ios_base::openmode mode;
 
     /// open file
-    bool openInternal(const QString& name);
+    bool openInternal(void);
 
     friend class QTinySpline;
 };
