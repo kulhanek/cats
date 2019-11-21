@@ -436,7 +436,7 @@ QScriptValue QHistogram::addSample(void)
     if( dch <= 0 ){
         return( ThrowError("value[,extra]","bin width is zero or negative value"));
     }
-    int index = (num - MinValue)/dch;
+    int index = floor((num - MinValue)/dch);
     if( (index < 0) || (index >= static_cast<int>(Histogram.size())) ) return(false);
 
     // increment value

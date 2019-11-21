@@ -620,10 +620,10 @@ QScriptValue QHistogram2D::addSample(void)
         return( ThrowError("value,value[,extra]","binD2 width is zero or negative value"));
     }
 
-    int indexD1 = (numD1 - MinValueD1)/BinSizeD1;
+    int indexD1 = floor((numD1 - MinValueD1)/BinSizeD1);
     if( (indexD1 < 0) || (indexD1 >= static_cast<int>(Histogram.size())) ) return(false);
 
-    int indexD2 = (numD2 - MinValueD2)/BinSizeD2;
+    int indexD2 = floor((numD2 - MinValueD2)/BinSizeD2);
     if( (indexD2 < 0) || (indexD2 >= static_cast<int>(Histogram.size())) ) return(false);
 
     NumOfSamplesWithin++;

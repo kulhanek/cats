@@ -104,7 +104,7 @@ QScriptValue QSimpleVector::getDimension(void)
     if( value.isError() ) return(value);
 
 // execute ---------------------------------------
-    return( Vector.GetLength() );
+    return( (int)Vector.GetLength() );
 }
 
 //------------------------------------------------------------------------------
@@ -127,7 +127,7 @@ QScriptValue QSimpleVector::getEuclideanLength(void)
 // execute ---------------------------------------
 
     double len = 0;
-    for(int i=0; i < Vector.GetLength(); i++){
+    for(size_t i=0; i < Vector.GetLength(); i++){
         double item = Vector[i];
         len += item*item;
     }
@@ -165,7 +165,7 @@ QScriptValue QSimpleVector::getScalarProduct(void)
     }
 
     double dot = 0;
-    for(int i=0; i < Vector.GetLength(); i++){
+    for(size_t i=0; i < Vector.GetLength(); i++){
         dot += Vector[i]*p_qleft->Vector[i];
     }
 
@@ -204,7 +204,7 @@ QScriptValue QSimpleVector::getAngleWith(void)
     double v1 = 0.0;
     double v2 = 0.0;
 
-    for(int i=0; i < Vector.GetLength(); i++){
+    for(size_t i=0; i < Vector.GetLength(); i++){
         double t1 = Vector[i];
         double t2 = p_qleft->Vector[i];
         v1 += t1*t1;
