@@ -153,7 +153,7 @@ bool CHistogram::Run(void)
     for(int i=0; i<tot_count; i++) {
         double value = Data[i];
         // find channel
-        int index = (int)((value - start)/dch);
+        int index = floor((value - start)/dch);
         if( (index >= 0)&&(index < Options.GetOptNBins()) ) {
             Histogram[index]++;
             hist_count++;
