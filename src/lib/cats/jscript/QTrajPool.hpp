@@ -91,7 +91,8 @@ public:
     const QString encodeFormat(ETrajectoryFormat format);
 
     /// add trajectory to the pool
-    bool addTrajFile(const QString& name,const QString& fmt);
+    /// 0 - OK, 1 - not exist, < 0 - some error, abort
+    int addTrajFile(const QString& name,const QString& fmt);
 
 // section of private data -----------------------------------------------------
 private:

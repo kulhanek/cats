@@ -251,14 +251,18 @@ QScriptValue QTrajectory::read(void)
     if( Trajectory.GetOpenMode() != AMBER_TRAJ_READ ){
         return( ThrowError("snapshot","trajectory is not opened for reading") );
     }
-    bool result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
-    if( result ){
+    int result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
+    if( result ==0 ){
         CurrentSnapshot++;
-    } else {
+    } else if( result == 1 ) {
+        // end of file
         if( GetArgumentCount() == 0 ){
             delete p_qsnap;
         }
         return( GetUndefinedValue() );
+    } else {
+        // some error, terminate the script
+        return( ThrowError("snapshot","unable to read the trajectory") );
     }
     if( GetArgumentCount() == 1 ){
         return(GetArgument(1));

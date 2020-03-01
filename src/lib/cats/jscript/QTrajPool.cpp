@@ -30,6 +30,7 @@
 #include <sstream>
 #include <ErrorSystem.hpp>
 #include <TerminalStr.hpp>
+#include <FileSystem.hpp>
 
 //------------------------------------------------------------------------------
 
@@ -173,7 +174,9 @@ QScriptValue QTrajPool::addTrajectory(void)
     }
 
 // execute ---------------------------------------
-    if( addTrajFile(name,format) == false ){
+    int result = addTrajFile(name,format);
+    if( result == 0 ) return(true);
+    if( result == 1 ){
         if( IgnoreMissingFiles == true ) return(true);
         CSmallString error;
         if( format == "unknown" ){
@@ -183,7 +186,9 @@ QScriptValue QTrajPool::addTrajectory(void)
         }
         return( ThrowError("name[,format]",error));
     }
-    return(true);
+    CSmallString error;
+    error << "unable to add file '" << CSmallString(name) << "'";
+    return( ThrowError("name[,format]",error));
 }
 
 //------------------------------------------------------------------------------
@@ -229,15 +234,21 @@ QScriptValue QTrajPool::addTrajList(void)
     for(int i=first; i <= last; i++){
         stringstream str;
         str << format(tmpname.toStdString()) % i;
-        if( addTrajFile(str.str().c_str(),tformat) == false ){
+        int result = addTrajFile(str.str().c_str(),tformat);
+        if( result == 1 ){
             if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
-                error << "unable to add file '" << str.str() << "'";
+                error << "unable to add file '" << CSmallString(str.str()) << "'";
             } else {
-                error << "unable to add file '" << str.str() << "' with format '" << CSmallString(tformat) << "'";
+                error << "unable to add file '" << CSmallString(str.str()) << "' with format '" << CSmallString(tformat) << "'";
             }
-            return( ThrowError("first,last[,tmpname,format]",error) );
+            return( ThrowError("name[,format]",error));
+        }
+        if( result < 0 ){
+            CSmallString error;
+            error << "unable to add file '" << CSmallString(str.str()) << "'";
+            return( ThrowError("name[,format]",error));
         }
     }
     return(true);
@@ -293,15 +304,21 @@ QScriptValue QTrajPool::addTrajListFrom(void)
         QString namefmt = path + "/" + tmpname;
         str << format(namefmt.toStdString()) % i;
 
-        if( addTrajFile(str.str().c_str(),tformat) == false ){
+        int result = addTrajFile(str.str().c_str(),tformat);
+        if( result == 1 ){
             if( IgnoreMissingFiles == true ) return(true);
             CSmallString error;
             if( tformat == "unknown" ){
-                error << "unable to add file '" << str.str() << "'";
+                error << "unable to add file '" << CSmallString(str.str()) << "'";
             } else {
-                error << "unable to add file '" << str.str() << "' with format '" << CSmallString(tformat) << "'";
+                error << "unable to add file '" << CSmallString(str.str()) << "' with format '" << CSmallString(tformat) << "'";
             }
-            return( ThrowError("first,last,path[,tmpname,format]",error) );
+            return( ThrowError("name[,format]",error));
+        }
+        if( result < 0 ){
+            CSmallString error;
+            error << "unable to add file '" << CSmallString(str.str()) << "'";
+            return( ThrowError("name[,format]",error));
         }
     }
 
@@ -310,16 +327,23 @@ QScriptValue QTrajPool::addTrajListFrom(void)
 
 //------------------------------------------------------------------------------
 
-bool QTrajPool::addTrajFile(const QString& name,const QString& fmt)
+int QTrajPool::addTrajFile(const QString& name,const QString& fmt)
 {
     CTrajPoolItem item;
     item.Name = name;
     item.Format = fmt;
 
+    if( CFileSystem::IsFile(name) == false ){
+        CSmallString warning;
+        warning << "unable to open file '" << name << "' (file does not exist)";
+        ES_WARNING(warning);
+        return(1);
+    }
+
     CAmberTrajectory traj;
     traj.AssignTopology(Trajectory.GetTopology());
     if( traj.OpenTrajectoryFile(name,decodeFormat(fmt),AMBER_TRAJ_CXYZB,AMBER_TRAJ_READ) == false ){
-        return(false);
+        return(-1);
     }
     item.Format = encodeFormat(traj.GetFormat());
     item.NumOfSnapshots = traj.GetNumberOfSnapshots();
@@ -327,7 +351,7 @@ bool QTrajPool::addTrajFile(const QString& name,const QString& fmt)
 
     Items.push_back(item);
 
-    return(true);
+    return(0);
 }
 
 //------------------------------------------------------------------------------
@@ -428,14 +452,15 @@ QScriptValue QTrajPool::read(void)
             if( GetArgumentCount() == 0 ){
                 delete p_qsnap;
             }
-            return( GetUndefinedValue() );
+            return( ThrowError("snapshot","unable to open the next trajectory segment") );
         }
     }
 
-    bool result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
-    if( result ){
+    int result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
+    if( result == 0 ){
         CurrentSnapshot++;
-    } else {
+    } else if( result == 1 ) {
+        // end of file
         PrevCurrSnapshot = CurrentSnapshot;
         Trajectory.CloseTrajectoryFile();
         CurrentItem++;
@@ -453,29 +478,35 @@ QScriptValue QTrajPool::read(void)
             if( GetArgumentCount() == 0 ){
                 delete p_qsnap;
             }
-            return( GetUndefinedValue() );
+            return( ThrowError("snapshot","unable to open the next trajectory segment") );
         }
         // try to read again
         CurrentSnapshot = 0;
         result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
-        if( result ){
+        if( result == 0 ){
             CurrentSnapshot++;
         }
     }
-    if( result == false ){
-        if( GetArgumentCount() == 0 ){
-            delete p_qsnap;
-        }
-        return( GetUndefinedValue() );
-    } else {
+
+    if( result == 0 ) {
         if( GetArgumentCount() == 1 ){
             return(GetArgument(1));
         } else {
             return(engine()->newQObject(p_qsnap, QScriptEngine::ScriptOwnership));
         }
+    } else if ( result == 1 ){
+        // end of file
+        if( GetArgumentCount() == 0 ){
+            delete p_qsnap;
+        }
+        return( GetUndefinedValue() );
+    } else {
+        if( GetArgumentCount() == 0 ){
+            delete p_qsnap;
+        }
+        return( ThrowError("snapshot","unable to read the trajectory") );
     }
 }
-
 
 //------------------------------------------------------------------------------
 
