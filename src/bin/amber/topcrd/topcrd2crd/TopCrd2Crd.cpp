@@ -284,6 +284,10 @@ bool CTopCrd2Crd::Run(void)
         recognized = true;
         result = WriteADF(p_fout);
     }
+    if( Options.GetOptOutputFormat() == "adfgeo" ) {
+        recognized = true;
+        result = WriteADFGeo(p_fout);
+    }
     if( Options.GetOptOutputFormat() == "adffrag" ) {
         recognized = true;
         result = WriteADFFrag(p_fout);
@@ -975,7 +979,7 @@ bool CTopCrd2Crd::WritePDBRemark(FILE* p_file,const CSmallString& string)
 
 //------------------------------------------------------------------------------
 
-bool CTopCrd2Crd::WriteADF(FILE* p_fout)
+bool CTopCrd2Crd::WriteADFGeo(FILE* p_fout)
 {
     fprintf(p_fout,"ATOMS Cartesian\n");
     int j=1;
@@ -1000,6 +1004,15 @@ bool CTopCrd2Crd::WriteADF(FILE* p_fout)
     }
     int tcharge = round(total_charge);
     fprintf(p_fout,"CHARGE %d\n\n",tcharge);
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CTopCrd2Crd::WriteADF(FILE* p_fout)
+{
+    if( WriteADFGeo(p_fout) == false ) return(false);
 
     fprintf(p_fout,"XC\n");
     fprintf(p_fout,"    GGA PBE\n");

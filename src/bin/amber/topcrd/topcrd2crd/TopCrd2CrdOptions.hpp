@@ -123,6 +123,7 @@ public:
                 "   <green>rbox</green>       - rbox format for qhull\n"
                 "   <green>traj</green>       - amber trajectory file\n"
                 "   <green>adf</green>        - plain ADF input\n"
+                "   <green>adfgeo</green>     - plain ADF input, only geometry\n"
                 "   <green>adffrag</green>    - plain ADF input with one fragment\n"
                 "   <green>adf3drism</green>  - plain ADF input for 3D-RISM"
                 )   /* option description */

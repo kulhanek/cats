@@ -71,6 +71,7 @@ private:
     bool WriteRBOX(FILE* p_fout);
     bool WriteTRAJ(FILE* p_fout);
     bool WriteADF(FILE* p_fout);
+    bool WriteADFGeo(FILE* p_fout);
     bool WriteADFFrag(FILE* p_fout);
     bool WriteADF3DRISM(FILE* p_fout);
 
