@@ -96,7 +96,9 @@ QScriptValue QTrajectory::New(QScriptContext *context, QScriptEngine *engine)
             p_obj->OpenMode = p_obj->Trajectory.GetOpenMode();
             return(engine->newQObject(p_obj, QScriptEngine::ScriptOwnership));
         } else {
-            delete p_obj;
+            // FIXME
+            // RT#694968
+            return(engine->newQObject(p_obj, QScriptEngine::ScriptOwnership));
         }
     }
 

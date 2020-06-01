@@ -4,6 +4,7 @@
 
 CMAKE_MINIMUM_REQUIRED(VERSION 3.1 FATAL_ERROR)
 #SET(CMAKE_VERBOSE_MAKEFILE ON)
+PROJECT(CATs)
 
 # ==============================================================================
 # conditional setup ------------------------------------------------------------
