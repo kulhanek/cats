@@ -371,7 +371,7 @@ void QCovarMatrix::filterSnapshot(QObject* p_qsnap,int vector1,int vector2)
 
     // calculate projections
     vector<double> projections;
-    for(int vect = vector2; vect >= vector1; vect--){
+    for(int vect = vector2; vect <= vector1; vect++){
         double proj = 0;
         for(int i=0; i < ndim; i++ ){
             proj += CrdHelper[i]*Matrix[i][vect];
@@ -381,9 +381,9 @@ void QCovarMatrix::filterSnapshot(QObject* p_qsnap,int vector1,int vector2)
 
     for(int i=0; i < ndim; i++ ){
         int proji = 0;
-        CrdHelper[i] = 0.0;
-        for(int vect = vector2; vect >= vector1; vect--){
-            CrdHelper[i] += RefHelper[i] + projections[proji]*Matrix[i][vect];
+        CrdHelper[i] = RefHelper[i];
+        for(int vect = vector2; vect <= vector1; vect++){
+            CrdHelper[i] +=  projections[proji]*Matrix[i][vect];
             proji++;
         }
     }
