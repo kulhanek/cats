@@ -20,6 +20,7 @@
 
 #include <QScriptEngine>
 #include <QSimpleVector.hpp>
+#include <QPoint.hpp>
 #include <moc_QSimpleVector.cpp>
 #include <SmallString.hpp>
 #include <TerminalStr.hpp>
@@ -237,6 +238,35 @@ QScriptValue QSimpleVector::getAngleWith(void)
 //    angle = angle * 180.0 / M_PI; // convert to degrees
 
     return(angle);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QSimpleVector::getPoint(int index)
+{
+    if( argumentCount() != 1 ) {
+        context()->throwError("SimpleVector::getPoint(index) - illegal number of arguments, only one is expected");
+        return(0.0);
+    }
+
+    int npts = Vector.GetLength()/3;
+
+    if( (index < 1) || (index > npts) ){
+        CSmallString error;
+        error << "SimpleVector::getPoint(index) - vector index is out-of-range, index (";
+        error << index << "), npts (" << npts << ")";
+        context()->throwError(QString(error));
+        return(0.0);
+    }
+    index = (index - 1)*3;
+
+    QPoint* p_obj = new QPoint();
+    p_obj->Point.x = Vector[index];
+    p_obj->Point.y = Vector[index+1];
+    p_obj->Point.z = Vector[index+2];
+
+    QScriptValue obj = engine()->newQObject(p_obj, QScriptEngine::ScriptOwnership);
+    return(obj);
 }
 
 //==============================================================================

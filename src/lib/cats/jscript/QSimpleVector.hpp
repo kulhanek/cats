@@ -61,6 +61,9 @@ public slots:
     /// double getAngleWith(vector) - returned value is rad
     QScriptValue getAngleWith(void);
 
+    /// get point
+    QScriptValue getPoint(int index);
+
 // access methods --------------------------------------------------------------
 public:   
     CVector Vector;
