@@ -85,6 +85,12 @@ public slots:
     /// get name of currently processed trajectory
     QScriptValue getCurrentTrajName(void);
 
+    /// get snapshot index
+    QScriptValue getGlobalSnapshotIndex(void);
+
+    /// get snapshot index from currently processed trajectory
+    QScriptValue getLocalSnapshotIndex(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// decode format
@@ -116,6 +122,7 @@ private:
     // progress
     bool                ProgressStarted;    
     int                 CurrentSnapshot;
+    int                 ItemSnapshot;
     int                 ProgressSnaphost;
     int                 PrevCurrSnapshot;
     int                 PrevNumOfSnapshots;

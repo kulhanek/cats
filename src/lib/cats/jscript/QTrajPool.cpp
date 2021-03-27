@@ -102,6 +102,7 @@ QTrajPool::QTrajPool(const QScriptValue& top)
     CurrentItem = -1;
     ProgressStarted = false;
     CurrentSnapshot = 0;
+    ItemSnapshot = 0;
     PrevCurrSnapshot = -1;
     DefaultTmpName = "prod%03d.traj";
     IgnoreMissingFiles = true;
@@ -115,6 +116,7 @@ void QTrajPool::CleanData(void)
     CurrentItem = -1;
     ProgressStarted = false;
     CurrentSnapshot = 0;
+    ItemSnapshot = 0;
     PrevCurrSnapshot = -1;
     Trajectory.CloseTrajectoryFile();
 }
@@ -376,6 +378,7 @@ QScriptValue QTrajPool::clear(void)
     CurrentItem = -1;
     ProgressStarted = false;
     CurrentSnapshot = 0;
+    ItemSnapshot = 0;
     PrevCurrSnapshot = -1;
     Trajectory.CloseTrajectoryFile();
 
@@ -403,6 +406,7 @@ QScriptValue QTrajPool::rewind(void)
     CurrentItem = -1;
     ProgressStarted = false;
     CurrentSnapshot = 0;
+    ItemSnapshot = 0;
     PrevCurrSnapshot = -1;
     Trajectory.CloseTrajectoryFile();
 
@@ -442,6 +446,7 @@ QScriptValue QTrajPool::read(void)
     // is pool opened
     if( CurrentItem < 0 ){
         CurrentItem = 0;
+        ItemSnapshot = 0;
         if( CurrentItem >= (int)Items.size() ){
             // no items in the pool
             return(false);
@@ -459,7 +464,9 @@ QScriptValue QTrajPool::read(void)
     int result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
     if( result == 0 ){
         CurrentSnapshot++;
+        ItemSnapshot++;
     } else if( result == 1 ) {
+        ItemSnapshot = 0;
         // end of file
         PrevCurrSnapshot = CurrentSnapshot;
         Trajectory.CloseTrajectoryFile();
@@ -485,6 +492,7 @@ QScriptValue QTrajPool::read(void)
         result = Trajectory.ReadSnapshot(&p_qsnap->Restart);
         if( result == 0 ){
             CurrentSnapshot++;
+            ItemSnapshot++;
         }
     }
 
@@ -683,10 +691,53 @@ QScriptValue QTrajPool::getCurrentTrajName(void)
     value = CheckNumberOfArguments("",0);
     if( value.isError() ) return(value);
 
+// execute ---------------------------------------
     if( (CurrentItem < 0) || (CurrentItem >= (int)Items.size()) ){
         return(value); // no valid index
     }
     return(Items[CurrentItem].Name);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QTrajPool::getGlobalSnapshotIndex(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: TrajPool::getGlobalSnapshotIndex()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(CurrentSnapshot);
+}
+
+//------------------------------------------------------------------------------
+
+QScriptValue QTrajPool::getLocalSnapshotIndex(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: TrajPool::getLocalSnapshotIndex()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(ItemSnapshot);
 }
 
 //==============================================================================
