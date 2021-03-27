@@ -25,6 +25,7 @@
 #include <moc_QTrajectory.cpp>
 #include <QTopology.hpp>
 #include <QSnapshot.hpp>
+#include <QAverageSnapshot.hpp>
 #include <iomanip>
 #include <TerminalStr.hpp>
 
@@ -290,15 +291,30 @@ QScriptValue QTrajectory::write(void)
     value = CheckNumberOfArguments("snapshot",1);
     if( value.isError() ) return(value);
 
-    QSnapshot* p_qsnap;
-    value = GetArgAsObject<QSnapshot*>("snapshot","snapshot","Snapshot",1,p_qsnap);
-    if( value.isError() ) return(value);
-
 // execute ---------------------------------------
-    if( Trajectory.GetOpenMode() != AMBER_TRAJ_WRITE ){
-        return( ThrowError("snapshot","trajectory is not opened for writing") );
+    if( IsArgumentObject<QSnapshot*>(1) == true ){
+        QSnapshot* p_qsnap;
+        value = GetArgAsObject<QSnapshot*>("snapshot","snapshot","Snapshot",1,p_qsnap);
+        if( value.isError() ) return(value);
+
+        if( Trajectory.GetOpenMode() != AMBER_TRAJ_WRITE ){
+            return( ThrowError("snapshot","trajectory is not opened for writing") );
+        }
+        return(Trajectory.WriteSnapshot(&p_qsnap->Restart));
     }
-    return(Trajectory.WriteSnapshot(&p_qsnap->Restart));
+
+    if( IsArgumentObject<QAverageSnapshot*>(1) == true ){
+        QAverageSnapshot* p_qsnap;
+        value = GetArgAsObject<QAverageSnapshot*>("snapshot","snapshot","AverageSnapshot",1,p_qsnap);
+        if( value.isError() ) return(value);
+
+        if( Trajectory.GetOpenMode() != AMBER_TRAJ_WRITE ){
+            return( ThrowError("snapshot","trajectory is not opened for writing") );
+        }
+        return(Trajectory.WriteSnapshot(&p_qsnap->Restart));
+    }
+
+return( ThrowError("Snapshot/AverageSnapshot","the first argument is not unsupported type") );
 }
 
 //------------------------------------------------------------------------------

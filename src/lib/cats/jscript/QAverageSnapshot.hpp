@@ -78,6 +78,7 @@ private:
     bool FinishAccumulation(void);
     
     friend class QSnapshot;
+    friend class QTrajectory;
 
     /// clear object data if topology is cleaned - only weak objects
     virtual void CleanData(void);

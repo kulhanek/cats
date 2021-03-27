@@ -666,6 +666,29 @@ QScriptValue QTrajPool::printProgress(void)
     return(value);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QTrajPool::getCurrentTrajName(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: TrajPool::getCurrentTrajName()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+    if( (CurrentItem < 0) || (CurrentItem >= (int)Items.size()) ){
+        return(value); // no valid index
+    }
+    return(Items[CurrentItem].Name);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

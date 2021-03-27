@@ -1549,6 +1549,43 @@ QScriptValue QSnapshot::setPosition(void)
     return( value );
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue QSnapshot::arePositionsValid(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Snapshot::arePositionsValid()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute code ----------------------------------
+    bool valid = false;
+    for(int i=0; i < GetNumOfAtoms(); i++) {
+        CPoint p1 = Restart.GetPosition(i);
+        if( p1.x != 0.0 ){
+            valid = true;
+            break;
+        }
+        if( p1.y != 0.0 ){
+            valid = true;
+            break;
+        }
+        if( p1.z != 0.0 ){
+            valid = true;
+            break;
+        }
+    }
+    return(valid);
+}
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================

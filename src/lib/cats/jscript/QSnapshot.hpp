@@ -156,6 +156,9 @@ public slots:
     /// setPosition(index,point)
     QScriptValue setPosition(void);
 
+    /// are positions valid, e.g., non-zero?
+    QScriptValue arePositionsValid(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// return number of atoms

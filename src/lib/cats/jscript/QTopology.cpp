@@ -193,7 +193,7 @@ QScriptValue QTopology::New(QScriptContext *context,
             return(value);
         }
         // error
-        return( scriptable.ThrowError("name/topology/selection","the first argument is of unsupported type") );
+        return( scriptable.ThrowError("name/topology/selection","the first argument is not unsupported type") );
     }
 
     // new Topology(topology,mask)

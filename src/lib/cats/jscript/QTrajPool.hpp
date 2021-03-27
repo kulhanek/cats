@@ -82,6 +82,9 @@ public slots:
     /// print progress
     QScriptValue printProgress(void);
 
+    /// get name of currently processed trajectory
+    QScriptValue getCurrentTrajName(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// decode format
