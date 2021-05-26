@@ -1,0 +1,24 @@
+# ==============================================================================
+# OBSymChg CMake File
+# ==============================================================================
+
+# program objects --------------------------------------------------------------
+SET(PROG_SRC main.cpp options.cpp)
+
+# final build ------------------------------------------------------------------
+ADD_EXECUTABLE(obsymchg ${PROG_SRC})
+QT5_USE_MODULES(obsymchg Core)
+
+TARGET_LINK_LIBRARIES(obsymchg
+        ${OPEN_BABEL_LIB}
+        ${CATS_LIBS}
+        ${SCIMAFIC_CLIB_NAME}
+        ${HIPOLY_LIB_NAME}
+        )
+
+INSTALL(TARGETS
+            obsymchg
+        RUNTIME DESTINATION
+            bin
+        )
+
