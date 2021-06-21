@@ -8,6 +8,7 @@ SET(PROG_SRC main.cpp options.cpp)
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(obsymchg ${PROG_SRC})
 QT5_USE_MODULES(obsymchg Core)
+ADD_DEPENDENCIES(obsymchg cats_shared)
 
 TARGET_LINK_LIBRARIES(obsymchg
         ${OPEN_BABEL_LIB}
