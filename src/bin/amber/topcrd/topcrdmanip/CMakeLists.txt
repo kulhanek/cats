@@ -3,22 +3,23 @@
 # ==============================================================================
 
 # program objects --------------------------------------------------------------
-SET(TOPCRD2VMDBOX_SRC
+SET(TOPCRDMANIP_SRC
         main.cpp
-        TopCrd2VMDBox.cpp
-        TopCrd2VMDBoxOptions.cpp
+        TopCrdManip.cpp
+        TopCrdManipOptions.cpp
         )
 
 # final build ------------------------------------------------------------------
-ADD_EXECUTABLE(topcrd2vmdbox ${TOPCRD2VMDBOX_SRC})
-QT5_USE_MODULES(topcrd2vmdbox Core)
+ADD_EXECUTABLE(topcrdmanip ${TOPCRDMANIP_SRC})
+QT5_USE_MODULES(topcrdmanip Core)
 ADD_DEPENDENCIES(topcrd2vmdbox cats_shared)
 
-TARGET_LINK_LIBRARIES(topcrd2vmdbox
+TARGET_LINK_LIBRARIES(topcrdmanip
         ${CATS_LIBS})
 
 INSTALL(TARGETS
-            topcrd2vmdbox
+            topcrdmanip
         DESTINATION
             bin
         )
+
