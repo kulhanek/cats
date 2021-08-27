@@ -744,4 +744,35 @@ QScriptValue QTrajPool::getLocalSnapshotIndex(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
+QScriptValue QTrajPool::getNumOfSnapshots(void)
+{
+    QScriptValue value;
 
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: TrajPool::getNumOFSnapshots()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    int tot_snapshots = 0;
+    for(unsigned int i=0; i < Items.size(); i++){
+        if( Items[i].NumOfSnapshots >= 0 ){
+            if( tot_snapshots >= 0 ) {
+                tot_snapshots += Items[i].NumOfSnapshots;
+            } else {
+                tot_snapshots = -1;
+            }
+        }
+    }
+    return(tot_snapshots);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
