@@ -574,6 +574,28 @@ QScriptValue  QTrajectory::printProgress(void)
     return(value);
 }
 
+//------------------------------------------------------------------------------
+
+QScriptValue  QTrajectory::getNumOfSnapshots(void)
+{
+    QScriptValue value;
+
+// help ------------------------------------------
+    if( IsHelpRequested() ){
+        CTerminalStr sout;
+        sout << "usage: Trajectory::getNumOfSnapshots()" << endl;
+        return(false);
+    }
+
+// check arguments -------------------------------
+    value = CheckNumberOfArguments("",0);
+    if( value.isError() ) return(value);
+
+// execute ---------------------------------------
+    return(Trajectory.GetNumberOfSnapshots());
+}
+
+
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
@@ -629,24 +651,4 @@ const QString QTrajectory::encodeOpenMode(ETrajectoryOpenMode mode)
 //==============================================================================
 //------------------------------------------------------------------------------
 //==============================================================================
-
-QScriptValue  QTrajectory::getNumOfSnapshots(void)
-{
-    QScriptValue value;
-
-// help ------------------------------------------
-    if( IsHelpRequested() ){
-        CTerminalStr sout;
-        sout << "usage: Trajectory::getNumOfSnapshots()" << endl;
-        return(false);
-    }
-
-// check arguments -------------------------------
-    value = CheckNumberOfArguments("",0);
-    if( value.isError() ) return(value);
-
-// execute ---------------------------------------
-    return(Trajectory.GetNumberOfSnapshots());
-}
-
 
