@@ -410,7 +410,7 @@ bool CTopCrd2Crd::WriteCRD(FILE* p_fout,bool binary)
     CAmberRestart  cut_coordinates;
 
     // prepare fake cut topology
-    cut_topology.AtomList.InitFields(Mask.GetNumberOfSelectedAtoms(),0,0);
+    cut_topology.AtomList.InitFields(Mask.GetNumberOfSelectedAtoms(),0,0,0);
 
     // assign topology to coordinates
     cut_coordinates.AssignTopology(&cut_topology);
@@ -922,7 +922,7 @@ bool CTopCrd2Crd::WriteTRAJ(FILE* p_fout)
     CAmberRestart      cut_restart;
 
     // prepare fake cut topology
-    cut_topology.AtomList.InitFields(Mask.GetNumberOfSelectedAtoms(),0,0);
+    cut_topology.AtomList.InitFields(Mask.GetNumberOfSelectedAtoms(),0,0,0);
 
     // assign topology to trajectory and snapshot
     cut_trajectory.AssignTopology(&cut_topology);
