@@ -91,6 +91,9 @@ public slots:
     /// print progress
     QScriptValue printProgress(void);
 
+    /// get number of snapshots
+    QScriptValue getNumOfSnapshots(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// decode format

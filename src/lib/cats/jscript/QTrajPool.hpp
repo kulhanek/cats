@@ -91,6 +91,9 @@ public slots:
     /// get snapshot index from currently processed trajectory
     QScriptValue getLocalSnapshotIndex(void);
 
+    /// get number of snapshots
+    QScriptValue getNumOfSnapshots(void);
+
 // access methods --------------------------------------------------------------
 public:
     /// decode format
