@@ -12,7 +12,7 @@ SET(TOPCRDMANIP_SRC
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcrdmanip ${TOPCRDMANIP_SRC})
 QT5_USE_MODULES(topcrdmanip Core)
-ADD_DEPENDENCIES(topcrd2vmdbox cats_shared)
+ADD_DEPENDENCIES(topcrdmanip cats_shared)
 
 TARGET_LINK_LIBRARIES(topcrdmanip
         ${CATS_LIBS})
