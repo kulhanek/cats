@@ -50,6 +50,7 @@ CTopCrdManip::CTopCrdManip(void)
 
     // center options
     CenterToOrigin = false;
+    CenterNoMass = false;
 }
 
 //==============================================================================
@@ -308,7 +309,8 @@ bool CTopCrdManip::CenterCoordinates(void)
     double  tmass = 0.0;
     for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++) {
         if( mask.GetSelectedAtom(i) == NULL ) continue;
-        double mass = Topology.AtomList.GetAtom(i)->GetMass();
+        double mass = 1.0;
+        if( CenterNoMass == false ) mass = Topology.AtomList.GetAtom(i)->GetMass();
         com += Coordinates.GetPosition(i)*mass;
         tmass += mass;
     }
@@ -336,13 +338,19 @@ bool CTopCrdManip::CenterCoordinates(void)
 
 bool CTopCrdManip::DecodeCenterOptions(void)
 {
-    for(int i=4; i < Options.GetNumberOfProgArgs(); i++) {
+    if( Options.GetNumberOfProgArgs() >= 5 ) {
+        CenterMask = Options.GetProgArg(4);
+    }
+
+    for(int i=5; i < Options.GetNumberOfProgArgs(); i++) {
         if( Options.GetProgArg(i) == "origin" ) {
             CenterToOrigin = true;
             continue;
         }
-        CenterMask = Options.GetProgArg(i);
-        continue;
+        if( Options.GetProgArg(i) == "nomass" ) {
+            CenterNoMass = true;
+            continue;
+        }
     }
 
     return(true);

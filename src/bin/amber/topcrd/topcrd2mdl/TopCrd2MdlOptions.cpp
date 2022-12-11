@@ -1,7 +1,5 @@
-#ifndef CATsMainHeaderH
-#define CATsMainHeaderH
 // =============================================================================
-// CATs - Conversion and Analysis Tools
+// CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
 //    Copyright (C) 2008 Petr Kulhanek, kulhanek@enzim.hu
 //    Copyright (C) 2005 Petr Kulhanek, kulhanek@chemi.muni.cz
@@ -22,40 +20,56 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <HiPoLyMainHeader.hpp>
+#include "TopCrd2MdlOptions.hpp"
+#include <ErrorSystem.hpp>
 
-extern const char* LibBuildVersion_CATs;
-extern const char* LibVersion_CATs;
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================
+
+CTopCrd2MdlOptions::CTopCrd2MdlOptions(void)
+{
+    SetShowMiniUsage(true);
+}
 
 //------------------------------------------------------------------------------
 
-#if defined _WIN32 || defined __CYGWIN__
-#ifdef CATS_BUILDING_DLL
-#ifdef __GNUC__
-#define CATS_DLL_PUBLIC __attribute__((dllexport))
-#else
-#define CATS_DLL_PUBLIC __declspec(dllexport)
-#endif
-#else
-#ifdef __GNUC__
-#define CATS_DLL_PUBLIC __attribute__((dllimport))
-#else
-#define CATS_DLL_PUBLIC __declspec(dllimport)
-#endif
-#define CATS_DLL_LOCAL
-#endif
-#else
-#if __GNUC__ >= 4
-#define CATS_DLL_PUBLIC __attribute__ ((visibility("default")))
-#define CATS_DLL_LOCAL  __attribute__ ((visibility("hidden")))
-#else
-#define CATS_DLL_PUBLIC
-#define CATS_DLL_LOCAL
-#endif
-#endif
-
-#define CATS_PACKAGE CATS_DLL_PUBLIC
+int CTopCrd2MdlOptions::CheckOptions(void)
+{
+    return(SO_CONTINUE);
+}
 
 //------------------------------------------------------------------------------
 
-#endif
+int CTopCrd2MdlOptions::FinalizeOptions(void)
+{
+    bool ret_opt = false;
+
+    if( GetOptHelp() == true ) {
+        PrintUsage();
+        ret_opt = true;
+    }
+
+    if( GetOptVersion() == true ) {
+        PrintVersion();
+        ret_opt = true;
+    }
+
+    if( ret_opt == true ) {
+        printf("\n");
+        return(SO_EXIT);
+    }
+
+    return(SO_CONTINUE);
+}
+
+//------------------------------------------------------------------------------
+
+int CTopCrd2MdlOptions::CheckArguments(void)
+{
+    return(SO_CONTINUE);
+}
+
+//==============================================================================
+//------------------------------------------------------------------------------
+//==============================================================================

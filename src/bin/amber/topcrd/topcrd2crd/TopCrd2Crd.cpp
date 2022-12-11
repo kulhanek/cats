@@ -548,7 +548,7 @@ bool CTopCrd2Crd::WritePDB(FILE* p_fout)
 
     fprintf(p_fout,"TER\n");
 
-    return(false);
+    return(true);
 }
 
 //------------------------------------------------------------------------------

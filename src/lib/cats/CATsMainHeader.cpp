@@ -28,6 +28,7 @@
 //==============================================================================
 
 const char* LibBuildVersion_CATs = CATS_VERSION "(" CATS_BUILDTIME ") [CATs - Conversion And Analysis Tools]";
+const char* LibVersion_CATs      = CATS_VERSION "(" CATS_BUILDTIME ")";
 
 //==============================================================================
 //------------------------------------------------------------------------------

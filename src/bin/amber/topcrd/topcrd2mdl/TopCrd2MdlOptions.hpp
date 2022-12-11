@@ -1,5 +1,5 @@
-#ifndef TopCrdManipOptionsH
-#define TopCrdManipOptionsH
+#ifndef TopCrd2MdlOptionsH
+#define TopCrd2MdlOptionsH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
@@ -27,57 +27,70 @@
 
 //------------------------------------------------------------------------------
 
-class CTopCrdManipOptions : public CSimpleOptions {
+class CTopCrd2MdlOptions : public CSimpleOptions {
 public:
     // constructor - tune option setup
-    CTopCrdManipOptions(void);
+    CTopCrd2MdlOptions(void);
 
 // program name and description -----------------------------------------------
     CSO_PROG_NAME_BEGIN
-    "topcrdmanip"
+    "topcrd2mdl"
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Manipulates with coordinates."
+    "Convert the AMBER topology and coordinates into the solvent MDL (MoDeL) format."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
     LibBuildVersion_CATs
     CSO_PROG_VERS_END
 
-    CSO_PROG_ARGS_SHORT_DESC_BEGIN
-    "TOP CRD OUTCRD COMMAND [command options]"
-    CSO_PROG_ARGS_SHORT_DESC_END
-
-    CSO_PROG_ARGS_LONG_DESC_BEGIN
-    "Arguments:\n"
-    "* PARM         topology file name\n"
-    "* INCRD        input coordinates in AMBER coordinate format\n"
-    "* OUTCRD       output coordinates in AMBER coordinate format\n"
-    "* COMMAND      manipulation command\n"
-    "\n"
-    "Supported commands:\n"
-    "  identity     \n"
-    "  center       mask [origin] [nomass]\n"
-    "  image        [origin] [familiar] [byatom]\n"
-    "  move         mask dx dy dz\n"
-    "  moveto       mask x   y  z\n"
-    "  swap         mask1 mask2\n"
-    "  principal    mask\n"
-    "  bondrot      mask1 mask2 angle"
-    CSO_PROG_ARGS_LONG_DESC_END
-
-
 // list of all options and arguments ------------------------------------------
     CSO_LIST_BEGIN
+    // arguments ----------------------------
+    CSO_ARG(CSmallString,TopologyName)
+    CSO_ARG(CSmallString,CrdName)
+    CSO_ARG(CSmallString,MDLName)
     // options ------------------------------
+    CSO_OPT(CSmallString,EmbeddedSites)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
     CSO_LIST_END
 
     CSO_MAP_BEGIN
+// description of arguments ---------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                TopologyName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "PARM",                           /* parametr name */
+                "topology file name")   /* argument description */
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                CrdName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "CRD",                           /* parametr name */
+                "input coordinates file name or - for standard input")   /* argument description */
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                MDLName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "MDL",                           /* parametr name */
+                "output MDL file name or - for standard output")   /* argument description */
+
 // description of options -----------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                EmbeddedSites,                        /* option name */
+                "keep",                          /* default value */
+                false,                          /* is option mandatory */
+                'e',                           /* short option name */
+                "embedded",                      /* long option name */
+                NULL,                           /* parametr name */
+                "how to handle LJ parameters of embedded sites "
+                "(i.e., with zero LJ parameters), availbale options are: "
+                "keep and coincident (see 10.1021/ct900460m")   /* option description */
+    //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */
                 false,                          /* default value */
@@ -106,16 +119,7 @@ public:
                 "display this help and exit")   /* option description */
     CSO_MAP_END
 
-
-// suplementary methods -------------------------------------------------------
-    const CSmallString& GetArgTopologyName(void);
-    const CSmallString& GetArgInCrdName(void);
-    const CSmallString& GetArgOutCrdName(void);
-    const CSmallString& GetArgCommand(void);
-    const CSmallString& GetCommandArg(int pos);
-    int                 GetNumOfCommandArgs(void);
-
-// final operation with options -----------------------------------------------
+// final operation with options ------------------------------------------------
 private:
     virtual int CheckOptions(void);
     virtual int FinalizeOptions(void);

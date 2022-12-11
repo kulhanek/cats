@@ -1,8 +1,9 @@
-#ifndef TopCrdManipH
-#define TopCrdManipH
+#ifndef TopCrd2MdlH
+#define TopCrd2MdlH
 // =============================================================================
 // CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
+//    Copyright (C) 2022 Petr Kulhanek, kulhanek@chemi.muni.cz
 //    Copyright (C) 2008 Petr Kulhanek, kulhanek@enzim.hu
 //    Copyright (C) 2005 Petr Kulhanek, kulhanek@chemi.muni.cz
 //    Copyright (C) 2004 Petr Kulhanek, kulhanek@chemi.muni.cz
@@ -22,20 +23,45 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include "TopCrdManipOptions.hpp"
+#include "TopCrd2MdlOptions.hpp"
 #include <AmberTopology.hpp>
 #include <AmberRestart.hpp>
 #include <AmberMaskAtoms.hpp>
-#include <Point.hpp>
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
+#include <vector>
+#include <map>
 
 //------------------------------------------------------------------------------
 
-class CTopCrdManip {
+struct CRISMType {
+    CSmallString    Name;
+    std::string     Type;
+    double          Mass;
+    double          Charge;
+    double          Epsilon;
+    double          Sigma;
+};
+
+//------------------------------------------------------------------------------
+namespace std
+{
+    template<> struct less<CRISMType>
+    {
+       bool operator() (const CRISMType& lhs, const CRISMType& rhs) const
+       {
+           // 0.0001 some tolerance in comparison
+           return( (lhs.Type < rhs.Type) && ( (abs(lhs.Charge) - abs(rhs.Charge)) < 0.0001 ) );
+       }
+    };
+}
+
+//------------------------------------------------------------------------------
+
+class CTopCrd2Mdl {
 public:
     // constructor
-    CTopCrdManip(void);
+    CTopCrd2Mdl(void);
 
 // main methods ---------------------------------------------------------------
     /// init options
@@ -47,73 +73,35 @@ public:
     /// finalize program
     bool Finalize(void);
 
-// executive methods ----------------------------------------------------------
-    /// image coordinates
-    bool ImageCoordinates(void);
-    /// decode image options
-    bool DecodeImageOptions(void);
-
-    /// center slected region
-    bool CenterCoordinates(void);
-    /// decode center options
-    bool DecodeCenterOptions(void);
-
-    /// swap selected regions
-    bool SwapCoordinates(void);
-    /// decode swap options
-    bool DecodeSwapOptions(void);
-
-    /// move selected regions
-    bool MoveCoordinates(void);
-    /// decode move options
-    bool DecodeMoveOptions(void);
-
-    /// move selected regions to given position
-    bool MoveToCoordinates(void);
-    /// decode moveto options
-    bool DecodeMoveToOptions(void);
-
-    /// align principal axes
-    bool Principal(void);
-    /// decode principal options
-    bool DecodePrincipal(void);
-
-    /// rotate around bond
-    bool BondRot(void);
-    /// rotate around bond options
-    bool DecodeBondRot(void);
-
 // section of private data ----------------------------------------------------
 private:
-    CTopCrdManipOptions     Options;            // program options
+    CTopCrd2MdlOptions      Options;            // program options
     CAmberTopology          Topology;
     CAmberRestart           Coordinates;
 
-    // image options
-    bool                    ImageToOrigin;      // cell is centered around origin
-    bool                    AtomBasedImaging;
-    bool                    FamiliarImaging;    // familiar imaging
+    // input methods
+    bool ReadCRD(FILE* p_fin);
+    bool ReadCRD(const CSmallString& name);
 
-    // center options
-    CSmallString            CenterMask;
-    bool                    CenterToOrigin;
-    bool                    CenterNoMass;
+    // output formats
+    int                         NTypes;
+    std::map<CRISMType,int>     RISMTypes;
+    std::map<std::string,int>   AMBTypes;
+    std::vector<int>            AtomTypes;
 
-    // swap options
-    CSmallString            SwapMask1;
-    CSmallString            SwapMask2;
-
-    // move and moveto options
-    CSmallString            MoveMask;
-    CPoint                  MoveData;
-
-    // principal
-    CSmallString            PrincipalMask;
-
-    // bondrot
-    CSmallString            AtmMask1;
-    CSmallString            AtmMask2;
-    double                  Angle;
+    bool WriteMDL(FILE* p_fout);
+    bool InitTypes(void);
+    bool SavePointers(FILE* p_file,const char* p_format);
+    bool SaveAtomType(FILE* p_file,const char* p_format);
+    bool SaveAtomName(FILE* p_file,const char* p_format);
+    bool SaveAtomMass(FILE* p_file,const char* p_format);
+    bool SaveAtomCharge(FILE* p_file,const char* p_format);
+    bool SaveAtomEpsilon(FILE* p_file,const char* p_format);
+    bool SaveAtomSigma(FILE* p_file,const char* p_format);
+    bool SaveAtomMulti(FILE* p_file,const char* p_format);
+    bool SaveAtomCoords(FILE* p_file,const char* p_format);
+    bool SaveSectionHeader(FILE* p_top,const char* p_section_name,
+                           const char* p_section_format);
 };
 
 //------------------------------------------------------------------------------
