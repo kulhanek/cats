@@ -53,6 +53,8 @@ public:
     CSO_OPT(CSmallString,MaskFile)
     CSO_OPT(bool,GetCharges)
     CSO_OPT(CSmallString,SetCharges)
+    CSO_OPT(double,ScaleCharges)
+    CSO_OPT(double,SetIntDiel)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -109,6 +111,24 @@ public:
                 "setcharges",                      /* long option name */
                 "FILE",                           /* parametr name */
                 "set charges from FILE")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                ScaleCharges,                        /* option name */
+                1.0,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "scalecharges",                      /* long option name */
+                "VALUE",                           /* parametr name */
+                "scale charges by factor")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                SetIntDiel,                        /* option name */
+                1.0,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "setintdiel",                      /* long option name */
+                "VALUE",                           /* parametr name */
+                "set internal dielectric constant by charge scaling")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

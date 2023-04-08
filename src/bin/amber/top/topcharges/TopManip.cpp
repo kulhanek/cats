@@ -133,6 +133,12 @@ bool CTopManip::Run(void)
     } else if ( Options.IsOptSetChargesSet() ) {
         result = SetCharges();
         save_topology =  result;
+    } else if ( Options.IsOptScaleChargesSet() ) {
+        result = ScaleCharges();
+        save_topology =  result;
+    } else if ( Options.IsOptSetIntDielSet() ) {
+        result = SetIntDiel();
+        save_topology =  result;
     } else {
         recognized = false;
     }
@@ -208,6 +214,34 @@ bool CTopManip::SetCharges(void)
     }
 
     fclose(p_qin);
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CTopManip::ScaleCharges(void)
+{
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+        double ch = p_atom->GetStandardCharge();
+        ch = ch * Options.GetOptScaleCharges();
+        p_atom->SetStandardCharge(ch);
+    }
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
+bool CTopManip::SetIntDiel(void)
+{
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+        double ch = p_atom->GetStandardCharge();
+        ch = ch / sqrt(Options.GetOptSetIntDiel());
+        p_atom->SetStandardCharge(ch);
+    }
     return(true);
 }
 
