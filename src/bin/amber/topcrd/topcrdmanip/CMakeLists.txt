@@ -11,10 +11,9 @@ SET(TOPCRDMANIP_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(topcrdmanip ${TOPCRDMANIP_SRC})
-QT5_USE_MODULES(topcrdmanip Core)
 ADD_DEPENDENCIES(topcrdmanip cats_shared)
 
-TARGET_LINK_LIBRARIES(topcrdmanip
+TARGET_LINK_LIBRARIES(topcrdmanip Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

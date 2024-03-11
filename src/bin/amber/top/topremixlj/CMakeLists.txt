@@ -13,8 +13,7 @@ SET(TOPREMIXLJ_SRC
 ADD_EXECUTABLE(topremixlj ${TOPREMIXLJ_SRC})
 ADD_DEPENDENCIES(topremixlj cats_shared)
 
-QT5_USE_MODULES(topremixlj Core)
-TARGET_LINK_LIBRARIES(topremixlj
+TARGET_LINK_LIBRARIES(topremixlj Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

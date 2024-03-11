@@ -13,8 +13,7 @@ SET(INTEGRATE_SRC
 ADD_EXECUTABLE(gauss-aw-gen ${INTEGRATE_SRC})
 ADD_DEPENDENCIES(gauss-aw-gen cats_shared)
 
-QT5_USE_MODULES(gauss-aw-gen Core)
-TARGET_LINK_LIBRARIES(gauss-aw-gen
+TARGET_LINK_LIBRARIES(gauss-aw-gen Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

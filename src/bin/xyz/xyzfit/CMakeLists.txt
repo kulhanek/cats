@@ -11,10 +11,9 @@ SET(MOL_RMSD_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(xyzfit ${MOL_RMSD_SRC})
-QT5_USE_MODULES(xyzfit Core)
 ADD_DEPENDENCIES(xyzfit cats_shared)
 
-TARGET_LINK_LIBRARIES(xyzfit
+TARGET_LINK_LIBRARIES(xyzfit Qt5::Core
         ${CATS_LIBS}
         )
 

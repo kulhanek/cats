@@ -11,10 +11,9 @@ SET(MOL_SPLIT_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(svs-split-mol ${MOL_SPLIT_SRC})
-QT5_USE_MODULES(svs-split-mol Core)
 ADD_DEPENDENCIES(svs-split-mol cats_shared)
 
-TARGET_LINK_LIBRARIES(svs-split-mol ${CATS_LIBS})
+TARGET_LINK_LIBRARIES(svs-split-mol Qt5::Core ${CATS_LIBS})
 
 INSTALL(TARGETS
             svs-split-mol

@@ -10,10 +10,9 @@ SET(XYZSPLIT_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(xyzsplit ${XYZSPLIT_SRC})
-QT5_USE_MODULES(xyzsplit Core)
 ADD_DEPENDENCIES(xyzsplit cats_shared)
 
-TARGET_LINK_LIBRARIES(xyzsplit
+TARGET_LINK_LIBRARIES(xyzsplit Qt5::Core
         ${CATS_LIBS}
         )
 

@@ -11,10 +11,9 @@ SET(VS_PROJECT_ADD_SRC
 
 # final build ------------------------------------------------------------------
 ADD_EXECUTABLE(svs-project-add-structures ${VS_PROJECT_ADD_SRC})
-QT5_USE_MODULES(svs-project-add-structures Core)
 ADD_DEPENDENCIES(svs-project-add-structures cats_shared)
 
-TARGET_LINK_LIBRARIES(svs-project-add-structures
+TARGET_LINK_LIBRARIES(svs-project-add-structures Qt5::Core
         ${CATS_LIBS}
         )
 

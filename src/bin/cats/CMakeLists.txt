@@ -13,12 +13,11 @@ SET(CATS_SRC
 ADD_EXECUTABLE(cats_inter ${CATS_SRC} ${MOC_LIST})
 ADD_DEPENDENCIES(cats_inter cats_shared)
 
-QT5_USE_MODULES(cats_inter Core Script)
 SET_TARGET_PROPERTIES(cats_inter PROPERTIES
                         OUTPUT_NAME cats
                         )
 
-TARGET_LINK_LIBRARIES(cats_inter
+TARGET_LINK_LIBRARIES(cats_inter Qt5::Core Qt5::Script
         ${ReadLine_LIBRARY_NAME}
         ${CATS_LIBS}
         )

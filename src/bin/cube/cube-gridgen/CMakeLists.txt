@@ -13,8 +13,7 @@ SET(CUBEGRIDGEN_SRC
 ADD_EXECUTABLE(cube-gridgen ${CUBEGRIDGEN_SRC})
 ADD_DEPENDENCIES(cube-gridgen cats_shared)
 
-QT5_USE_MODULES(cube-gridgen Core)
-TARGET_LINK_LIBRARIES(cube-gridgen
+TARGET_LINK_LIBRARIES(cube-gridgen Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

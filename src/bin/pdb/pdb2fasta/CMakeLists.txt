@@ -12,8 +12,7 @@ SET(PDB2FASTA_SRC
 ADD_EXECUTABLE(pdb2fasta ${PDB2FASTA_SRC})
 ADD_DEPENDENCIES(pdb2fasta cats_shared)
 
-QT5_USE_MODULES(pdb2fasta Core)
-TARGET_LINK_LIBRARIES(pdb2fasta
+TARGET_LINK_LIBRARIES(pdb2fasta Qt5::Core
         ${CATS_LIBS}
         )
 

@@ -13,8 +13,7 @@ SET(CUBEASSEMBLY_SRC
 ADD_EXECUTABLE(cube-assembly ${CUBEASSEMBLY_SRC})
 ADD_DEPENDENCIES(cube-assembly cats_shared)
 
-QT5_USE_MODULES(cube-assembly Core)
-TARGET_LINK_LIBRARIES(cube-assembly
+TARGET_LINK_LIBRARIES(cube-assembly Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

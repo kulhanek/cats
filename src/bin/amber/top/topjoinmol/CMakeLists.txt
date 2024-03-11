@@ -13,8 +13,7 @@ SET(TOPJOINMOL_SRC
 ADD_EXECUTABLE(topjoinmol ${TOPJOINMOL_SRC})
 ADD_DEPENDENCIES(topjoinmol cats_shared)
 
-QT5_USE_MODULES(topjoinmol Core)
-TARGET_LINK_LIBRARIES(topjoinmol
+TARGET_LINK_LIBRARIES(topjoinmol Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

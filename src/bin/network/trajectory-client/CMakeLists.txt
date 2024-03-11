@@ -13,8 +13,7 @@ SET(TOPCRDGET_SRC
 ADD_EXECUTABLE(trajectory-client ${TOPCRDGET_SRC})
 ADD_DEPENDENCIES(trajectory-client cats_shared)
 
-QT5_USE_MODULES(trajectory-client Core)
-TARGET_LINK_LIBRARIES(trajectory-client
+TARGET_LINK_LIBRARIES(trajectory-client Qt5::Core
         ${CATS_LIBS}
         )
 

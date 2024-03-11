@@ -13,9 +13,7 @@ SET(INTEGRATE_SRC
 ADD_EXECUTABLE(gauss-integrate ${INTEGRATE_SRC})
 ADD_DEPENDENCIES(gauss-integrate cats_shared)
 
-
-QT5_USE_MODULES(gauss-integrate Core)
-TARGET_LINK_LIBRARIES(gauss-integrate
+TARGET_LINK_LIBRARIES(gauss-integrate Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS
