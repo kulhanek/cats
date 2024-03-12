@@ -85,7 +85,7 @@ public:
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(double,                           /* option type */
                 Offset,                        /* option name */
-                0.0,                          /* default value */
+                0.15,                          /* default value */
                 false,                          /* is option mandatory */
                 'o',                           /* short option name */
                 "offset",                      /* long option name */

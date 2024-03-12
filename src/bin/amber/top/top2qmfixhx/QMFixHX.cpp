@@ -120,7 +120,7 @@ bool CQMFixHX::Run(void)
         CAmberResidue* p_res2 = p_at1->GetResidue();
         printf("// :%d@%s - :%d@%s (%s/%s) REQ=%5.3f\n",p_bond->GetIB()+1,p_at1->GetName(),p_bond->GetJB()+1,p_at2->GetName(),
                                                           p_res1->GetName(),p_res2->GetName(),len);
-        printf("RW K @%d @%d %5.3f %10.2f\n",p_bond->GetIB()+1,p_bond->GetJB()+1,len+Options.GetOptOffset(),Options.GetOptForceConstant());
+        printf("D RW K @%d @%d %5.3f %10.2f\n",p_bond->GetIB()+1,p_bond->GetJB()+1,len+Options.GetOptOffset(),Options.GetOptForceConstant());
     }
 
 
