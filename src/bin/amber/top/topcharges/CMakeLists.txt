@@ -13,8 +13,8 @@ SET(TOPMANIP_SRC
 ADD_EXECUTABLE(topcharges ${TOPMANIP_SRC})
 ADD_DEPENDENCIES(topcharges cats_shared)
 
-QT5_USE_MODULES(topcharges Core)
 TARGET_LINK_LIBRARIES(topcharges
+        Qt5::Core
         ${CATS_LIBS})
 
 INSTALL(TARGETS

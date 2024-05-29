@@ -197,9 +197,9 @@ bool CCATs::RunInteractive(void)
         switch(syntax.state()) {
         case QScriptSyntaxCheckResult::Error:
             if( syntax.errorMessage() != "" ) {
-                stream << "cats: " << syntax.errorMessage() << endl;
+                stream << "cats: " << syntax.errorMessage() << Qt::endl;
             } else {
-                stream << "cats: syntax error" << endl;
+                stream << "cats: syntax error" << Qt::endl;
             }
 
             Contents = "";
@@ -213,7 +213,7 @@ bool CCATs::RunInteractive(void)
         case QScriptSyntaxCheckResult::Valid:
             QScriptValue rvalue = Engine.evaluate(Contents);
             if( Engine.hasUncaughtException() ) {
-                stream << "cats: " << rvalue.toString() << endl;
+                stream << "cats: " << rvalue.toString() << Qt::endl;
             }
             Contents = "";
             Prompt = "[cats]$ ";
@@ -264,7 +264,7 @@ bool CCATs::Finalize(void)
     if( Engine.hasUncaughtException() == true ) {
         QScriptValue evalue = Engine.uncaughtException();
         QTextStream stream(stderr);
-        stream << "cats: line " << Engine.uncaughtExceptionLineNumber() << " - " << evalue.toString() << endl;
+        stream << "cats: line " << Engine.uncaughtExceptionLineNumber() << " - " << evalue.toString() << Qt::endl;
     }
 
     PrintFinalText();

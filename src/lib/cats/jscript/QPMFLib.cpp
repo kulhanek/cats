@@ -211,8 +211,8 @@ QScriptValue QPMFLib::initByString(void)
         return( ThrowError("snapshot,ctrlstring","unable to create a temporary file with control data") );
     }  
     QTextStream dstr(&ctrlfile);
-    dstr << ctrlstring << endl;
-    dstr << flush;
+    dstr << ctrlstring << Qt::endl;
+    dstr << Qt::flush;
     ctrlfile.flush();
     
     CPMFCATsDriver::BeginInit(ctrlfile.fileName(),p_top->AtomList.GetNumberOfAtoms(),p_top->ResidueList.GetNumberOfResidues(),

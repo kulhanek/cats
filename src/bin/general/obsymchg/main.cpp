@@ -17,6 +17,8 @@
 
 #include "options.hpp"
 #include <openbabel/mol.h>
+#include <openbabel/atom.h>
+#include <openbabel/elements.h>
 #include <openbabel/graphsym.h>
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
@@ -132,7 +134,7 @@ int main(int argc,char* argv[])
     for(unsigned int i=0; i < Mol.NumAtoms(); i++){
         OBAtom* p_atom = Mol.GetAtom(i+1);
         vout << setw(5) << i+1 << " ";
-        vout << setw(3) << etab.GetSymbol(p_atom->GetAtomicNum()) << " ";
+        vout << setw(3) << OpenBabel::OBElements::GetSymbol(p_atom->GetAtomicNum()) << " ";
         vout << setw(3) << p_atom->GetAtomicNum() << " ";
         vout << fixed << setw(10) << setprecision(4) << p_atom->GetX() << " ";
         vout << setw(10) << setprecision(4) << p_atom->GetY() << " ";
@@ -214,7 +216,7 @@ int main(int argc,char* argv[])
     for(unsigned int i=0; i < Mol.NumAtoms(); i++){
         OBAtom* p_atom = Mol.GetAtom(i+1);
         vout << setw(5) << i+1 << " ";
-        vout << setw(3) << etab.GetSymbol(p_atom->GetAtomicNum()) << " ";
+        vout << setw(3) << OpenBabel::OBElements::GetSymbol(p_atom->GetAtomicNum()) << " ";
         vout << setw(3) << p_atom->GetAtomicNum() << " ";
         vout << fixed << setw(10) << setprecision(4) << p_atom->GetX() << " ";
         vout << setw(10) << setprecision(4) << p_atom->GetY() << " ";
