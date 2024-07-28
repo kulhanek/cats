@@ -73,10 +73,10 @@ int CTopRMLA::Init(int argc,char* argv[])
         } else {
             printf("# Central atoms      : all atoms\n");
         }
-            printf("# Treshold           : %10.4f\n",Options.GetOptMaxDeviation());
+            printf("# Deviation (max)    : %10.4f\n",Options.GetOptMaxDeviation());
+            printf("# Linear (min)       : %10.4f\n",Options.GetOptMinLinear());
 
         printf("# ------------------------------------------------------------------------------\n");
-        printf("\n");
     }
 
     return( result );
@@ -122,13 +122,15 @@ bool CTopRMLA::Run(void)
         return(false);
     }
 
+// filter angles ...
+
     if( Options.GetOptVerbose() ){
         fprintf(stdout,"\n");
-        fprintf(stdout,"#   IT   Name Type    JT    Name Type    KT    Name Type Topology  Coords    Diff    Status \n");
-        fprintf(stdout,"# ------ ---- ---- -------- ---- ---- -------- ---- ---- -------- -------- -------- --------\n");
+        fprintf(stdout,"# ANGLES\n");
+        fprintf(stdout,"#   IT   Name Type|   JT    Name Type|   KT    Name Type|Topology  Coords    Diff    Status \n");
+        fprintf(stdout,"# ------ ---- ----|-------- ---- ----|-------- ---- ----|-------- -------- -------- --------\n");
     }
 
-    // filter angles ...
     for(int i=0; i < Topology.AngleList.GetNumberOfAngles();i++){
         CAmberAngle* p_angle = Topology.AngleList.GetAngle(i);
         if( p_angle == NULL ) continue;
@@ -147,7 +149,8 @@ bool CTopRMLA::Run(void)
                             p_angle->GetJT()+1,(const char*)p_atom2->GetName(),(const char*)p_atom2->GetType(),
                             p_angle->GetKT()+1,(const char*)p_atom3->GetName(),(const char*)p_atom3->GetType(),a1,a2,a2-a1);
         }
-        // is the central atom selectec?
+
+        // is the central atom selected?
         if( Mask.IsAtomSelected(p_angle->GetJT()) == true ){
             if( abs(a1-a2) > Options.GetOptMaxDeviation() ){
                 if( Options.GetOptVerbose() ){
@@ -156,7 +159,7 @@ bool CTopRMLA::Run(void)
                 p_angle->SetICT(-1);
 
                 // remove also dihedral angles
-                for(int j=0; j < Topology.AngleList.GetNumberOfAngles();j++){
+                for(int j=0; j < Topology.DihedralList.GetNumberOfDihedrals();j++){
                     bool removed = false;
                     CAmberDihedral* p_dih = Topology.DihedralList.GetDihedral(j);
                     if( (p_dih->GetIP() == p_angle->GetIT()) &&
@@ -197,6 +200,67 @@ bool CTopRMLA::Run(void)
             }
         } else {
             if( Options.GetOptVerbose() ){
+                fprintf(stdout,"    not selected\n");
+            }
+        }
+    }
+
+// filter dihedrals ...
+
+    if( Options.GetOptVerbose() ){
+        fprintf(stdout,"\n");
+        fprintf(stdout,"# DIHEDRALS\n");
+        fprintf(stdout,"# Mode: 0 - normal dihedral angle | 1 - improper dihedral angle | -1 - terminal dihedral angle | -2 - terminal and improper dihedral angle\n");
+        fprintf(stdout,"#   IT   Name Type|   JT    Name Type|   KT    Name Type|    LT   Name Type|Mode  I-J-K    J-K-L    Status \n");
+        fprintf(stdout,"# ------ ---- ----|-------- ---- ----|-------- ---- ----|-------- ---- ----|---- -------- -------- --------\n");
+    }
+
+    for(int i=0; i < Topology.DihedralList.GetNumberOfDihedrals();i++){
+        CAmberDihedral* p_dih = Topology.DihedralList.GetDihedral(i);
+        if( p_dih == NULL ) continue;
+
+        double a1 = Angle(Coordinates.GetPosition(p_dih->GetIP()) - Coordinates.GetPosition(p_dih->GetJP()),
+                          Coordinates.GetPosition(p_dih->GetKP()) - Coordinates.GetPosition(p_dih->GetJP())) * 180.0 / M_PI;
+        double a2 = Angle(Coordinates.GetPosition(p_dih->GetJP()) - Coordinates.GetPosition(p_dih->GetKP()),
+                          Coordinates.GetPosition(p_dih->GetLP()) - Coordinates.GetPosition(p_dih->GetKP())) * 180.0 / M_PI;
+
+        if( Options.GetOptVerbose() ){
+            CAmberAtom* p_atom1 = Topology.AtomList.GetAtom(p_dih->GetIP());
+            CAmberAtom* p_atom2 = Topology.AtomList.GetAtom(p_dih->GetJP());
+            CAmberAtom* p_atom3 = Topology.AtomList.GetAtom(p_dih->GetKP());
+            CAmberAtom* p_atom4 = Topology.AtomList.GetAtom(p_dih->GetLP());
+            fprintf(stdout,"%8d %4s %4s %8d %4s %4s %8d %4s %4s %8d %4s %4s %4d %8.2f %8.2f ",
+                            p_dih->GetIP()+1,(const char*)p_atom1->GetName(),(const char*)p_atom1->GetType(),
+                            p_dih->GetJP()+1,(const char*)p_atom2->GetName(),(const char*)p_atom2->GetType(),
+                            p_dih->GetKP()+1,(const char*)p_atom3->GetName(),(const char*)p_atom3->GetType(),
+                            p_dih->GetLP()+1,(const char*)p_atom4->GetName(),(const char*)p_atom4->GetType(),
+                            p_dih->GetType(),a1,a2);
+        }
+
+        bool selected = false;
+        bool removed = false;
+        if( Mask.IsAtomSelected(p_dih->GetJP()) == true ){
+            selected = true;
+            if( (abs(180.0 - a1) < Options.GetOptMinLinear()) || (abs(a1) < Options.GetOptMinLinear()) ){
+                p_dih->SetICP(-1);
+                removed = true;
+            }
+        }
+        if( Mask.IsAtomSelected(p_dih->GetKP()) == true ){
+            selected = true;
+            if( (abs(180.0 - a2) < Options.GetOptMinLinear()) || (abs(a2) < Options.GetOptMinLinear()) ){
+                p_dih->SetICP(-1);
+                removed = true;
+            }
+        }
+        if( Options.GetOptVerbose() ){
+            if( selected ){
+                if( removed ){
+                    fprintf(stdout,"REMOVED\n");
+                } else {
+                    fprintf(stdout,"  OK\n");
+                }
+            } else {
                 fprintf(stdout,"    not selected\n");
             }
         }

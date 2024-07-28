@@ -54,6 +54,7 @@ public:
     // options ------------------------------
     CSO_OPT(CSmallString,MaskSpec)
     CSO_OPT(double,MaxDeviation)
+    CSO_OPT(double,MinLinear)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -88,6 +89,16 @@ public:
                 "treshold",                      /* long option name */
                 "REAL",                           /* parametr name */
                 "if deviation between topology and real value of the angle is higher than this treshold, the angle is removed from the topology. The value is in degrees.")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                MinLinear,                        /* option name */
+                20.0,                          /* default value */
+                false,                          /* is option mandatory */
+                'l',                           /* short option name */
+                "linear",                      /* long option name */
+                "REAL",                           /* parametr name */
+                "Minimal deviation from 0 or 180 deg to be considered as a linear angle.")   /* option description */
+
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 MaskSpec,                        /* option name */

@@ -26,6 +26,14 @@
 #include "integrate-opts.hpp"
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
+#include <vector>
+
+//------------------------------------------------------------------------------
+
+struct SIntData {
+    SIntData(void);
+    double x,y,s;
+};
 
 //------------------------------------------------------------------------------
 
@@ -46,12 +54,13 @@ public:
 
 // section of private data ----------------------------------------------------
 private:
-    CIntegrateOpts  Options;            // program options
-    FILE*           InputFile;          // input file
-    bool            OwnInputFile;       // do we own input file handle?
-    FILE*           OutputFile;         // output file
-    bool            OwnOutputFile;      // do we own output file handle?
-    CSmallString    OutputFormat;       // output format
+    CIntegrateOpts          Options;            // program options
+    FILE*                   InputFile;          // input file
+    bool                    OwnInputFile;       // do we own input file handle?
+    FILE*                   OutputFile;         // output file
+    bool                    OwnOutputFile;      // do we own output file handle?
+    CSmallString            OutputFormat;       // output format
+    std::vector<SIntData>   IntData;
 
     /// print program header and specified options
     void PrintProgHeader(FILE* fout=NULL);

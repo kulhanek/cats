@@ -183,7 +183,7 @@ bool CGaussIntegrate::Run(void)
     }
 
     // complete output format -----------------------------------
-    OutputFormat  = "   ";
+    OutputFormat  = "#  ";
     OutputFormat += Options.GetOptOIFormat();
     OutputFormat += " ";
     OutputFormat += Options.GetOptOEFormat();

@@ -92,9 +92,22 @@ int CIntegrate::Init(int argc,char* argv[])
     OutputFormat += Options.GetOptOIFormat();
     OutputFormat += " ";
     OutputFormat += Options.GetOptOEFormat();
+    OutputFormat += " ";
+    OutputFormat += Options.GetOptIXFormat();
     OutputFormat += "\n";
 
     return(result);
+}
+
+//------------------------------------------------------------------------------
+//==============================================================================
+//------------------------------------------------------------------------------
+
+SIntData::SIntData(void)
+{
+    x = 0.0;
+    y = 0.0;
+    s = 0.0;
 }
 
 //------------------------------------------------------------------------------
@@ -103,14 +116,7 @@ bool CIntegrate::Run(void)
 {
     if( (InputFile == NULL) && (OutputFile == NULL) ) return(false);   // files are not opened
 
-    if( Options.GetOptNoHeader() == false ) {
-        // shell we update header sizes according to used formats? - maybe in the next version?
-        fprintf(OutputFile,"#               1                2              3               4              5\n");
-        fprintf(OutputFile,"#               X                Y       Sigma(Y)               I       Sigma(I)\n");
-        fprintf(OutputFile,"#  --------------- --------------- -------------- --------------- --------------\n");
-    }
-
-    // skip lines from input stream
+// read the data
     int line = 1;
     int c;
     int sl =  Options.GetOptSkipLines();
@@ -119,16 +125,7 @@ bool CIntegrate::Run(void)
         if( c == '\n' ) sl--;
     }
 
-    // integrate remaining data
-    double px,x;
-    double py,y;
-    double ps,s=0.0;
-    double dx,dy,ds;
-    double pi=0.0;
-    double psi=0.0;
-
     bool result = true;
-    int  numofdata = 0;
 
     while( feof(InputFile) == false ) {
 
@@ -138,9 +135,9 @@ bool CIntegrate::Run(void)
         CSmallString data_line;
         if( data_line.ReadLineFromFile(InputFile) == false ) break; // no more data
 
+        struct SIntData data;
         if( Options.GetOptNoSigma() == true ) {
-            s = 0.0;
-            int nr = sscanf(data_line,"%le %le",&x,&y);
+            int nr = sscanf(data_line,"%le %le",&data.x,&data.y);
             if( nr <= 0 ) break;    // no more data
             if( nr != 2 ) {
                 fprintf(stderr,"%s: incosistent number of data records on line %d, requested: 2, found: %d\n", (const char*)Options.GetProgramName(),line,nr);
@@ -148,7 +145,7 @@ bool CIntegrate::Run(void)
                 break;
             }
         } else {
-            int nr = sscanf(data_line,"%le %le %le",&x,&y,&s);
+            int nr = sscanf(data_line,"%le %le %le",&data.x,&data.y,&data.s);
             if( nr <= 0 ) break;    // no more data
             if( nr != 3 ) {
                 fprintf(stderr,"%s: incosistent number of data records on line %d, requested: 3, found: %d\n", (const char*)Options.GetProgramName(),line,nr);
@@ -157,33 +154,19 @@ bool CIntegrate::Run(void)
             }
         }
 
-        // integrate data ----------------------------------------------------------
-        numofdata++;
-
-        if( numofdata > 1 ) {
-            dx = x - px;
-            dy = y + py;
-            ds = s + ps;
-            pi = 0.5*dx*dy + pi;
-            psi = sqrt(0.5*dx*ds*ds + psi*psi);
+        if( Options.IsOptStartValueSet() && (data.x < Options.GetOptStartValue()) ){
+            // do nothing
+            // DEBUG: std::cout << "here - l" << std::endl;
+        } else if( Options.IsOptStopValueSet() && (data.x > Options.GetOptStopValue()) ){
+            // do nothing
+            // DEBUG: std::cout << "here - r" << std::endl;
         } else {
-            pi = Options.GetOptIntOffset();
-            psi = 0.0;
-        }
-
-        px = x;
-        py = y;
-        ps = s;
-
-        // print data --------------------------------------------------------------
-        if( fprintf(OutputFile,OutputFormat,x,y,s,pi,psi) <= 0 ) {
-            fprintf(stderr,"%s: unable to write to output file\n", (const char*)Options.GetProgramName());
-            result = false;
-            break;
+            IntData.push_back(data);
+            // DEBUG: std::cout << "here - OK" << std::endl;
         }
 
         // did we analyzed requested number of lines?
-        if( numofdata == Options.GetOptAnalLines() ) break;
+        if( (int)IntData.size() == Options.GetOptAnalLines() ) break;
 
         // skip requested number of lines -----------------------------------------
         int sl =  Options.GetOptPadLines();
@@ -191,6 +174,86 @@ bool CIntegrate::Run(void)
             c = fgetc(InputFile);
             if( c == '\n' ) sl--;
         }
+    }
+
+// integrate data
+
+    if( Options.GetOptNoHeader() == false ) {
+        // shell we update header sizes according to used formats? - maybe in the next version?
+        fprintf(OutputFile,"#               1                2              3               4              5               6\n");
+        fprintf(OutputFile,"#               X                Y       Sigma(Y)               I       Sigma(I)              dX\n");
+        fprintf(OutputFile,"#  --------------- --------------- -------------- --------------- -------------- ---------------\n");
+    }
+
+    // integrate data
+    double pi  = Options.GetOptIntOffset();
+    double pe2 = 0.0;
+    double pe  = 0.0;
+
+    std::vector<SIntData>::iterator ib = IntData.begin();
+    std::vector<SIntData>::iterator it = ib;
+    std::vector<SIntData>::iterator ie = IntData.end();
+
+    while( it != ie ) {
+        SIntData dn0 = *it;
+        double   dx = 0.0;
+        if( it == ib ){
+            // DEBUG: std::cout << "here - int - b" << std::endl;
+            SIntData dnp = *(it+1);
+            dx = 0.5*(dnp.x - dn0.x);
+            if( Options.IsOptStartValueSet() ){
+                dx = dx + (dn0.x - Options.GetOptStartValue());
+            }
+            pi  = pi  + dx*dn0.y;
+            pe2 = pe2 + dx*dn0.s*dn0.s;
+
+        } else if( (it+1) == ie ) {
+            // DEBUG: std::cout << "here - int - e" << std::endl;
+            SIntData dnm = *(it-1);
+            dx = 0.5*(dn0.x - dnm.x);
+            if( Options.IsOptStopValueSet() ){
+                dx = dx + (Options.GetOptStopValue() - dn0.x);
+            }
+            pi  = pi  + dx*dn0.y;
+            pe2 = pe2 + dx*dn0.s*dn0.s;
+        } else {
+            // DEBUG: std::cout << "here - int" << std::endl;
+            SIntData dnm = *(it-1);
+            SIntData dnp = *(it+1);
+            dx = 0.5*(dnp.x - dn0.x) + 0.5*(dn0.x - dnm.x);
+            pi  = pi  + dx*dn0.y;
+            pe2 = pe2 + dx*dn0.s*dn0.s;
+        }
+        pe = sqrt(pe2);
+
+        // print data --------------------------------------------------------------
+        if( fprintf(OutputFile,OutputFormat,dn0.x,dn0.y,dn0.s,pi,pe,dx) <= 0 ) {
+            fprintf(stderr,"%s: unable to write to output file\n", (const char*)Options.GetProgramName());
+            result = false;
+            break;
+        }
+
+        it++;
+    }
+
+    if( Options.GetOptNoHeader() == false ) {
+        // shell we update header sizes according to used formats? - maybe in the next version?
+        fprintf(OutputFile,"#                1               2\n");
+        fprintf(OutputFile,"#  Final         I Final  Sigma(I)\n");
+        fprintf(OutputFile,"#  --------------- ---------------\n");
+    }
+
+    // complete output format -----------------------------------
+    OutputFormat  = "#  ";
+    OutputFormat += Options.GetOptOIFormat();
+    OutputFormat += " ";
+    OutputFormat += Options.GetOptOEFormat();
+    OutputFormat += "\n";
+
+    if( fprintf(OutputFile,OutputFormat,pi,pe) <= 0 ) {
+        fprintf(stderr,"%s: unable to write to output file\n",
+                (const char*)Options.GetProgramName());
+        result = false;
     }
 
     return(result);
@@ -235,20 +298,20 @@ void CIntegrate::PrintProgHeader(FILE* fout)
         fprintf(stdout,"# Output file     : %s\n",(const char*)Options.GetArgOutput());
     }
     fprintf(stdout,"# ------------------------------------------------------------------------------\n");
-    fprintf(stdout,"# Skipped lines   : %10d\n",Options.GetOptSkipLines());
-    fprintf(stdout,"# Analysed lines  : %10d\n",Options.GetOptAnalLines());
-    fprintf(stdout,"# Padding lines   : %10d\n",Options.GetOptPadLines());
-    fprintf(stdout,"# Int. constant   : %f\n",Options.GetOptIntOffset());
+    fprintf(stdout,"# Skipped lines      : %10d\n",Options.GetOptSkipLines());
+    fprintf(stdout,"# Analysed lines     : %10d\n",Options.GetOptAnalLines());
+    fprintf(stdout,"# Padding lines      : %10d\n",Options.GetOptPadLines());
+    fprintf(stdout,"# Integration const. : %f\n",Options.GetOptIntOffset());
     fprintf(stdout,"# ------------------------------------------------------------------------------\n");
-    fprintf(stdout,"# Sigma values    : %s\n",bool_to_str(!Options.GetOptNoSigma()));
-    fprintf(stdout,"# Print header    : %s\n",bool_to_str(!Options.GetOptNoHeader()));
-    fprintf(stdout,"# Verbose         : %s\n",bool_to_str(Options.GetOptVerbose()));
+    fprintf(stdout,"# Sigma values       : %s\n",bool_to_str(!Options.GetOptNoSigma()));
+    fprintf(stdout,"# Print header       : %s\n",bool_to_str(!Options.GetOptNoHeader()));
+    fprintf(stdout,"# Verbose            : %s\n",bool_to_str(Options.GetOptVerbose()));
     fprintf(stdout,"# ------------------------------------------------------------------------------\n");
-    fprintf(stdout,"# X format        : %s\n",(const char*)Options.GetOptIXFormat());
-    fprintf(stdout,"# Y format        : %s\n",(const char*)Options.GetOptIYFormat());
-    fprintf(stdout,"# sigma(Y) format : %s\n",(const char*)Options.GetOptISFormat());
-    fprintf(stdout,"# I format        : %s\n",(const char*)Options.GetOptOIFormat());
-    fprintf(stdout,"# sigma(I) format : %s\n",(const char*)Options.GetOptOEFormat());
+    fprintf(stdout,"# X format           : %s\n",(const char*)Options.GetOptIXFormat());
+    fprintf(stdout,"# Y format           : %s\n",(const char*)Options.GetOptIYFormat());
+    fprintf(stdout,"# sigma(Y) format    : %s\n",(const char*)Options.GetOptISFormat());
+    fprintf(stdout,"# I format           : %s\n",(const char*)Options.GetOptOIFormat());
+    fprintf(stdout,"# sigma(I) format    : %s\n",(const char*)Options.GetOptOEFormat());
     fprintf(stdout,"# ------------------------------------------------------------------------------\n");
     fprintf(stdout,"#\n");
 }

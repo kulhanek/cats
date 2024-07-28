@@ -38,7 +38,10 @@ public:
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Integrate numerically given data by Simpson method. Program reads three numbers from input file (x coordinate, derivative, and standard deviation of derivative). As output program prints copy of input data plus integrated values and its standard error."
+    "Integrate a given data set numerically using the mid-point rule method. The program reads three numbers from an input file: "
+    "x coordinate, derivative f'(x) at x, and standard error of derivative sigma(f'(s)). Standard errors of derivatives are "
+    "considered as uncorrelated data. As output, the program prints a copy of input data "
+    "plus integrated values and their standard errors."
     CSO_PROG_DESC_END
 
     CSO_PROG_VERS_BEGIN
@@ -54,6 +57,8 @@ public:
     CSO_OPT(int,SkipLines)
     CSO_OPT(int,AnalLines)
     CSO_OPT(int,PadLines)
+    CSO_OPT(double,StartValue)
+    CSO_OPT(double,StopValue)
     CSO_OPT(double,IntOffset)
     CSO_OPT(bool,NoSigma)
     CSO_OPT(bool,NoHeader)
@@ -84,15 +89,6 @@ public:
                 "output result file or - for result printed to standard output")   /* argument description */
 // description of options ---------------------------------------------------
     CSO_MAP_OPT(int,                           /* option type */
-                IntOffset,                        /* option name */
-                0.0,                          /* default value */
-                false,                          /* is option mandatory */
-                '\0',                           /* short option name */
-                "offset",                      /* long option name */
-                "REAL",                           /* parametr name */
-                "specify integration constant")   /* option description */
-    //----------------------------------------------------------------------
-    CSO_MAP_OPT(int,                           /* option type */
                 SkipLines,                        /* option name */
                 0,                          /* default value */
                 false,                          /* is option mandatory */
@@ -118,6 +114,33 @@ public:
                 "pad",                      /* long option name */
                 "LINES",                           /* parametr name */
                 "number of padding LINES between used records from input file")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                StartValue,                        /* option name */
+                0.0,                          /* default value */
+                false,                          /* is option mandatory */
+                'l',                           /* short option name */
+                "start",                      /* long option name */
+                "REAL",                           /* parametr name */
+                "left boundary of integration interval. If not provided then the minimum x-value is used.")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                StopValue,                        /* option name */
+                0.0,                          /* default value */
+                false,                          /* is option mandatory */
+                'r',                           /* short option name */
+                "stop",                      /* long option name */
+                "REAL",                           /* parametr name */
+                "right boundary of integration interval. If not provided then the minimum x-value is used.")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(double,                           /* option type */
+                IntOffset,                        /* option name */
+                0.0,                          /* default value */
+                false,                          /* is option mandatory */
+                '\0',                           /* short option name */
+                "offset",                      /* long option name */
+                "REAL",                           /* parametr name */
+                "specify integration constant")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 NoSigma,                        /* option name */
