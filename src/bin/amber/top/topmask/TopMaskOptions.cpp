@@ -58,6 +58,10 @@ int CTopMaskOptions::CheckOptions(void)
         format_recognized = true;
     }
 
+    if( GetOptOutputFormat() == "bmaskhdr" ) {
+        format_recognized = true;
+    }
+
     if( format_recognized == false ) {
         if( IsVerbose() ) {
             if( IsError == false ) fprintf(stderr,"\n");
