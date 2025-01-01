@@ -188,7 +188,10 @@ bool CTopMask::ProcessAtomBasedMask(void)
         return(true);
     }
 
-    if( Options.GetOptOutputFormat() == "bmask" ) {
+    if( (Options.GetOptOutputFormat() == "bmask") || (Options.GetOptOutputFormat() == "bmaskhdr") ) {
+        if( Options.GetOptOutputFormat() == "bmaskhdr" ){
+            fprintf(stdout,"% atom flag\n");
+        }
         for(int i=0 ; i < mask.GetNumberOfTopologyAtoms(); i++) {
             CAmberAtom* p_atm = mask.GetSelectedAtom(i);
             if( p_atm == NULL ){

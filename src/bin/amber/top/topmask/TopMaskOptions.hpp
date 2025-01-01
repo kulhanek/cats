@@ -106,7 +106,11 @@ public:
                 'o',                           /* short option name */
                 "output",                      /* long option name */
                 "FORMAT",                           /* parametr name */
-                "specify output format. Default format 'cats' prints atoms or residues as the list sorted into three colums. Format 'list' prints the same information as 'cats' but only to a single colum without any header. Format 'number' prints only the number of selected atoms or residues. Format 'amber' provides the same output as ambmask. Format 'bmask' write bitmap mask.")   /* option description */
+                "Specify an output format. The default format 'cats' prints atoms or residues as the list sorted into three colums. "
+                "The format 'list' prints the same information as 'cats' but only to a single colum without any header. "
+                "The format 'number' prints only the number of selected atoms or residues. "
+                "The format 'amber' provides the same output as ambmask. "
+                "The format 'bmask' write bitmap mask and 'bmaskhdr' the same including the first line header.")   /* option description */
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */
                 false,                          /* default value */
