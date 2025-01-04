@@ -62,6 +62,7 @@ private:
     // output methods
     bool WriteCRD(FILE* p_fout,bool binary);
     bool WritePDB(FILE* p_fout);
+    bool WritePDBHet(FILE* p_fout);
     bool WritePQR(FILE* p_fout);
     bool WriteXYZ(FILE* p_fout);
     bool WriteXYZR(FILE* p_fout);

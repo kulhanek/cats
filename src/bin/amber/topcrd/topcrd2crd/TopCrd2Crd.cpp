@@ -33,6 +33,8 @@
 #include <AmberTrajectory.hpp>
 #include <XYZStructure.hpp>
 
+#include <map>
+
 #include "TopCrd2Crd.hpp"
 
 //==============================================================================
@@ -248,6 +250,10 @@ bool CTopCrd2Crd::Run(void)
         recognized = true;
         result = WritePDB(p_fout);
     }
+    if( Options.GetOptOutputFormat() == "pdbhet" ) {
+        recognized = true;
+        result = WritePDBHet(p_fout);
+    }
     if( Options.GetOptOutputFormat() == "pqr" ) {
         recognized = true;
         result = WritePQR(p_fout);
@@ -462,10 +468,6 @@ bool CTopCrd2Crd::WriteCRD(FILE* p_fout,bool binary)
 
 bool CTopCrd2Crd::WritePDB(FILE* p_fout)
 {
-
-    //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
-    //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
-
     CSmallTimeAndDate time;
     time.GetActualTimeAndDate();
 
@@ -537,7 +539,31 @@ bool CTopCrd2Crd::WritePDB(FILE* p_fout)
             if( Options.GetOptNoChains() ) {
                 chain_id = ' ';
             }
-            fprintf(p_fout,"ATOM  %5d %4s %4s%c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d%4s\n",
+
+            //123456 78901 2 3456 7 8901 2 3456 7890 1234567 89012345 67890123456789012345678901234567890
+            //ATOM     145    N     VAL  A   25       32.433   16.336   57.540  1.00 11.92      A1   N
+
+            /*
+            COLUMNS        DATA  TYPE    FIELD        DEFINITION
+            -------------------------------------------------------------------------------------
+             1 -  6        Record name   "ATOM  "
+             7 - 11        Integer       serial       Atom  serial number.
+            13 - 16        Atom          name         Atom name.
+            17             Character     altLoc       Alternate location indicator.
+            18 - 20        Residue name  resName      Residue name.
+            22             Character     chainID      Chain identifier.
+            23 - 26        Integer       resSeq       Residue sequence number.
+            27             AChar         iCode        Code for insertion of residues.
+            31 - 38        Real(8.3)     x            Orthogonal coordinates for X in Angstroms.
+            39 - 46        Real(8.3)     y            Orthogonal coordinates for Y in Angstroms.
+            47 - 54        Real(8.3)     z            Orthogonal coordinates for Z in Angstroms.
+            55 - 60        Real(6.2)     occupancy    Occupancy.
+            61 - 66        Real(6.2)     tempFactor   Temperature  factor.
+            77 - 78        LString(2)    element      Element symbol, right-justified.
+            79 - 80        LString(2)    charge       Charge  on the atom.
+            */
+
+            fprintf(p_fout,"ATOM  %5d %4s %3s %c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f     P%02d  %2s\n",
                     atid,GetPDBAtomName(p_atom,p_atom->GetResidue()),GetPDBResName(p_atom,p_atom->GetResidue()),
                     chain_id,
                     resid,
@@ -553,24 +579,165 @@ bool CTopCrd2Crd::WritePDB(FILE* p_fout)
 
 //------------------------------------------------------------------------------
 
+bool CTopCrd2Crd::WritePDBHet(FILE* p_fout)
+{
+
+    CSmallTimeAndDate time;
+    time.GetActualTimeAndDate();
+
+    // write header
+    WritePDBRemark(p_fout,"File generated with topcrd2crd --output pdbhet");
+    WritePDBRemark(p_fout,"=== Topology ===");
+    WritePDBRemark(p_fout,Options.GetArgTopologyName());
+    WritePDBRemark(p_fout,"=== Coordinates ===");
+    WritePDBRemark(p_fout,Options.GetArgCrdName());
+    WritePDBRemark(p_fout,"=== Date ===");
+    WritePDBRemark(p_fout,time.GetSDateAndTime());
+    WritePDBRemark(p_fout,"=== Number of selected atoms ===");
+    CSmallString tmp;
+    tmp.IntToStr(Mask.GetNumberOfSelectedAtoms());
+    WritePDBRemark(p_fout,tmp);
+    WritePDBRemark(p_fout,"=== Mask ===");
+    WritePDBRemark(p_fout,Mask.GetMask());
+
+    int    atid = 1;
+    char   chain_id = 'A';
+    int    resid = 1;
+    double occ=1.0;
+    double tfac=0.0;
+
+    if( Options.GetOptChainID().GetLength() > 0 ){
+        chain_id = Options.GetOptChainID()[0];
+    }
+
+    if( Options.GetOptNoChains() ) {
+        chain_id = ' ';
+    }
+
+    static char resname[4];
+
+    // clear resname
+    memset(resname,0,4);
+    memcpy(resname,Options.GetOptRESName(),3);
+
+    std::map<int,int>   atom_map;
+
+    Topology.BuidListOfNeighbourAtoms();
+
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+
+        //    1         2         3         4         5         6         7         8
+        //12345678901234567890123456789012345678901234567890123456789012345678901234567890
+        //HETATM 8237 MG    MG A1001      13.872  -2.555 -29.045  1.00 27.36          MG
+
+        /*
+            COLUMNS       DATA  TYPE     FIELD         DEFINITION
+            -----------------------------------------------------------------------
+             1 - 6        Record name    "HETATM"
+             7 - 11       Integer        serial        Atom serial number.
+            13 - 16       Atom           name          Atom name.
+            17            Character      altLoc        Alternate location indicator.
+            18 - 20       Residue name   resName       Residue name.
+            22            Character      chainID       Chain identifier.
+            23 - 26       Integer        resSeq        Residue sequence number.
+            27            AChar          iCode         Code for insertion of residues.
+            31 - 38       Real(8.3)      x             Orthogonal coordinates for X.
+            39 - 46       Real(8.3)      y             Orthogonal coordinates for Y.
+            47 - 54       Real(8.3)      z             Orthogonal coordinates for Z.
+            55 - 60       Real(6.2)      occupancy     Occupancy.
+            61 - 66       Real(6.2)      tempFactor    Temperature factor.
+            77 - 78       LString(2)     element       Element symbol; right-justified.
+            79 - 80       LString(2)     charge        Charge on the atom.
+        */
+
+        fprintf(p_fout,"HETATM%5d %-4s %-3s %c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s\n",
+                atid,PeriodicTable.GetSymbol(p_atom->GuessZ()),resname,
+                chain_id,
+                resid,
+                Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,
+                occ,tfac,PeriodicTable.GetSymbol(p_atom->GuessZ()));
+
+        atom_map[i] = atid;
+
+        atid++;
+        if( atid > 99999 ) {
+            atid = 1;
+        }
+    }
+
+
+    atid = 1;
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+
+//        1         2         3         4         5         6         7         8
+//12345678901234567890123456789012345678901234567890123456789012345678901234567890
+//CONECT 1179  746 1184 1195 1203
+
+        /*
+            COLUMNS       DATA  TYPE      FIELD        DEFINITION
+            -------------------------------------------------------------------------
+             1 -  6        Record name    "CONECT"
+             7 - 11       Integer        serial       Atom  serial number
+            12 - 16        Integer        serial       Serial number of bonded atom
+            17 - 21        Integer        serial       Serial  number of bonded atom
+            22 - 26        Integer        serial       Serial number of bonded atom
+            27 - 31        Integer        serial       Serial number of bonded atom
+        */
+
+        int cset = 0;
+        for(int nidx = 0; nidx < p_atom->GetNumberOfNeighbourAtoms(); nidx++){
+            if( cset % 4 == 0 ){
+                fprintf(p_fout,"CONECT%5d",atid);
+            }
+            int natid = p_atom->GetNeighbourAtomIndex(nidx);
+            if( natid >= 0 ){
+                fprintf(p_fout,"%5d",atom_map[natid]);
+                if( cset % 4 == 3 ){
+                    fprintf(p_fout,"\n");
+                }
+                cset++;
+            }
+        }
+
+        if( cset % 4 != 0 ){
+            fprintf(p_fout,"\n");
+        }
+
+        atid++;
+        if( atid > 99999 ) {
+            atid = 1;
+        }
+    }
+
+    fprintf(p_fout,"TER\n");
+
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
 const char* CTopCrd2Crd::GetPDBResName(CAmberAtom* p_atom,CAmberResidue* p_res)
 {
-    static char name[5];
+    static char name[4];
 
     // clear name
-    memset(name,0,5);
+    memset(name,0,4);
 
     // direct use
     if( Options.GetOptMangleNames() == "charmm" ){
-        if( strncmp(p_res->GetName(),"HIE ",4) == 0 ) return("HSE ");
-        if( strncmp(p_res->GetName(),"HIP ",4) == 0 ) return("HSP ");
-        if( strncmp(p_res->GetName(),"HID ",4) == 0 ) return("HSD ");
-        memcpy(name,p_res->GetName(),4);
+        if( strncmp(p_res->GetName(),"HIE ",3) == 0 ) return("HSE");
+        if( strncmp(p_res->GetName(),"HIP ",3) == 0 ) return("HSP");
+        if( strncmp(p_res->GetName(),"HID ",3) == 0 ) return("HSD");
+        memcpy(name,p_res->GetName(),3);
         return(name);
     }
 
     // no change
-    memcpy(name,p_res->GetName(),4);
+    memcpy(name,p_res->GetName(),3);
     return(name);
 }
 

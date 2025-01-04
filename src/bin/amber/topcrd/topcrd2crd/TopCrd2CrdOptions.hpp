@@ -59,6 +59,8 @@ public:
     CSO_OPT(CSmallString,ChrgMaskSpec)
     CSO_OPT(CSmallString,ChrgMaskFile)
     CSO_OPT(CSmallString,MangleNames)
+    CSO_OPT(CSmallString,RESName)
+    CSO_OPT(CSmallString,ChainID)
     CSO_OPT(double,RScale)
     CSO_OPT(double,ROffset)
     CSO_OPT(bool,Reindex)
@@ -114,6 +116,7 @@ public:
                 "   <green>crd</green>        - amber restart file (ASCII)\n"
                 "   <green>bcrd</green>       - amber restart file (NetCDF)\n"
                 "   <green>pdb</green>        - PDB file\n"
+                "   <green>pdbhet</green>     - PDB file with all HETATM records\n"
                 "   <green>pqr</green>        - PDB file with atomic radii and charges\n"
                 "   <green>xyz</green>        - xyz file\n"
                 "   <green>xyzr</green>       - xyz file with atomic radii\n"
@@ -175,6 +178,26 @@ public:
                 "   <green>none</green>   - no translation (1234)\n"
                 "   <green>pdb</green>    - pdb scheme (4123), keep amber names\n"
                 "   <green>charmm</green> - charmm name scheme (1234), mangle parm99 names\n"
+                )   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                RESName,                        /* option name */
+                "UNL",                          /* default value */
+                false,                          /* is option mandatory */
+                'n',                           /* short option name */
+                "resname",                      /* long option name */
+                "NAME",                           /* parametr name */
+                "the name of residue for the pdbhet format"
+                )   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                ChainID,                        /* option name */
+                "A",                          /* default value */
+                false,                          /* is option mandatory */
+                'c',                           /* short option name */
+                "chainid",                      /* long option name */
+                "NAME",                           /* parametr name */
+                "the name of chain ID for the pdbhet format"
                 )   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(double,                           /* option type */
