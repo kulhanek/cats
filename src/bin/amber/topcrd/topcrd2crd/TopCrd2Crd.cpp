@@ -600,7 +600,7 @@ bool CTopCrd2Crd::WritePDBHet(FILE* p_fout)
     WritePDBRemark(p_fout,"=== Mask ===");
     WritePDBRemark(p_fout,Mask.GetMask());
 
-    int    atid = 1;
+    int    atid = Options.GetOptFirstSerial();
     char   chain_id = 'A';
     int    resid = 1;
     double occ=1.0;
@@ -668,7 +668,7 @@ bool CTopCrd2Crd::WritePDBHet(FILE* p_fout)
     }
 
 
-    atid = 1;
+    atid = Options.GetOptFirstSerial();
     for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
         CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
         if( p_atom == NULL ) continue;

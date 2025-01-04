@@ -61,6 +61,7 @@ public:
     CSO_OPT(CSmallString,MangleNames)
     CSO_OPT(CSmallString,RESName)
     CSO_OPT(CSmallString,ChainID)
+    CSO_OPT(int,FirstSerial)
     CSO_OPT(double,RScale)
     CSO_OPT(double,ROffset)
     CSO_OPT(bool,Reindex)
@@ -198,6 +199,16 @@ public:
                 "chainid",                      /* long option name */
                 "NAME",                           /* parametr name */
                 "the name of chain ID for the pdbhet format"
+                )   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(int,                           /* option type */
+                FirstSerial,                        /* option name */
+                1,                          /* default value */
+                false,                          /* is option mandatory */
+                's',                           /* short option name */
+                "fserial",                      /* long option name */
+                "NUMBER",                           /* parametr name */
+                "the first value of serial index for the pdbhet format"
                 )   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(double,                           /* option type */
