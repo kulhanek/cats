@@ -1,9 +1,7 @@
-#ifndef InfMolH
-#define InfMolH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+//    Copyright (C) 2025 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -20,28 +18,14 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <openbabel/mol.h>
-#include <SmallString.hpp>
+#include "MatchAtoms.hpp"
+#include <ErrorSystem.hpp>
+
+//-----------------------------------------------------------------------------
+
+int main(int argc, char* argv[])
+{
+    TRY_OBJECT(MatchAtoms);
+}
 
 //------------------------------------------------------------------------------
-
-class CATS_PACKAGE CInfMol : public OpenBabel::OBMol {
-public:
-// constructor ------------------------------------------------------------------
-    CInfMol(void);
-
-// main methods ----------------------------------------------------------------
-    //! read molecule
-    bool ReadMol(const CSmallString& name,const CSmallString& format);
-
-    //! write molecule
-    bool WriteMol(const CSmallString& name,const CSmallString& format);
-
-    //! alter hydrogens
-    void AlterHydrogens(const CSmallString& mode);
-};
-
-//------------------------------------------------------------------------------
-
-#endif

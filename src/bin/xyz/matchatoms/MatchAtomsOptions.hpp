@@ -1,9 +1,9 @@
-#ifndef MolRmsdOptionsH
-#define MolRmsdOptionsH
+#ifndef MatchAtomsOptionsH
+#define MatchAtomsOptionsH
 // =============================================================================
-// VScreen - Virtual Screening Tools
+// CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+//    Copyright (C) 2023 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -25,28 +25,28 @@
 
 //------------------------------------------------------------------------------
 
-class CMolRmsdOptions : public CSimpleOptions {
+class CMatchAtomsOptions : public CSimpleOptions {
 public:
     // constructor - tune option setup
-    CMolRmsdOptions(void);
+    CMatchAtomsOptions(void);
 
 // program name and description -----------------------------------------------
     CSO_PROG_NAME_BEGIN
-    "xyzfit"
+    "matchatoms"
     CSO_PROG_NAME_END
 
     CSO_PROG_DESC_BEGIN
-    "Calculate RMSD between two molecules."
+    "Match one molecule to the other with atom and residues names."
     CSO_PROG_DESC_END
 
     CSO_PROG_ARGS_SHORT_DESC_BEGIN
-    "ref str [out]"
+    "ref in out"
     CSO_PROG_ARGS_SHORT_DESC_END
 
     CSO_PROG_ARGS_LONG_DESC_BEGIN
-    "ref - name of reference molecule file or - for input from standard input stream\n"
-    "str - name of super-imposed molecule file or - for input from standard input stream\n"
-    "out - super-imposed structure\n"
+    "ref - name of reference molecule (template)\n"
+    "in  - input structure\n"
+    "out - output structure\n"
     CSO_PROG_ARGS_LONG_DESC_END
 
     CSO_PROG_VERS_BEGIN
@@ -57,10 +57,11 @@ public:
     CSO_LIST_BEGIN
     // options ------------------------------
     CSO_OPT(CSmallString,RefFormat)
-    CSO_OPT(CSmallString,StrFormat)
+    CSO_OPT(CSmallString,InFormat)
     CSO_OPT(CSmallString,OutFormat)
-    CSO_OPT(CSmallString,Pattern)
-    CSO_OPT(bool,NoFit)
+    CSO_OPT(CSmallString,RefH)
+    CSO_OPT(CSmallString,InH)
+    CSO_OPT(CSmallString,OutH)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -78,13 +79,13 @@ public:
                 "file format of reference molecule")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
-                StrFormat,                        /* option name */
+                InFormat,                        /* option name */
                 "auto",                          /* default value */
                 false,                          /* is option mandatory */
                 0,                           /* short option name */
-                "strfmt",                      /* long option name */
+                "infmt",                      /* long option name */
                 "FORMAT",                           /* parametr name */
-                "file format of superimposed molecule")   /* option description */
+                "file format of input molecule")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 OutFormat,                        /* option name */
@@ -93,25 +94,34 @@ public:
                 0,                           /* short option name */
                 "outfmt",                      /* long option name */
                 "FORMAT",                           /* parametr name */
-                "file format of superimposed molecule")   /* option description */
+                "file format of output molecule")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
-                Pattern,                        /* option name */
-                "identity",                          /* default value */
+                RefH,                        /* option name */
+                "keep",                          /* default value */
                 false,                          /* is option mandatory */
                 0,                           /* short option name */
-                "pattern",                      /* long option name */
-                NULL,                           /* parametr name */
-                "atom map between reference and superimposed molecule [num1:num2,..] or identity")   /* option description */
+                "refH",                      /* long option name */
+                "MODE",                           /* parametr name */
+                "modify hydrogen atoms in the reference structure: keep, add, addpolar, addnonpolar, remove, removepolar, removenonpolar")   /* option description */
     //----------------------------------------------------------------------
-    CSO_MAP_OPT(bool,                           /* option type */
-                NoFit,                        /* option name */
-                false,                          /* default value */
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                InH,                        /* option name */
+                "keep",                          /* default value */
                 false,                          /* is option mandatory */
                 0,                           /* short option name */
-                "nofit",                      /* long option name */
-                NULL,                           /* parametr name */
-                "do not fit molecules")   /* option description */
+                "inH",                      /* long option name */
+                "MODE",                           /* parametr name */
+                "modify hydrogen atoms in the input structure: keep, add, addpolar, addnonpolar, remove, removepolar, removenonpolar")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                OutH,                        /* option name */
+                "keep",                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "outH",                      /* long option name */
+                "MODE",                           /* parametr name */
+                "modify hydrogen atoms in the output structure: keep, remove, removepolar, removenonpolar")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

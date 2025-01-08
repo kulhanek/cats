@@ -1,9 +1,9 @@
-#ifndef InfMolH
-#define InfMolH
+#ifndef MatchAtomsH
+#define MatchAtomsH
 // =============================================================================
-// ChemInfo - Chemoinformatics Tools
+// CATS - Conversion and Analysis Tools
 // -----------------------------------------------------------------------------
-//    Copyright (C) 2010 Petr Kulhanek, kulhanek@chemi.muni.cz
+//    Copyright (C) 2025 Petr Kulhanek, kulhanek@chemi.muni.cz
 //
 //     This program is free software; you can redistribute it and/or modify
 //     it under the terms of the GNU General Public License as published by
@@ -20,27 +20,53 @@
 //     51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 // =============================================================================
 
-#include <CATsMainHeader.hpp>
-#include <openbabel/mol.h>
-#include <SmallString.hpp>
+#include "MatchAtomsOptions.hpp"
+#include <VerboseStr.hpp>
+#include <TerminalStr.hpp>
+#include <InfMol.hpp>
+#include <Point.hpp>
+#include <SimpleVector.hpp>
+
+// openbabel
+#include "openbabel/mol.h"
+#include "openbabel/obconversion.h"
+#include "openbabel/generic.h"
+
+using namespace std;
+using namespace OpenBabel;
 
 //------------------------------------------------------------------------------
 
-class CATS_PACKAGE CInfMol : public OpenBabel::OBMol {
+class CMatchAtoms {
 public:
-// constructor ------------------------------------------------------------------
-    CInfMol(void);
+    // constructor
+    CMatchAtoms(void);
+    ~CMatchAtoms(void);
 
 // main methods ----------------------------------------------------------------
-    //! read molecule
-    bool ReadMol(const CSmallString& name,const CSmallString& format);
+    //! init options
+    int Init(int argc,char* argv[]);
 
-    //! write molecule
-    bool WriteMol(const CSmallString& name,const CSmallString& format);
+    //! main part of program
+    bool Run(void);
 
-    //! alter hydrogens
-    void AlterHydrogens(const CSmallString& mode);
+    //! finalize program
+    bool Finalize(void);
+
+// section of public data -----------------------------------------------------
+public:
+    CMatchAtomsOptions    Options;            // program options
+
+// section of private data ----------------------------------------------------
+private:
+    CVerboseStr             MsgOut;             // output messages
+    CInfMol                 Ref;
+    CInfMol                 Str;
 };
+
+//------------------------------------------------------------------------------
+
+extern CMatchAtoms MatchAtoms;
 
 //------------------------------------------------------------------------------
 

@@ -110,7 +110,13 @@ bool CInfMol::WriteMol(const CSmallString& name,const CSmallString& format)
 
 // write molecule to file
     OBConversion   conv(NULL, &ofs);
-    OpenBabel::OBFormat* obFormat = conv.FormatFromExt(name);
+
+    OpenBabel::OBFormat* obFormat;
+    if(format == "auto") {
+        obFormat = conv.FormatFromExt(name);
+    } else {
+        obFormat = conv.FindFormat(format);
+    }
 
     if(! conv.SetOutFormat(obFormat)) {
         CSmallString error;
@@ -131,6 +137,40 @@ bool CInfMol::WriteMol(const CSmallString& name,const CSmallString& format)
     ofs.close();
 
     return(true);
+}
+
+//------------------------------------------------------------------------------
+
+void CInfMol::AlterHydrogens(const CSmallString& mode)
+{
+    if( mode == "keep" ) return;
+
+    if( mode == "add" ){
+        AddHydrogens();
+        return;
+    }
+    if( mode == "addpolar" ){
+        AddPolarHydrogens();
+        return;
+    }
+    if( mode == "addnonpolar" ){
+        AddNonPolarHydrogens();
+        return;
+    }
+
+    if( mode == "remove" ){
+        DeleteHydrogens();
+        return;
+    }
+    if( mode == "removepolar" ){
+        DeletePolarHydrogens();
+        return;
+    }
+    if( mode == "removenonpolar" ){
+        DeleteNonPolarHydrogens();
+        return;
+    }
+
 }
 
 //==============================================================================
