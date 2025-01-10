@@ -143,41 +143,56 @@ bool CMatchAtoms::Run(void)
         return(false);
     }
 
-// setup canonical labeling - reference
-    std::vector<unsigned int> symmetry_classes_ref;
-    OBGraphSym gs_ref(&Ref);
-    gs_ref.GetSymmetry(symmetry_classes_ref);
-
-    std::vector<unsigned int> canon_labels_ref;
-    CanonicalLabels(&Ref, symmetry_classes_ref, canon_labels_ref);
-
-// setup canonical labeling - structure
-    std::vector<unsigned int> symmetry_classes_str;
-    OBGraphSym gs_str(&Str);
-    gs_str.GetSymmetry(symmetry_classes_str);
-
-    std::vector<unsigned int> canon_labels_str;
-    CanonicalLabels(&Str, symmetry_classes_str, canon_labels_str);
+    bool result = true;
 
 // map structure to reference
     MsgOut << endl;
-    MsgOut << "3) Canonical mapping ..." << endl;
-    for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
-        unsigned int crid = canon_labels_ref[rid];
-        // find this canonical label in the structure
-        for(unsigned int sid = 0; sid < Str.NumAtoms(); sid++ ){
-            unsigned int csid = canon_labels_str[sid];
-            if( csid == crid ){
-                MsgOut << "found: " << setw(6) << rid << " -> " << setw(6) << crid << " | " << setw(6) << sid << " -> " << setw(6) << csid;
+    if( Options.GetOptIdentity() == false ){
+
+    // setup canonical labeling - reference
+        std::vector<unsigned int> symmetry_classes_ref;
+        OBGraphSym gs_ref(&Ref);
+        gs_ref.GetSymmetry(symmetry_classes_ref);
+
+        std::vector<unsigned int> canon_labels_ref;
+        CanonicalLabels(&Ref, symmetry_classes_ref, canon_labels_ref);
+
+    // setup canonical labeling - structure
+        std::vector<unsigned int> symmetry_classes_str;
+        OBGraphSym gs_str(&Str);
+        gs_str.GetSymmetry(symmetry_classes_str);
+
+        std::vector<unsigned int> canon_labels_str;
+        CanonicalLabels(&Str, symmetry_classes_str, canon_labels_str);
+
+        MsgOut << "3) Canonical mapping ..." << endl;
+        for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
+            unsigned int crid = canon_labels_ref[rid];
+            // find this canonical label in the structure
+            for(unsigned int sid = 0; sid < Str.NumAtoms(); sid++ ){
+                unsigned int csid = canon_labels_str[sid];
+                if( csid == crid ){
+                    MsgOut << "found: " << setw(6) << rid << " -> " << setw(6) << crid << " | " << setw(6) << sid << " -> " << setw(6) << csid;
+                    OBAtom* p_ratm = Ref.GetAtom(rid+1);
+                    OBAtom* p_satm = Str.GetAtom(sid+1);
+                    if( p_ratm->GetAtomicNum() != p_satm->GetAtomicNum() ){
+                        MsgOut << " x but not the same Z! " << p_ratm->GetAtomicNum() << " vs " << p_satm->GetAtomicNum() << endl;
+                        result = false;
+                    } else {
+                       p_ratm->SetVector(p_satm->GetVector());
+                    }
+                    MsgOut << endl;
+
+                }
+            }
+        }
+    } else {
+        MsgOut << "3) Identity mapping ..." << endl;
+        for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
+            for(unsigned int sid = 0; sid < Str.NumAtoms(); sid++ ){
                 OBAtom* p_ratm = Ref.GetAtom(rid+1);
                 OBAtom* p_satm = Str.GetAtom(sid+1);
-                if( p_ratm->GetAtomicNum() != p_satm->GetAtomicNum() ){
-                    MsgOut << " x but not the same Z! " << p_ratm->GetAtomicNum() << " vs " << p_satm->GetAtomicNum() << endl;
-                } else {
-                   p_ratm->SetVector(p_satm->GetVector());
-                }
-                MsgOut << endl;
-
+                p_ratm->SetVector(p_satm->GetVector());
             }
         }
     }
@@ -196,7 +211,7 @@ bool CMatchAtoms::Run(void)
     }
     Ref.WriteMol(Options.GetProgArg(2),Options.GetOptOutFormat());
 
-    return(true);
+    return(result);
 }
 
 //==============================================================================
