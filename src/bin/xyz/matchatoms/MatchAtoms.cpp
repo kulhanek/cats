@@ -189,11 +189,9 @@ bool CMatchAtoms::Run(void)
     } else {
         MsgOut << "3) Identity mapping ..." << endl;
         for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
-            for(unsigned int sid = 0; sid < Str.NumAtoms(); sid++ ){
-                OBAtom* p_ratm = Ref.GetAtom(rid+1);
-                OBAtom* p_satm = Str.GetAtom(sid+1);
-                p_ratm->SetVector(p_satm->GetVector());
-            }
+            OBAtom* p_ratm = Ref.GetAtom(rid+1);
+            OBAtom* p_satm = Str.GetAtom(rid+1);
+            p_ratm->SetVector(p_satm->GetVector());
         }
     }
 
