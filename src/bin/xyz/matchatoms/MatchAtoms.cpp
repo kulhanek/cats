@@ -138,17 +138,17 @@ bool CMatchAtoms::Run(void)
         MsgOut << "   Number of residues = " << Str.NumResidues() << endl;
     }
 
-    if( Ref.NumAtoms() != Str.NumAtoms() ){
-        ES_ERROR("The molecules do not contain the same number of atoms!");
-        return(false);
-    }
-
     bool result = true;
 
 // map structure to reference
     MsgOut << endl;
-    if( Options.GetOptIdentity() == false ){
+    if( Options.GetOptMode() == "canonical" ){
 
+        MsgOut << "3) Canonical mapping ..." << endl;
+        if( Ref.NumAtoms() != Str.NumAtoms() ){
+            ES_ERROR("The molecules do not contain the same number of atoms!");
+            return(false);
+        }
     // setup canonical labeling - reference
         std::vector<unsigned int> symmetry_classes_ref;
         OBGraphSym gs_ref(&Ref);
@@ -165,7 +165,7 @@ bool CMatchAtoms::Run(void)
         std::vector<unsigned int> canon_labels_str;
         CanonicalLabels(&Str, symmetry_classes_str, canon_labels_str);
 
-        MsgOut << "3) Canonical mapping ..." << endl;
+
         for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
             unsigned int crid = canon_labels_ref[rid];
             // find this canonical label in the structure
@@ -176,7 +176,7 @@ bool CMatchAtoms::Run(void)
                     OBAtom* p_ratm = Ref.GetAtom(rid+1);
                     OBAtom* p_satm = Str.GetAtom(sid+1);
                     if( p_ratm->GetAtomicNum() != p_satm->GetAtomicNum() ){
-                        MsgOut << " x but not the same Z! " << p_ratm->GetAtomicNum() << " vs " << p_satm->GetAtomicNum() << endl;
+                        MsgOut << " x but not the same Z! " << p_ratm->GetAtomicNum() << " vs " << p_satm->GetAtomicNum();
                         result = false;
                     } else {
                        p_ratm->SetVector(p_satm->GetVector());
@@ -186,13 +186,32 @@ bool CMatchAtoms::Run(void)
                 }
             }
         }
-    } else {
+    } else if (Options.GetOptMode() == "identity") {
         MsgOut << "3) Identity mapping ..." << endl;
+        if( Ref.NumAtoms() != Str.NumAtoms() ){
+            ES_ERROR("The molecules do not contain the same number of atoms!");
+            return(false);
+        }
         for(unsigned int rid = 0; rid < Ref.NumAtoms(); rid++ ){
             OBAtom* p_ratm = Ref.GetAtom(rid+1);
             OBAtom* p_satm = Str.GetAtom(rid+1);
-            p_ratm->SetVector(p_satm->GetVector());
+            MsgOut << "found: " << setw(6) << rid << " -> " << setw(6) << rid;
+            if( p_ratm->GetAtomicNum() != p_satm->GetAtomicNum() ){
+                MsgOut << " x but not the same Z! " << p_ratm->GetAtomicNum() << " vs " << p_satm->GetAtomicNum();
+                result = false;
+            } else {
+                p_ratm->SetVector(p_satm->GetVector());
+            }
+            MsgOut << endl;
         }
+    } else {
+        ES_ERROR("Unsupported mode!");
+        return(false);
+    }
+
+    if( result == false ){
+        ES_ERROR("Mapping error!");
+        return(true);
     }
 
     MsgOut << endl;

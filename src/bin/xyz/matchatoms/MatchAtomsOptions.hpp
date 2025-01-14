@@ -62,7 +62,7 @@ public:
     CSO_OPT(CSmallString,RefH)
     CSO_OPT(CSmallString,InH)
     CSO_OPT(CSmallString,OutH)
-    CSO_OPT(bool,Identity)
+    CSO_OPT(CSmallString,Mode)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -124,14 +124,14 @@ public:
                 "MODE",                           /* parametr name */
                 "modify hydrogen atoms in the output structure: keep, remove, removepolar, removenonpolar")   /* option description */
     //----------------------------------------------------------------------
-    CSO_MAP_OPT(bool,                           /* option type */
-                Identity,                        /* option name */
-                false,                          /* default value */
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                Mode,                        /* option name */
+                "canonical",                          /* default value */
                 false,                          /* is option mandatory */
-                'i',                           /* short option name */
-                "identity",                      /* long option name */
-                NULL,                           /* parametr name */
-                "assume identity mapping, skip canonical matching")   /* option description */
+                'm',                           /* short option name */
+                "mode",                      /* long option name */
+                "NAME",                           /* parametr name */
+                "matching mode: identity, canonical")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */
