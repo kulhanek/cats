@@ -27,7 +27,6 @@
 CMatchAtomsOptions::CMatchAtomsOptions(void)
 {
     SetShowMiniUsage(true);
-    SetAllowProgArgs(true);
 }
 
 //------------------------------------------------------------------------------

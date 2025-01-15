@@ -33,10 +33,10 @@ public:
 
 // main methods ----------------------------------------------------------------
     //! read molecule
-    bool ReadMol(const CSmallString& name,const CSmallString& format);
+    bool ReadMol(const CSmallString& name,const CSmallString& format,int index=1);
 
     //! write molecule
-    bool WriteMol(const CSmallString& name,const CSmallString& format);
+    bool WriteMol(const CSmallString& name,const CSmallString& format,const CSmallString opts = CSmallString());
 
     //! alter hydrogens
     void AlterHydrogens(const CSmallString& mode);

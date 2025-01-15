@@ -24,16 +24,8 @@
 #include <VerboseStr.hpp>
 #include <TerminalStr.hpp>
 #include <InfMol.hpp>
-#include <Point.hpp>
-#include <SimpleVector.hpp>
-
-// openbabel
-#include "openbabel/mol.h"
-#include "openbabel/obconversion.h"
-#include "openbabel/generic.h"
 
 using namespace std;
-using namespace OpenBabel;
 
 //------------------------------------------------------------------------------
 
@@ -55,13 +47,13 @@ public:
 
 // section of public data -----------------------------------------------------
 public:
-    CMatchAtomsOptions    Options;            // program options
+    CMatchAtomsOptions Options;         // program options
 
 // section of private data ----------------------------------------------------
 private:
-    CVerboseStr             MsgOut;             // output messages
-    CInfMol                 Ref;
-    CInfMol                 Str;
+    CVerboseStr         MsgOut;         // output messages
+    CInfMol             Ref;
+    CInfMol             Str;
 };
 
 //------------------------------------------------------------------------------

@@ -85,9 +85,12 @@ int CMatchAtoms::Init(int argc,char* argv[])
     MsgOut << "# ==============================================================================" << endl;
     MsgOut << "# matchatoms started at " << dt.GetSDateAndTime() << endl;
     MsgOut << "# ==============================================================================" << endl;
-    MsgOut << "# Reference molecule name : " << Options.GetProgArg(0) << endl;
-    MsgOut << "# Input molecule name     : " << Options.GetProgArg(1) << endl;
-    MsgOut << "# Output molecule name    : " << Options.GetProgArg(2) << endl;
+    MsgOut << "# Reference molecule name : " << Options.GetArgRefStrName() << endl;
+    MsgOut << "# Input molecule name     : " << Options.GetArgInStrName()  << " / " << Options.GetOptInIndex() << endl;
+    MsgOut << "# Output molecule name    : " << Options.GetArgOutStrName();
+    if( Options.GetOptOutOptions() != NULL ) {
+        MsgOut << " / -x" << Options.GetOptOutOptions() << endl;
+    }
 
     return(SO_CONTINUE);
 }
@@ -103,9 +106,9 @@ bool CMatchAtoms::Run(void)
 
     // read molecules --------------------------------
     MsgOut << endl;
-    MsgOut << "1) Reading molecule #1 (template) ..." << endl;
+    MsgOut << "1) Reading REF(template) molecule ..." << endl;
 
-    if(Ref.ReadMol(Options.GetProgArg(0),Options.GetOptRefFormat()) == false) return(false);
+    if(Ref.ReadMol(Options.GetArgRefStrName(),Options.GetOptRefFormat()) == false) return(false);
 
     Ref.SetChainsPerceived(true);                   // keep atom names and residues
     Ref.DeleteData(OBGenericDataType::PairData);    // remove REMARKS and other data
@@ -123,8 +126,8 @@ bool CMatchAtoms::Run(void)
     }
 
     MsgOut << endl;
-    MsgOut << "2) Reading molecule #2 (in) ..." << endl;
-    if(Str.ReadMol(Options.GetProgArg(1),Options.GetOptInFormat()) == false) return(false);
+    MsgOut << "2) Reading IN molecule ..." << endl;
+    if(Str.ReadMol(Options.GetArgInStrName(),Options.GetOptInFormat(),Options.GetOptInIndex() ) == false) return(false);
 
     MsgOut << "   Number of atoms    = " << Str.NumAtoms() << endl;
     MsgOut << "   Number of bonds    = " << Str.NumBonds() << endl;
@@ -215,7 +218,7 @@ bool CMatchAtoms::Run(void)
     }
 
     MsgOut << endl;
-    MsgOut << "4) Saving matched structure ..." << endl;
+    MsgOut << "4) Saving matched OUT structure ..." << endl;
     MsgOut << "   Number of atoms    = " << Ref.NumAtoms() << endl;
     MsgOut << "   Number of bonds    = " << Ref.NumBonds() << endl;
     MsgOut << "   Number of residues = " << Ref.NumResidues() << endl;
@@ -226,7 +229,7 @@ bool CMatchAtoms::Run(void)
         MsgOut << "   Number of bonds    = " << Ref.NumBonds() << endl;
         MsgOut << "   Number of residues = " << Ref.NumResidues() << endl;
     }
-    Ref.WriteMol(Options.GetProgArg(2),Options.GetOptOutFormat());
+    Ref.WriteMol(Options.GetArgOutStrName(),Options.GetOptOutFormat(),Options.GetOptOutOptions());
 
     return(result);
 }

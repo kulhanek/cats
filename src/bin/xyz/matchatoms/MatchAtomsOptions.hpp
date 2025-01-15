@@ -38,27 +38,22 @@ public:
     CSO_PROG_DESC_BEGIN
     "Match one molecule to the other with atom and residues names."
     CSO_PROG_DESC_END
-
-    CSO_PROG_ARGS_SHORT_DESC_BEGIN
-    "ref in out"
-    CSO_PROG_ARGS_SHORT_DESC_END
-
-    CSO_PROG_ARGS_LONG_DESC_BEGIN
-    "ref - name of reference molecule (template)\n"
-    "in  - input structure\n"
-    "out - output structure\n"
-    CSO_PROG_ARGS_LONG_DESC_END
-
     CSO_PROG_VERS_BEGIN
     LibBuildVersion_CATs
     CSO_PROG_VERS_END
 
 // list of all options and arguments ------------------------------------------
     CSO_LIST_BEGIN
+    // arguments ----------------------------
+    CSO_ARG(CSmallString,RefStrName)
+    CSO_ARG(CSmallString,InStrName)
+    CSO_ARG(CSmallString,OutStrName)
     // options ------------------------------
     CSO_OPT(CSmallString,RefFormat)
+    CSO_OPT(int,InIndex)
     CSO_OPT(CSmallString,InFormat)
     CSO_OPT(CSmallString,OutFormat)
+    CSO_OPT(CSmallString,OutOptions)
     CSO_OPT(CSmallString,RefH)
     CSO_OPT(CSmallString,InH)
     CSO_OPT(CSmallString,OutH)
@@ -69,6 +64,27 @@ public:
     CSO_LIST_END
 
     CSO_MAP_BEGIN
+// description of arguments ---------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                RefStrName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "REF",                           /* parametr name */
+                "Reference structure.")   /* argument description */
+    //----------------------------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                InStrName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "IN",                           /* parametr name */
+                "Input structure.")   /* argument description */
+    //----------------------------------------------------------------------
+    CSO_MAP_ARG(CSmallString,                   /* argument type */
+                OutStrName,                          /* argument name */
+                NULL,                           /* default value */
+                true,                           /* is argument mandatory */
+                "OUT",                           /* parametr name */
+                "Output structure.")   /* argument description */
 // description of options -----------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 RefFormat,                        /* option name */
@@ -78,6 +94,15 @@ public:
                 "reffmt",                      /* long option name */
                 "FORMAT",                           /* parametr name */
                 "file format of reference molecule")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(int,                           /* option type */
+                InIndex,                        /* option name */
+                1,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "inindex",                      /* long option name */
+                "NUMBER",                           /* parametr name */
+                "use the structure with the given index from multiple-structure stream")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 InFormat,                        /* option name */
@@ -96,6 +121,15 @@ public:
                 "outfmt",                      /* long option name */
                 "FORMAT",                           /* parametr name */
                 "file format of output molecule")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                OutOptions,                        /* option name */
+                "",                          /* default value */
+                false,                          /* is option mandatory */
+                'x',                           /* short option name */
+                "outopts",                      /* long option name */
+                "OPTIONS",                           /* parametr name */
+                "output options for molecule writing (see inoutfmt NAME, where NAME is the format name, e.g. pdb)")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(CSmallString,                           /* option type */
                 RefH,                        /* option name */

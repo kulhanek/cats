@@ -40,7 +40,7 @@ CInfMol::CInfMol(void)
 //------------------------------------------------------------------------------
 //==============================================================================
 
-bool CInfMol::ReadMol(const CSmallString& name,const CSmallString& format)
+bool CInfMol::ReadMol(const CSmallString& name,const CSmallString& format,int index)
 {
     ifstream ifs;
 
@@ -79,6 +79,17 @@ bool CInfMol::ReadMol(const CSmallString& name,const CSmallString& format)
         return(false);
     }
 
+    for(int i=1; i < index; i++){
+        OBMol tmpmol;
+        if( conv.Read(&tmpmol) == false ){
+            CSmallString error;
+            error << "unable to read molecule: file " << name << "(format: " << format << ") / index: " << i ;
+            ES_ERROR(error);
+            ifs.close();
+            return(false);
+        }
+    }
+
     if(! conv.Read(this)) {
         CSmallString error;
         error << "unable to read molecule: file " << name << "(format: " << format << ")";
@@ -96,13 +107,13 @@ bool CInfMol::ReadMol(const CSmallString& name,const CSmallString& format)
 
 //------------------------------------------------------------------------------
 
-bool CInfMol::WriteMol(const CSmallString& name,const CSmallString& format)
+bool CInfMol::WriteMol(const CSmallString& name,const CSmallString& format,const CSmallString opts)
 {
     ofstream ofs(name);
 
     if(! ofs) {
         CSmallString error;
-        error << "unable to open molecule: file " << name << "(format: " << format << ")";
+        error << "unable to open molecule file: '" << name << "' (format: " << format << ")";
         ES_ERROR(error);
         ofs.close();
         return(false);
@@ -120,15 +131,22 @@ bool CInfMol::WriteMol(const CSmallString& name,const CSmallString& format)
 
     if(! conv.SetOutFormat(obFormat)) {
         CSmallString error;
-        error << "unable to select molecule format: file " << name << "(format: " << format << ")";
+        error << "unable to select molecule format: file '" << name << "' (format: " << format << ")";
         ES_ERROR(error);
         ofs.close();
         return(false);
     }
 
+    if( opts != NULL ){
+        for(size_t i=0; i < opts.GetLength(); i++){
+            CSmallString opt(opts.GetBuffer()[i]);
+            conv.AddOption(opt,OBConversion::OUTOPTIONS);
+        }
+    }
+
     if(! conv.Write(this)) {
         CSmallString error;
-        error << "unable to write molecule: file " << name << "(format: " << format << ")";
+        error << "unable to write molecule: file '" << name << "' (format: " << format << ")";
         ES_ERROR(error);
         ofs.close();
         return(false);
@@ -158,19 +176,22 @@ void CInfMol::AlterHydrogens(const CSmallString& mode)
         return;
     }
 
-    if( mode == "remove" ){
+    if( (mode == "delete") || (mode == "remove") ){
         DeleteHydrogens();
         return;
     }
-    if( mode == "removepolar" ){
+    if( (mode == "deletepolar") || (mode == "removepolar") ){
         DeletePolarHydrogens();
         return;
     }
-    if( mode == "removenonpolar" ){
+    if( (mode == "deletenonpolar") || (mode == "removenonpolar") ){
         DeleteNonPolarHydrogens();
         return;
     }
 
+    CSmallString error;
+    error << "Unsupported alter hydrogen mode: " << mode;
+    RUNTIME_ERROR(error);
 }
 
 //==============================================================================
