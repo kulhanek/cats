@@ -695,11 +695,13 @@ bool CTopCrd2Crd::WritePDBHet(FILE* p_fout)
             }
             int natid = p_atom->GetNeighbourAtomIndex(nidx);
             if( natid >= 0 ){
-                fprintf(p_fout,"%5d",atom_map[natid]);
-                if( cset % 4 == 3 ){
-                    fprintf(p_fout,"\n");
+                if( atom_map.count(natid) != 0 ){
+                    fprintf(p_fout,"%5d",atom_map[natid]);
+                    if( cset % 4 == 3 ){
+                        fprintf(p_fout,"\n");
+                    }
+                    cset++;
                 }
-                cset++;
             }
         }
 
