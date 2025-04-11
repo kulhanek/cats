@@ -254,6 +254,10 @@ bool CTopCrd2Crd::Run(void)
         recognized = true;
         result = WritePDBHet(p_fout);
     }
+    if( Options.GetOptOutputFormat() == "mol2" ) {
+        recognized = true;
+        result = WriteMOL2(p_fout);
+    }
     if( Options.GetOptOutputFormat() == "pqr" ) {
         recognized = true;
         result = WritePQR(p_fout);
@@ -832,6 +836,147 @@ const char* CTopCrd2Crd::GetPDBAtomName(CAmberAtom* p_atom,CAmberResidue* p_res)
 
     return(name);
 }
+
+//------------------------------------------------------------------------------
+
+bool CTopCrd2Crd::WriteMOL2(FILE* p_fout)
+{
+// header --------------------------------------------------
+    fprintf(p_fout,"@<TRIPOS>MOLECULE\n");
+    fprintf(p_fout,"untitled\n");
+
+    int natoms = 0;
+    int nbonds = 0;
+    int nres = 0;
+
+    std::map<int,int>   atom_indx_map;
+    std::map<int,int>   resi_indx_map;
+
+    int indx = 1;
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+
+        atom_indx_map[p_atom->GetAtomIndex()] = indx;
+        indx++;
+    }
+    natoms = atom_indx_map.size();
+
+    for(int i=0; i < Topology.BondList.GetNumberOfBonds(); i++) {
+        CAmberBond* p_bond = Topology.BondList.GetBond(i);
+        if( Mask.IsAtomSelected(p_bond->GetIB()) == false ) continue;
+        if( Mask.IsAtomSelected(p_bond->GetJB()) == false ) continue;
+        nbonds++;
+    }
+
+    indx = 1;
+    for(int i=0; i < Topology.ResidueList.GetNumberOfResidues(); i++) {
+        CAmberResidue*  p_res       = Topology.ResidueList.GetResidue(i);
+        int             atom_indx   = p_res->GetFirstAtomIndex();
+        int             res_natoms  = 0;
+
+        for(int j=0; j<p_res->GetNumberOfAtoms();j++){
+            if( Mask.IsAtomSelected(atom_indx+j) == true ) res_natoms++;
+        }
+        if( res_natoms > 0 ){
+            resi_indx_map[p_res->GetIndex()] = indx;
+            indx++;
+        }
+    }
+    nres = resi_indx_map.size();
+
+    fprintf(p_fout,"%8d %8d %8d ",natoms,nbonds,nres);
+
+    if( nres > 2 ){
+        fprintf(p_fout,"POLYMER\n");
+    } else {
+        fprintf(p_fout,"SMALL\n");
+    }
+
+    fprintf(p_fout,"USER\n"); // charge scheme
+    fprintf(p_fout,"\n\n");
+
+// atoms -------------------------------------------------------------
+    if( natoms > 0 ){
+        fprintf(p_fout,"@<TRIPOS>ATOM\n");
+
+        for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+            CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+            if( p_atom == NULL ) continue;
+
+            int atom_indx = atom_indx_map[p_atom->GetAtomIndex()];
+            int resi_indx = resi_indx_map[p_atom->GetResidue()->GetIndex()];
+
+            fprintf(p_fout,"%8d %-8s %12.6f %12.6f %12.6f %-8s %8d %-8s %10.6f\n",
+                    atom_indx,p_atom->GetName(),
+                    Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,
+                    p_atom->GetType(),
+                    resi_indx, p_atom->GetResidue()->GetName(),
+                    p_atom->GetStandardCharge());
+        }
+    }
+
+// bonds -------------------------------------------------------------
+    if( nbonds > 0 ){
+        fprintf(p_fout,"@<TRIPOS>BOND\n");
+
+        int bond_indx = 1;
+        for(int i=0; i < Topology.BondList.GetNumberOfBonds(); i++) {
+            CAmberBond* p_bond = Topology.BondList.GetBond(i);
+            if( Mask.IsAtomSelected(p_bond->GetIB()) == false ) continue;
+            if( Mask.IsAtomSelected(p_bond->GetJB()) == false ) continue;
+
+            fprintf(p_fout,"%8d %8d %8d 1\n",
+                    bond_indx,
+                    atom_indx_map[p_bond->GetIB()],
+                    atom_indx_map[p_bond->GetJB()]);
+
+            bond_indx++;
+        }
+    }
+
+// residues ----------------------------------------------------------
+    if( nres > 0 ){
+        int res_indx = 1;
+        int start_atom_indx = 1;
+        for(int i=0; i < Topology.ResidueList.GetNumberOfResidues(); i++) {
+            CAmberResidue*  p_res       = Topology.ResidueList.GetResidue(i);
+            int             atom_indx   = p_res->GetFirstAtomIndex();
+            int             res_natoms  = 0;
+
+            for(int j=0; j<p_res->GetNumberOfAtoms();j++){
+                if( Mask.IsAtomSelected(atom_indx+j) == true ) res_natoms++;
+            }
+            if( res_natoms > 0 ){
+                fprintf(p_fout,"%8d  %10s %5d RESIDUE          0 ****  ****    0 ROOT\n",
+                        res_indx, p_res->GetName(),
+                        start_atom_indx);
+                res_indx++;
+                start_atom_indx = start_atom_indx + res_natoms;
+            }
+        }
+    }
+
+    return(true);
+}
+
+////------------------------------------------------------------------------------
+
+//void CMol2ExportJob::WriteCrystal(CStructure* p_mol)
+//{
+//    if( p_mol->PBCInfo.IsValid() == false ) return;
+
+//    sout << "@<TRIPOS>CRYSIN" << std::endl;
+//    sout << format(" %12.6f") % p_mol->PBCInfo.GetAVectorSize();
+//    sout << format(" %12.6f") % p_mol->PBCInfo.GetBVectorSize();
+//    sout << format(" %12.6f") % p_mol->PBCInfo.GetCVectorSize();
+//    sout << format(" %12.6f") % (p_mol->PBCInfo.GetAlpha()*180.0/M_PI);
+//    sout << format(" %12.6f") % (p_mol->PBCInfo.GetBeta()*180.0/M_PI);
+//    sout << format(" %12.6f") % (p_mol->PBCInfo.GetGamma()*180.0/M_PI);
+//    sout << format(" %d") % 0;
+//    sout << format(" %d") % 0;
+//    sout << std::endl;
+//}
 
 //------------------------------------------------------------------------------
 

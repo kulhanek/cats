@@ -118,6 +118,7 @@ public:
                 "   <green>bcrd</green>       - amber restart file (NetCDF)\n"
                 "   <green>pdb</green>        - PDB file\n"
                 "   <green>pdbhet</green>     - PDB file with all HETATM records\n"
+                "   <green>mol2</green>       - Sybyl Mol2 with AMBER types\n"
                 "   <green>pqr</green>        - PDB file with atomic radii and charges\n"
                 "   <green>xyz</green>        - xyz file\n"
                 "   <green>xyzr</green>       - xyz file with atomic radii\n"
