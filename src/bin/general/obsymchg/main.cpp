@@ -65,6 +65,7 @@ CSymStat::CSymStat(void)
 //---------------------------
 
 std::map<unsigned int,CSymStat>   SCStat;
+std::map<unsigned int,OBAtom*>    SCAtomMap;
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -106,7 +107,13 @@ int main(int argc,char* argv[])
     vout << endl;
     vout << "1) Reading molecule ..." << endl;
     if(Mol.ReadMol(Options.GetArgMolName(),Options.GetOptMolFormat()) == false) return(false);
-    vout << "   Number of atoms = " << Mol.NumAtoms() << endl;
+
+    Mol.SetChainsPerceived(true);                   // keep atom names and residues
+    Mol.DeleteData(OBGenericDataType::PairData);    // remove REMARKS and other data
+
+    vout << "   Number of atoms    = " << Mol.NumAtoms() << endl;
+    vout << "   Number of bonds    = " << Mol.NumBonds() << endl;
+    vout << "   Number of residues = " << Mol.NumResidues() << endl;
 
     vout << endl;
     vout << "2) Reading charges ..." << endl;
@@ -129,8 +136,8 @@ int main(int argc,char* argv[])
 
     double tot_charge = 0.0;
 
-    vout << "# ID  Sym  Z       X          Y         Z       charge     SC  " << endl;
-    vout << "# --- --- --- ---------- ---------- ---------- ---------- -----" << endl;
+    vout << "# ID  Sym  Z       X          Y         Z       charge     SC   AName RName" << endl;
+    vout << "# --- --- --- ---------- ---------- ---------- ---------- ----- ----- -----" << endl;
     for(unsigned int i=0; i < Mol.NumAtoms(); i++){
         OBAtom* p_atom = Mol.GetAtom(i+1);
         vout << setw(5) << i+1 << " ";
@@ -140,11 +147,22 @@ int main(int argc,char* argv[])
         vout << setw(10) << setprecision(4) << p_atom->GetY() << " ";
         vout << setw(10) << setprecision(4) << p_atom->GetZ() << " ";
         vout << setw(10) << setprecision(6) << Charges[i] << " ";
-        vout << setw(5) << SymmClasses[i] << endl;
+        vout << setw(5) << SymmClasses[i] << " ";
+
+        OBResidue* p_res = p_atom->GetResidue();
+        if( p_res != NULL ){
+            vout << left;
+            vout << setw(5) << p_res->GetAtomID(p_atom) << " ";
+            vout << setw(5) << p_res->GetName() << " ";
+            vout << right;
+            SCAtomMap[SymmClasses[i]] = p_atom;
+        }
+
+        vout << endl;
         SCStat[SymmClasses[i]] = CSymStat();
         tot_charge += Charges[i];
     }
-    vout << "# --- --- --- ---------- ---------- ---------- ---------- -----" << endl;
+    vout << "# --- --- --- ---------- ---------- ---------- ---------- ----- ----- -----" << endl;
     int itchg = round(tot_charge);
     vout << "# Total charge = " << setw(2) << itchg;
     vout << " (" << fixed << setw(10) << setprecision(6) << tot_charge << ")" << endl;
@@ -166,8 +184,8 @@ int main(int argc,char* argv[])
     }
 
     vout << endl;
-    vout << "# SC    N    <<charge>   s(charge)" << endl;
-    vout << "# --- ----- ---------- ----------" << endl;
+    vout << "# SC    N    <<charge>   s(charge) AName RName" << endl;
+    vout << "# --- ----- ---------- ---------- ----- -----" << endl;
     std::map<unsigned int,CSymStat>::iterator it = SCStat.begin();
     std::map<unsigned int,CSymStat>::iterator ie = SCStat.end();
 
@@ -178,7 +196,18 @@ int main(int argc,char* argv[])
         vout << setw(5) << setprecision(0) << stat.Number << " ";
         vout << setw(10) << setprecision(6) << stat.MCharge << " ";
         double sigc = sqrt(stat.M2Charge /  stat.Number);
-        vout << scientific << setw(10) << setprecision(4) << sigc << endl;
+        vout << scientific << setw(10) << setprecision(4) << sigc << " ";
+        if( SCAtomMap[sc] != NULL ){
+            OBAtom* p_atom = SCAtomMap[sc];
+            OBResidue* p_res = p_atom->GetResidue();
+            if( p_res != NULL ){
+                vout << left;
+                vout << setw(5) << p_res->GetAtomID(p_atom) << " ";
+                vout << setw(5) << p_res->GetName() << " ";
+                vout << right;
+            }
+        }
+        vout << endl;
         it++;
     }
 
@@ -211,8 +240,8 @@ int main(int argc,char* argv[])
     }
 
     tot_charge = 0.0;
-    vout << "# ID  Sym  Z       X          Y         Z       charge     SC  " << endl;
-    vout << "# --- --- --- ---------- ---------- ---------- ---------- -----" << endl;
+    vout << "# ID  Sym  Z       X          Y         Z       charge     SC   AName RName" << endl;
+    vout << "# --- --- --- ---------- ---------- ---------- ---------- ----- ----- -----" << endl;
     for(unsigned int i=0; i < Mol.NumAtoms(); i++){
         OBAtom* p_atom = Mol.GetAtom(i+1);
         vout << setw(5) << i+1 << " ";
@@ -223,11 +252,22 @@ int main(int argc,char* argv[])
         vout << setw(10) << setprecision(4) << p_atom->GetZ() << " ";
         double ch = (double)ICharges[i] / 1000000.0;
         vout << setw(10) << setprecision(6) << ch << " ";
-        vout << setw(5) << SymmClasses[i] << endl;
+        vout << setw(5) << SymmClasses[i] << " ";
+
+        OBResidue* p_res = p_atom->GetResidue();
+        if( p_res != NULL ){
+            vout << left;
+            vout << setw(5) << p_res->GetAtomID(p_atom) << " ";
+            vout << setw(5) << p_res->GetName() << " ";
+            vout << right;
+            SCAtomMap[SymmClasses[i]] = p_atom;
+        }
+
+        vout << endl;
         SCStat[SymmClasses[i]] = CSymStat();
         tot_charge += ch;
     }
-    vout << "# --- --- --- ---------- ---------- ---------- ---------- -----" << endl;
+    vout << "# --- --- --- ---------- ---------- ---------- ---------- ----- ----- -----" << endl;
     vout << "# Total charge = " << fixed << setw(10) << setprecision(6) << tot_charge << endl;
 
 // writing data
