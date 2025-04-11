@@ -937,6 +937,7 @@ bool CTopCrd2Crd::WriteMOL2(FILE* p_fout)
 
 // residues ----------------------------------------------------------
     if( nres > 0 ){
+        fprintf(p_fout,"@<TRIPOS>SUBSTRUCTURE\n");
         int res_indx = 1;
         int start_atom_indx = 1;
         for(int i=0; i < Topology.ResidueList.GetNumberOfResidues(); i++) {
