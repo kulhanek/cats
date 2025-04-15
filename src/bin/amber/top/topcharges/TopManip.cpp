@@ -187,6 +187,22 @@ bool CTopManip::PrintCharges(FILE* p_fout)
 
 //------------------------------------------------------------------------------
 
+bool CTopManip::PrintQOUT(FILE* p_fout)
+{
+    int n = 1;
+    for(int i=0; i < Topology.AtomList.GetNumberOfAtoms(); i++ ) {
+        CAmberAtom* p_atom = Mask.GetSelectedAtom(i);
+        if( p_atom == NULL ) continue;
+        fprintf(p_fout," %8.5f", p_atom->GetStandardCharge());
+        if( n % 8 ==0 ) fprintf(p_fout,"\n");
+        n++;
+    }
+    fprintf(p_fout,"\n");
+    return(true);
+}
+
+//------------------------------------------------------------------------------
+
 bool CTopManip::SetCharges(void)
 {
     FILE* p_qin;

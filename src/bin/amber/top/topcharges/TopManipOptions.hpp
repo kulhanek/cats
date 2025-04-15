@@ -52,6 +52,7 @@ public:
     CSO_OPT(CSmallString,MaskSpec)
     CSO_OPT(CSmallString,MaskFile)
     CSO_OPT(bool,GetCharges)
+    CSO_OPT(bool,GetQOUT)
     CSO_OPT(CSmallString,SetCharges)
     CSO_OPT(double,ScaleCharges)
     CSO_OPT(double,SetIntDiel)
@@ -100,6 +101,15 @@ public:
                 false,                          /* is option mandatory */
                 0,                           /* short option name */
                 "getcharges",                      /* long option name */
+                NULL,                           /* parametr name */
+                "get topology charges")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(bool,                           /* option type */
+                GetQOUT,                        /* option name */
+                false,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "getqout",                      /* long option name */
                 NULL,                           /* parametr name */
                 "get topology charges")   /* option description */
     //----------------------------------------------------------------------

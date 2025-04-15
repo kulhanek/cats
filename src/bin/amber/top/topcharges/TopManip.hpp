@@ -50,6 +50,7 @@ private:
     CAmberMaskAtoms     Mask;
 
     bool PrintCharges(FILE* p_fout);
+    bool PrintQOUT(FILE* p_fout);
     bool SetCharges(void);
     bool ScaleCharges(void);
     bool SetIntDiel(void);

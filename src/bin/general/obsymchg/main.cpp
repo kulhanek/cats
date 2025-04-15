@@ -66,6 +66,7 @@ CSymStat::CSymStat(void)
 
 std::map<unsigned int,CSymStat>   SCStat;
 std::map<unsigned int,OBAtom*>    SCAtomMap;
+std::vector<unsigned int>         SCSorted;
 
 //==============================================================================
 //------------------------------------------------------------------------------
@@ -155,7 +156,11 @@ int main(int argc,char* argv[])
             vout << setw(5) << p_res->GetAtomID(p_atom) << " ";
             vout << setw(5) << p_res->GetName() << " ";
             vout << right;
-            SCAtomMap[SymmClasses[i]] = p_atom;
+            // record the atom with lowest index
+            if( SCAtomMap[SymmClasses[i]] == NULL ){
+                SCSorted.push_back(SymmClasses[i]);
+                SCAtomMap[SymmClasses[i]] = p_atom;
+            }
         }
 
         vout << endl;
@@ -183,15 +188,25 @@ int main(int argc,char* argv[])
         SCStat[sc].M2Charge = SCStat[sc].M2Charge + d1*d2;
     }
 
+    if( SCSorted.size() == 0 ){
+        std::map<unsigned int,CSymStat>::iterator it = SCStat.begin();
+        std::map<unsigned int,CSymStat>::iterator ie = SCStat.end();
+        while( it != ie ){
+            unsigned int sc = it->first;
+            SCSorted.push_back(sc);
+            it++;
+        }
+    }
+
     vout << endl;
-    vout << "# SC    N    <<charge>   s(charge) AName RName" << endl;
-    vout << "# --- ----- ---------- ---------- ----- -----" << endl;
-    std::map<unsigned int,CSymStat>::iterator it = SCStat.begin();
-    std::map<unsigned int,CSymStat>::iterator ie = SCStat.end();
+    vout << "# SC    N    <<charge>   s(charge) Index AName RName" << endl;
+    vout << "# --- ----- ---------- ---------- ----- ----- -----" << endl;
+    std::vector<unsigned int>::iterator it = SCSorted.begin();
+    std::vector<unsigned int>::iterator ie = SCSorted.end();
 
     while( it != ie ){
-        unsigned int sc = it->first;
-        CSymStat stat = it->second;
+        unsigned int sc = *it;
+        CSymStat stat = SCStat[sc];
         vout << setw(5) << sc << " " << fixed;
         vout << setw(5) << setprecision(0) << stat.Number << " ";
         vout << setw(10) << setprecision(6) << stat.MCharge << " ";
@@ -201,6 +216,8 @@ int main(int argc,char* argv[])
             OBAtom* p_atom = SCAtomMap[sc];
             OBResidue* p_res = p_atom->GetResidue();
             if( p_res != NULL ){
+                unsigned int idx = p_atom->GetIdx() + 1;
+                vout << setw(5) << idx << " ";
                 vout << left;
                 vout << setw(5) << p_res->GetAtomID(p_atom) << " ";
                 vout << setw(5) << p_res->GetName() << " ";
