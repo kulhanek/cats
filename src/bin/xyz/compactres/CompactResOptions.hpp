@@ -52,8 +52,10 @@ public:
     CSO_OPT(int,InIndex)
     CSO_OPT(CSmallString,InFormat)
     CSO_OPT(CSmallString,OutFormat)
+    CSO_OPT(CSmallString,OutOptions)
     CSO_OPT(CSmallString,InH)
     CSO_OPT(CSmallString,OutH)
+    CSO_OPT(bool,RebuildChains)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -74,7 +76,16 @@ public:
                 true,                           /* is argument mandatory */
                 "OUT",                           /* parametr name */
                 "Output structure.")   /* argument description */
-// description of options -----------------------------------------------------
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                OutOptions,                        /* option name */
+                "",                          /* default value */
+                false,                          /* is option mandatory */
+                'x',                           /* short option name */
+                "outopts",                      /* long option name */
+                "OPTIONS",                           /* parametr name */
+                "output options for molecule writing (see inoutfmt NAME, where NAME is the format name, e.g. pdb)")   /* option description */
+    // description of options -----------------------------------------------------
     CSO_MAP_OPT(int,                           /* option type */
                 InIndex,                        /* option name */
                 1,                          /* default value */
@@ -119,6 +130,15 @@ public:
                 "outH",                      /* long option name */
                 "MODE",                           /* parametr name */
                 "modify hydrogen atoms in the output structure: keep, remove, removepolar, removenonpolar")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(bool,                           /* option type */
+                RebuildChains,                        /* option name */
+                false,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "rebuildchains",                      /* long option name */
+                NULL,                           /* parametr name */
+                "rebuild chain ids")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

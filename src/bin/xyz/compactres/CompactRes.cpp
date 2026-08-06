@@ -143,6 +143,11 @@ bool CCompactRes::Run(void)
     MsgOut << "   Number of atoms    = " << Str.NumAtoms() << endl;
     MsgOut << "   Number of bonds    = " << Str.NumBonds() << endl;
     MsgOut << "   Number of residues = " << Str.NumResidues() << endl;
+
+    if( Options.GetOptRebuildChains() ) {
+        Str.RebuildChains();
+    }
+
     if( Options.GetOptOutH() != "keep" ){
     MsgOut << "   === Modifying hydrogen atoms: " << Options.GetOptOutH()  << endl;
         Str.AlterHydrogens(Options.GetOptOutH());
@@ -150,7 +155,7 @@ bool CCompactRes::Run(void)
         MsgOut << "   Number of bonds    = " << Str.NumBonds() << endl;
         MsgOut << "   Number of residues = " << Str.NumResidues() << endl;
     }
-    Str.WriteMol(Options.GetArgOutStrName(),Options.GetOptOutFormat());
+    Str.WriteMol(Options.GetArgOutStrName(),Options.GetOptOutFormat(),Options.GetOptOutOptions());
 
     return(result);
 }

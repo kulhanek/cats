@@ -60,6 +60,7 @@ public:
     CSO_OPT(CSmallString,OutOptions)
     CSO_OPT(CSmallString,OutH)
     CSO_OPT(bool,UniqueResID)
+    CSO_OPT(bool,RebuildChains)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
     CSO_OPT(bool,Verbose)
@@ -111,6 +112,15 @@ public:
                 "uniquerid",                      /* long option name */
                 NULL,                           /* parametr name */
                 "make residue idxs unique")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(bool,                           /* option type */
+                RebuildChains,                        /* option name */
+                false,                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "rebuildchains",                      /* long option name */
+                NULL,                           /* parametr name */
+                "rebuild chain ids")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */

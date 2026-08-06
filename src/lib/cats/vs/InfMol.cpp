@@ -20,9 +20,17 @@
 
 #include <stdio.h>
 #include <InfMol.hpp>
-#include <openbabel/obconversion.h>
 #include <ErrorSystem.hpp>
 #include <fstream>
+#include <unordered_set>
+
+// openbabel
+#include <openbabel/mol.h>
+#include <openbabel/obiter.h>
+#include <openbabel/atom.h>
+#include <openbabel/bond.h>
+#include <openbabel/residue.h>
+#include <openbabel/obconversion.h>
 
 using namespace std;
 using namespace OpenBabel;
@@ -192,6 +200,106 @@ void CInfMol::AlterHydrogens(const CSmallString& mode)
     CSmallString error;
     error << "Unsupported alter hydrogen mode: " << mode;
     RUNTIME_ERROR(error);
+}
+
+//------------------------------------------------------------------------------
+
+struct ResiduePairHash
+{
+    std::size_t operator()(
+        const std::pair<const OpenBabel::OBResidue*,
+                        const OpenBabel::OBResidue*>& pair) const noexcept
+    {
+        const auto h1 =
+            std::hash<const OpenBabel::OBResidue*>{}(pair.first);
+        const auto h2 =
+            std::hash<const OpenBabel::OBResidue*>{}(pair.second);
+
+        return h1 ^ (h2 << 1);
+    }
+};
+
+using ResiduePair =
+    std::pair<const OpenBabel::OBResidue*,
+              const OpenBabel::OBResidue*>;
+
+ResiduePair MakeOrderedPair(const OpenBabel::OBResidue* first,
+                            const OpenBabel::OBResidue* second)
+{
+    if (std::less<const OpenBabel::OBResidue*>{}(second, first)) {
+        std::swap(first, second);
+    }
+
+    return {first, second};
+}
+
+//------------------------------------------------------------------------------
+
+void CInfMol::RebuildChains(void)
+{
+
+    std::vector<OBResidue*> residues;
+    residues.reserve(NumResidues());
+
+    FOR_RESIDUES_OF_MOL(residue, *this) {
+        residues.push_back(&*residue);
+    }
+
+    if (residues.empty()) {
+        return;
+    }
+
+    /*
+     * Record all residue pairs connected by at least one covalent bond.
+     * Bonds within a single residue are ignored.
+     */
+    std::unordered_set<ResiduePair, ResiduePairHash> connectedResidues;
+
+    FOR_BONDS_OF_MOL(bond, *this) {
+        OBAtom* beginAtom = bond->GetBeginAtom();
+        OBAtom* endAtom   = bond->GetEndAtom();
+
+        if (beginAtom == nullptr || endAtom == nullptr) {
+            continue;
+        }
+
+        OBResidue* beginResidue = beginAtom->GetResidue();
+        OBResidue* endResidue   = endAtom->GetResidue();
+
+        if (beginResidue == nullptr ||
+            endResidue == nullptr ||
+            beginResidue == endResidue) {
+            continue;
+        }
+
+        connectedResidues.insert(
+            MakeOrderedPair(beginResidue, endResidue));
+    }
+
+    char chain = 'A';
+    residues.front()->SetChain(chain);
+
+    for (std::size_t i = 1; i < residues.size(); ++i) {
+        OBResidue* previous = residues[i - 1];
+        OBResidue* current  = residues[i];
+
+        const bool connected =
+            connectedResidues.find(
+                MakeOrderedPair(previous, current)) !=
+            connectedResidues.end();
+
+        if (!connected) {
+            if (chain == 'Z') {
+                throw std::runtime_error(
+                    "ReindexChains: more than 26 chains are required, "
+                    "but OBResidue::SetChain() accepts a single character.");
+            }
+
+            ++chain;
+        }
+
+        current->SetChain(chain);
+    }
 }
 
 //==============================================================================

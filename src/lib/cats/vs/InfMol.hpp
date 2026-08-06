@@ -40,6 +40,9 @@ public:
 
     //! alter hydrogens
     void AlterHydrogens(const CSmallString& mode);
+
+    //! rebuild chain ids
+    void RebuildChains(void);
 };
 
 //------------------------------------------------------------------------------
