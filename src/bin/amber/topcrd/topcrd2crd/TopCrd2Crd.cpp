@@ -656,8 +656,12 @@ bool CTopCrd2Crd::WritePDBHet(FILE* p_fout)
             79 - 80       LString(2)     charge        Charge on the atom.
         */
 
+        CSmallString atname;
+        atname << PeriodicTable.GetSymbol(p_atom->GuessZ());
+        atname << atid;
+
         fprintf(p_fout,"HETATM%5d %-4s %-3s %c%4d    %8.3f%8.3f%8.3f%6.2f%6.2f          %2s\n",
-                atid,PeriodicTable.GetSymbol(p_atom->GuessZ()),resname,
+                atid,(const char*)atname,resname,
                 chain_id,
                 resid,
                 Coordinates.GetPosition(i).x,Coordinates.GetPosition(i).y,Coordinates.GetPosition(i).z,

@@ -88,8 +88,8 @@ public:
                 "embedded",                      /* long option name */
                 NULL,                           /* parametr name */
                 "how to handle LJ parameters of embedded sites "
-                "(i.e., with zero LJ parameters), availbale options are: "
-                "keep and coincident (see 10.1021/ct900460m")   /* option description */
+                "(i.e., with zero LJ parameters), available options are: "
+                "keep and coincident (see 10.1021/ct900460m)")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 Verbose,                        /* option name */
