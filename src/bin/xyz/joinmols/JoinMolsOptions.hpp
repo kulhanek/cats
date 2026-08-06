@@ -58,6 +58,7 @@ public:
     CSO_OPT(CSmallString,InFormat)
     CSO_OPT(CSmallString,OutFormat)
     CSO_OPT(CSmallString,OutOptions)
+    CSO_OPT(CSmallString,OutH)
     CSO_OPT(bool,UniqueResID)
     CSO_OPT(bool,Help)
     CSO_OPT(bool,Version)
@@ -92,6 +93,15 @@ public:
                 "outopts",                      /* long option name */
                 "OPTIONS",                           /* parametr name */
                 "output options for molecule writing (see inoutfmt NAME, where NAME is the format name, e.g. pdb)")   /* option description */
+    //----------------------------------------------------------------------
+    CSO_MAP_OPT(CSmallString,                           /* option type */
+                OutH,                        /* option name */
+                "keep",                          /* default value */
+                false,                          /* is option mandatory */
+                0,                           /* short option name */
+                "outH",                      /* long option name */
+                "MODE",                           /* parametr name */
+                "modify hydrogen atoms in the output structure: keep, remove, removepolar, removenonpolar")   /* option description */
     //----------------------------------------------------------------------
     CSO_MAP_OPT(bool,                           /* option type */
                 UniqueResID,                        /* option name */

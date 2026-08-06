@@ -174,6 +174,15 @@ bool CJoinMols::Run(void)
     MsgOut << "     Number of atoms    = " << Str.NumAtoms() << endl;
     MsgOut << "     Number of bonds    = " << Str.NumBonds() << endl;
     MsgOut << "     Number of residues = " << Str.NumResidues() << endl;
+
+    if( Options.GetOptOutH() != "keep" ){
+    MsgOut << "     === Modifying hydrogen atoms: " << Options.GetOptOutH()  << endl;
+        Str.AlterHydrogens(Options.GetOptOutH());
+    MsgOut << "     Number of atoms    = " << Str.NumAtoms() << endl;
+    MsgOut << "     Number of bonds    = " << Str.NumBonds() << endl;
+    MsgOut << "     Number of residues = " << Str.NumResidues() << endl;
+    }
+
     Str.WriteMol(Options.GetProgArg(Options.GetNumberOfProgArgs()-1),Options.GetOptOutFormat(),Options.GetOptOutOptions());
 
     return(true);
