@@ -7,7 +7,7 @@
             "${workspaceFolder}/../../hipoly/1.0/src/lib/hipoly/**",
             "${workspaceFolder}/../../scimafic/1.0/src/lib/cscimafic/**",
             "${workspaceFolder}/../../asl/2.0/src/lib/asl/**",
-            "${workspaceFolder}/../../nemesis/26.x/src/lib/**"
+            "${workspaceFolder}/../../cats/2.0/src/lib/**"
         ],
       "defines": [],
       "compilerPath": "/usr/bin/g++",
