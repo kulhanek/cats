@@ -1,9 +1,0 @@
-src/bin/cats/CATs.cpp
-src/bin/cats/CATs.hpp
-src/bin/cats/CATsOptions.cpp
-src/bin/cats/CATsOptions.hpp
-src/bin/cats/CMakeLists.txt
-src/bin/cats/main.cpp
-src/bin/CMakeLists.txt
-src/CMakeLists.txt
-CMakeLists.txt
